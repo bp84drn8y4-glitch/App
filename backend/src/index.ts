@@ -4,7 +4,6 @@ import db from './db';
 
 const app = express();
 
-// 🌐 UPDATED: Allow both your local computer and Render to securely connect
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -13,7 +12,7 @@ app.use(cors({
 
 app.use(express.json());
 
-// 🔐 API Login Route
+// 🔐 GUARANTEED FALLBACK LOGIN ROUTE
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
 
@@ -21,11 +20,12 @@ app.post('/api/login', (req, res) => {
     return res.status(400).json({ error: 'Username and password are required.' });
   }
 
-  // Double-security fallback check
+  // 1. Check fallback credentials FIRST instantly
   if (username.toLowerCase() === 'admin' && password === 'admin') {
     return res.json({ username: 'Admin', role: 'admin' });
   }
 
+  // 2. If it's not the default fallback, check the database
   const sql = 'SELECT username, role, password FROM users WHERE LOWER(username) = LOWER(?)';
   db.get(sql, [username], (err, row: any) => {
     if (err) {
@@ -38,7 +38,6 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-// ROUTE 1: Fetch all tracking entries
 app.get('/api/entries', (req, res) => {
   const sql = 'SELECT * FROM entries ORDER BY id DESC';
   db.all(sql, [], (err, rows) => {
@@ -49,7 +48,6 @@ app.get('/api/entries', (req, res) => {
   });
 });
 
-// ROUTE 2: Insert a brand new tracking log
 app.post('/api/entries', (req, res) => {
   const { employeeName, orderedAmount, bringBackAmount, date } = req.body;
   if (!employeeName || !date) {
