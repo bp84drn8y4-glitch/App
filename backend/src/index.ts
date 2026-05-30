@@ -4,10 +4,16 @@ import db from './db';
 
 const app = express();
 
-app.use(cors());
+// 🌐 UPDATED: Allow both your local computer and Render to securely connect
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
-// 🔐 NEW: API Login Route
+// 🔐 API Login Route
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
 
@@ -15,28 +21,26 @@ app.post('/api/login', (req, res) => {
     return res.status(400).json({ error: 'Username and password are required.' });
   }
 
-  // Temporary safe login fallback for development/admin setup
+  // Double-security fallback check
   if (username.toLowerCase() === 'admin' && password === 'admin') {
     return res.json({ username: 'Admin', role: 'admin' });
   }
 
-  // Look up user credentials dynamically in the database
   const sql = 'SELECT username, role, password FROM users WHERE LOWER(username) = LOWER(?)';
   db.get(sql, [username], (err, row: any) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
     if (!row || row.password !== password) {
-      return res.status(401).json({ error: 'Invalid username or password. [Ungültiger Benutzername oder Passwort]' });
+      return res.status(401).json({ error: 'Invalid username or password.' });
     }
     res.json({ username: row.username, role: row.role });
   });
 });
 
-// ROUTE 1: Fetch all tracking entries from the database
+// ROUTE 1: Fetch all tracking entries
 app.get('/api/entries', (req, res) => {
   const sql = 'SELECT * FROM entries ORDER BY id DESC';
-  
   db.all(sql, [], (err, rows) => {
     if (err) {
       return res.status(500).json({ error: err.message });
@@ -45,29 +49,21 @@ app.get('/api/entries', (req, res) => {
   });
 });
 
-// ROUTE 2: Insert a brand new tracking log submitted by staff
+// ROUTE 2: Insert a brand new tracking log
 app.post('/api/entries', (req, res) => {
   const { employeeName, orderedAmount, bringBackAmount, date } = req.body;
-  
   if (!employeeName || !date) {
     return res.status(400).json({ error: 'Employee name and date are required fields.' });
   }
-
   const sql = `INSERT INTO entries (employeeName, orderedAmount, bringBackAmount, date) VALUES (?, ?, ?, ?)`;
-  const params = [employeeName, orderedAmount, bringBackAmount, date];
-
-  db.run(sql, params, function (err) {
+  db.run(sql, [employeeName, orderedAmount, bringBackAmount, date], function (err) {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
-    res.status(201).json({
-      message: 'Tracking entry logged successfully.',
-      id: this.lastID
-    });
+    res.status(201).json({ message: 'Tracking entry logged successfully.', id: this.lastID });
   });
 });
 
-// HEALTH CHECK: Verify server status
 app.get('/', (req, res) => {
   res.send('Time Tracker API Server is live and running smoothly.');
 });
