@@ -20,7 +20,7 @@ interface UserList {
 }
 
 // 🌐 CLEANED: Correct backend cloud URL with no errors attached
-const BACKEND_URL = 'https://time-tracker-app.onrender.com';
+const BACKEND_URL = 'https://time-tracker-app-w8vf.onrender.com';
 
 export function Dashboard({ user, onLogout }: DashboardProps) {
   const [entries, setEntries] = useState<Entry[]>([]);
