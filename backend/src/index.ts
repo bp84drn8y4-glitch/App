@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import Database from 'better-sqlite3';
+import //  Change it to this:
+import db from './db';
 
 const app = express();
 app.use(cors());
