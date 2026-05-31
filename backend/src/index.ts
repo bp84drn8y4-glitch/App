@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import sqlite3 from 'sqlite3';
-import path from 'path';
+import { Pool } from 'pg';
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -9,121 +8,136 @@ const PORT = process.env.PORT || 10000;
 app.use(cors());
 app.use(express.json());
 
-// Initialize Local Database Connection
-const dbPath = '/var/data/database.sqlite';
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Database connection error:', err.message);
-  } else {
-    console.log('Connected to the standard SQLite database.');
-    initializeTables();
-  }
+// Paste your Supabase connection string link right here
+const connectionString = "YOUR_SUPABASE_CONNECTION_STRING_HERE";
+
+const pool = new Pool({
+  connectionString: connectionString,
 });
 
-function initializeTables() {
-  // Setup Users profiles table
-  db.run(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    role TEXT NOT NULL
-  )`, () => {
-    // Inject default seed admin profile safely
-    db.run(`INSERT OR IGNORE INTO users (username, password, role) VALUES ('admin', 'admin', 'admin')`, () => {
-      console.log('Master admin account initialized successfully.');
-    });
-  });
+async function initializeTables() {
+  try {
+    // Create Users Table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role TEXT NOT NULL
+      );
+    `);
 
-  // Setup Timesheets logging entries table
-  db.run(`CREATE TABLE IF NOT EXISTS entries (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    employeeName TEXT NOT NULL,
-    business TEXT NOT NULL,
-    date TEXT NOT NULL,
-    startTime TEXT,
-    endTime TEXT,
-    materialsList TEXT
-  )`);
+    // Create Admin User if missing
+    await pool.query(`
+      INSERT INTO users (username, password, role) 
+      VALUES ('admin', 'admin', 'admin') 
+      ON CONFLICT (username) DO NOTHING;
+    `);
+
+    // Create Entries Table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS entries (
+        id SERIAL PRIMARY KEY,
+        employee_name TEXT NOT NULL,
+        business TEXT NOT NULL,
+        date TEXT NOT NULL,
+        start_time TEXT,
+        end_time TEXT,
+        customer TEXT,
+        task TEXT,
+        materials_list TEXT
+      );
+    `);
+    
+    console.log('Connected safely to Supabase Cloud Database and verified tables.');
+  } catch (err: any) {
+    console.error('Database initialization error:', err.message);
+  }
 }
 
-// ROUTE 1: Authentication verification gateway
-app.post('/api/login', (req, res) => {
+initializeTables();
+
+app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required.' });
-  }
-
-  db.get(`SELECT * FROM users WHERE LOWER(username) = LOWER(?) AND password = ?`, [username.trim(), password], (err, row: any) => {
-    if (err) return res.status(500).json({ error: err.message });
-    if (!row) return res.status(401).json({ error: 'Anmeldedaten ungültig (Invalid Credentials)' });
-    
+  try {
+    const result = await pool.query(
+      'SELECT * FROM users WHERE LOWER(username) = LOWER($1) AND password = $2',
+      [username.trim(), password]
+    );
+    if (result.rows.length === 0) return res.status(401).json({ error: 'Invalid Credentials' });
+    const row = result.rows[0];
     res.json({ id: row.id, username: row.username, role: row.role });
-  });
-});
-
-// ROUTE 2: Admin Registration endpoint
-app.post('/api/users/register', (req, res) => {
-  const { username, password, role } = req.body;
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Missing registration credentials.' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
   }
-
-  db.run(`INSERT INTO users (username, password, role) VALUES (?, ?, ?)`, [username.trim(), password, role || 'employee'], function(err) {
-    if (err) {
-      if (err.message.includes('UNIQUE')) {
-        return res.status(400).json({ message: 'Benutzername existiert bereits.' });
-      }
-      return res.status(500).json({ message: err.message });
-    }
-    res.json({ id: this.lastID, success: true });
-  });
 });
 
-// ROUTE 3: Dropdown selection compilation loader
-app.get('/api/users', (req, res) => {
-  db.all(`SELECT id, username, role FROM users`, [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
+app.post('/api/users/register', async (req, res) => {
+  const { username, password, role } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO users (username, password, role) VALUES ($1, $2, $3) RETURNING id',
+      [username.trim(), password, role || 'employee']
+    );
+    res.json({ id: result.rows[0].id, success: true });
+  } catch (err: any) {
+    if (err.message.includes('unique')) return res.status(400).json({ message: 'Benutzername existiert bereits.' });
+    res.status(500).json({ message: err.message });
+  }
 });
 
-// ROUTE 4: Fetch logged entries list
-app.get('/api/entries', (req, res) => {
-  db.all(`SELECT * FROM entries ORDER BY date DESC, id DESC`, [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    
-    // Parse the materials string back to an array safely for frontend
-    const formatted = rows.map((row: any) => ({
-      ...row,
-      materialsList: JSON.parse(row.materialsList || '[]')
+app.get('/api/users', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, username, role FROM users');
+    res.json(result.rows);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/entries', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM entries ORDER BY date DESC, id DESC');
+    const formatted = result.rows.map((row: any) => ({
+      id: row.id,
+      employeeName: row.employee_name,
+      business: row.business,
+      date: row.date,
+      startTime: row.start_time,
+      endTime: row.end_time,
+      customer: row.customer,
+      task: row.task,
+      materialsList: JSON.parse(row.materials_list || '[]')
     }));
     res.json(formatted);
-  });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// ROUTE 5: Core endpoint handler that securely captures and stores entries
-app.post('/api/entries', (req, res) => {
-  const { employeeName, business, date, startTime, endTime, start, end, materialsList } = req.body;
-
-  // Fallbacks guarantee no missing string variables
-  const finalStart = startTime || start || 'Not logged';
-  const finalEnd = endTime || end || 'Not logged';
-
-  const query = `INSERT INTO entries (employeeName, business, date, startTime, endTime, materialsList) VALUES (?, ?, ?, ?, ?, ?)`;
-  
-  db.run(query, [
-    employeeName,
-    business,
-    date,
-    finalStart,
-    finalEnd,
-    JSON.stringify(materialsList || [])
-  ], function(err) {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ id: this.lastID, message: 'Entry logged successfully!' });
-  });
+app.post('/api/entries', async (req, res) => {
+  const { employeeName, business, date, startTime, endTime, customer, task, materialsList } = req.body;
+  try {
+    await pool.query(
+      `INSERT INTO entries (employee_name, business, date, start_time, end_time, customer, task, materials_list) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [
+        employeeName,
+        business,
+        date,
+        startTime || '—',
+        endTime || '—',
+        customer || 'Allgemein',
+        task || 'Reinigung',
+        JSON.stringify(materialsList || [])
+      ]
+    );
+    res.json({ message: 'Entry logged successfully!' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
