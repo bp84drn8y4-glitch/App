@@ -106,7 +106,13 @@ app.get('/api/entries', async (req, res) => {
       startTime: row.start_time,
       endTime: row.end_time,
       customer: row.customer,
-      tasks: JSON.parse(row.task || '[]'),
+      tasks: (() => {
+        try {
+          return JSON.parse(row.task || '[]');
+        } catch (e) {
+          return row.task ? [row.task] : [];
+        }
+      })(),
       materialsList: JSON.parse(row.materials_list || '[]')
     }));
     res.json(formatted);
