@@ -270,6 +270,7 @@ const handleEditEntry = (entry: any) => {
       const payload = {
         employeeName: targetEmployee,
         business: selectedBusiness,
+	tasks: selectedTasks,
         date: entryDate,
         startTime: startTime || 'Not logged',
         endTime: endTime || 'Not logged',
@@ -287,6 +288,7 @@ const handleEditEntry = (entry: any) => {
         setMaterials(prev => prev.map(m => ({ ...m, ordered: 0, returned: 0, description: '' })));
         setStartTime('');
         setEndTime('');
+	setSelectedTasks([]);
         fetchEntries();
       } else {
         setMessage('Fehler beim Speichern der Modelldaten.');
@@ -601,7 +603,7 @@ const handleEditEntry = (entry: any) => {
       Bearbeiten (Edit)
     </button>
     <button
-      onClick={() => handleDeleteEntry(entry.id)}
+      onClick={() => handleDeleteEntry(entry._id)}
       style={{ padding: '5px 12px', backgroundColor: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
     >
       Löschen (Delete)
