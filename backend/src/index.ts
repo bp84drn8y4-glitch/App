@@ -106,7 +106,7 @@ app.get('/api/entries', async (req, res) => {
       startTime: row.start_time,
       endTime: row.end_time,
       customer: row.customer,
-      task: row.task,
+      tasks: JSON.parse(row.task || '[]'),
       materialsList: JSON.parse(row.materials_list || '[]')
     }));
     res.json(formatted);
@@ -116,19 +116,19 @@ app.get('/api/entries', async (req, res) => {
 });
 
 app.post('/api/entries', async (req, res) => {
-  const { employeeName, business, date, startTime, endTime, customer, task, materialsList } = req.body;
+  const { employeeName, business, date, startTime, endTime, customer, tasks, materialsList } = req.body;
   try {
     await pool.query(
-      `INSERT INTO entries (employee_name, business, date, start_time, end_time, customer, task, materials_list) 
+      `INSERT INTO entries (employee_name, business, date, start_time, end_time, customer, task, materials_list)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [
         employeeName,
         business,
         date,
-        startTime || '—',
-        endTime || '—',
+        startTime || '-',
+        endTime || '-',
         customer || 'Allgemein',
-        task || 'Reinigung',
+        JSON.stringify(tasks || []), // Saves your selected tasks array safely as text
         JSON.stringify(materialsList || [])
       ]
     );
@@ -140,4 +140,14 @@ app.post('/api/entries', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+app.delete('/api/entries/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM entries WHERE id = $1', [id]);
+    res.json({ message: 'Entry deleted successfully!' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
