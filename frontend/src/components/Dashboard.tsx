@@ -91,6 +91,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newRole, setNewRole] = useState('employee');
+  const [customerName, setCustomerName] = useState('');
 
   // Handle automatic switches when the business selection changes
   useEffect(() => {
