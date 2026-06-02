@@ -186,7 +186,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
         body: JSON.stringify({ username: newUsername, password: newPassword, role: newRole })
       });
 
-      if (res.ok) {
+      if (res.ok || res.status === 201) {
         alert(`Mitarbeiter-Konto für "${newUsername}" wurde erfolgreich angelegt!`);
         setNewUsername('');
         setNewPassword('');
