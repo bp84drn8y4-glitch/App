@@ -105,9 +105,11 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
 
 const fetchEntries = async () => {
   try {
-    // Retrieve username and role from localStorage or your state variables
-    const storedUsername = localStorage.getItem('username') || username || '';
-    const storedRole = localStorage.getItem('role') || role || 'employee';
+    const storedUsername = localStorage.getItem('username') || '';
+    const storedRole = localStorage.getItem('role') || 'employee';
+
+    // If no user is logged in yet, don't fetch anything
+    if (!storedUsername) return;
 
     const res = await fetch('https://time-tracker-app-w8vf.onrender.com/api/entries', {
       method: 'GET',
@@ -120,7 +122,7 @@ const fetchEntries = async () => {
 
     if (res.ok) {
       const data = await res.json();
-      setEntries(data);
+      setEntries(Array.isArray(data) ? data : []);
     } else {
       console.error("Server responded with an error fetching entries");
     }
@@ -129,11 +131,13 @@ const fetchEntries = async () => {
   }
 };
 
+// FIXED EFFECT: Trigger fetch using localStorage safety checks
 useEffect(() => {
-  if (username) {
+  const loggedInUser = localStorage.getItem('username');
+  if (loggedInUser) {
     fetchEntries();
   }
-}, [username, role]);
+}, []);
 
   const handleMaterialChange = (index: number, field: 'ordered' | 'returned', value: number) => {
     const updated = [...materials];
