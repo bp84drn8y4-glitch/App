@@ -259,14 +259,14 @@ useEffect(() => {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '32px', alignItems: 'start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', alignItems: 'stretch' }}>
           
           {/* LEFT INPUT FORM MODULE */}
           <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03)', border: '1px solid #e2e8f0' }}>
             <h2 style={{ fontSize: '20px', fontWeight: '700', margin: '0 0 24px 0', color: '#0f172a' }}>Material & Zeiterfassung (Material & Time Tracking Input)</h2>
             
             <form onSubmit={handleSaveEntry}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', marginBottom: '8px', color: '#334155' }}>Unternehmen (Business):</label>
                   <select value={business} onChange={(e) => setBusiness(e.target.value)} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '14px', backgroundColor: '#ffffff' }}>
