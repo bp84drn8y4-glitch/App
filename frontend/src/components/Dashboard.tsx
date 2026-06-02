@@ -25,7 +25,8 @@ interface DashboardProps {
   onLogout: () => void;
 }
 
-const INITIAL_MATERIALS = [
+// 1. Core Material List for Fürst Hauser Gebäudereinigung
+const FUERST_HAUSER_MATERIALS = [
   { name: "Müllbeutel Groß (Large trash bags) 120 L", ordered: 0, returned: 0 },
   { name: "Müllbeutel Medium (Medium trash bags) 60 L", ordered: 0, returned: 0 },
   { name: "Müllbeutel Klein (Small trash bags) 28 L", ordered: 0, returned: 0 },
@@ -44,22 +45,44 @@ const INITIAL_MATERIALS = [
   { name: "Handseife (Hand soap) 10 Liter", ordered: 0, returned: 0 }
 ];
 
+// 2. Specific Material List for Bullaude Waschsalon (with bilingual translations)
+const BULLAUDE_WASCHSALON_MATERIALS = [
+  { name: "Handfolien (Plastic stretch wrap / gloves)", ordered: 0, returned: 0 },
+  { name: "Bügelstärke (Ironing starch / spray starch)", ordered: 0, returned: 0 },
+  { name: "Chlor (Chlorine / Bleach)", ordered: 0, returned: 0 },
+  { name: "Waschpulver (Washing powder) 20 kg", ordered: 0, returned: 0 },
+  { name: "Weichspüler (Fabric softener) 20 L", ordered: 0, returned: 0 }
+];
+
 export function Dashboard({ user, onLogout }: DashboardProps) {
   const isAdmin = user.role === 'admin';
   const [entries, setEntries] = useState<Entry[]>([]);
   const [business, setBusiness] = useState('Fürst Hauser Gebäudereinigung');
   const [employeeName, setEmployeeName] = useState(user.role === 'employee' ? user.username : '');
-  const [date, setDate] = useState('2026-05-31');
+  const [date, setDate] = useState('2026-06-02');
   const [startTime, setStartTime] = useState('12:30');
   const [endTime, setEndTime] = useState('12:30');
-  const [materials, setMaterials] = useState<Material[]>(INITIAL_MATERIALS.map(m => ({ ...m })));
+  
+  // Set initial state from Fürst Hauser
+  const [materials, setMaterials] = useState<Material[]>(() => 
+    FUERST_HAUSER_MATERIALS.map(m => ({ ...m }))
+  );
+  
   const [miscellaneous, setMiscellaneous] = useState('');
   const [message, setMessage] = useState('');
 
-  // Admin user generation fields
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newRole, setNewRole] = useState('employee');
+
+  // Dynamically swap materials array whenever selected business switches
+  useEffect(() => {
+    if (business === 'Bullaude Waschsalon') {
+      setMaterials(BULLAUDE_WASCHSALON_MATERIALS.map(m => ({ ...m })));
+    } else {
+      setMaterials(FUERST_HAUSER_MATERIALS.map(m => ({ ...m })));
+    }
+  }, [business]);
 
   const fetchEntries = async () => {
     try {
@@ -103,7 +126,12 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       });
       if (res.ok) {
         setMessage('Eintrag erfolgreich gespeichert!');
-        setMaterials(INITIAL_MATERIALS.map(m => ({ ...m })));
+        // Reset back to empty instances of the current list layout
+        if (business === 'Bullaude Waschsalon') {
+          setMaterials(BULLAUDE_WASCHSALON_MATERIALS.map(m => ({ ...m })));
+        } else {
+          setMaterials(FUERST_HAUSER_MATERIALS.map(m => ({ ...m })));
+        }
         setMiscellaneous('');
         fetchEntries();
       } else {
@@ -169,7 +197,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', padding: '40px 24px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         
-        {/* Top Navbar Header Component Block */}
+        {/* Top Navbar Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', borderBottom: '1px solid #e2e8f0', paddingBottom: '20px' }}>
           <div>
             <h1 style={{ fontSize: '32px', fontWeight: '800', color: '#0f172a', margin: 0 }}>Time Tracker</h1>
@@ -186,10 +214,10 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
           </div>
         )}
 
-        {/* Outer Split Columns Layout */}
+        {/* Form Grid Layout Split */}
         <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '32px', alignItems: 'start' }}>
           
-          {/* LEFT FORM SECTION */}
+          {/* LEFT INPUT FORM MODULE */}
           <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03)', border: '1px solid #e2e8f0' }}>
             <h2 style={{ fontSize: '20px', fontWeight: '700', margin: '0 0 24px 0', color: '#0f172a' }}>Material & Zeiterfassung (Material & Time Tracking Input)</h2>
             
@@ -233,25 +261,37 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                 </div>
               </div>
 
-              {/* Inventory Table Frame Row */}
+              {/* Dynamic Sub-Table Content Row Counters */}
               <div style={{ marginBottom: '24px' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                   <thead>
                     <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
                       <th style={{ paddingBottom: '12px', fontWeight: '700' }}>Material / Artikelbezeichnung [Specification]</th>
-                      <th style={{ paddingBottom: '12px', fontWeight: '700', width: '130px', textAlign: 'center' }}>Bestellung (Ordered Amount)</th>
-                      <th style={{ paddingBottom: '12px', fontWeight: '700', width: '130px', textAlign: 'center' }}>Rücknahme (Returned Amount)</th>
+                      <th style={{ paddingBottom: '12px', fontWeight: '700', width: '140px', textAlign: 'center' }}>Bestellung (Ordered Amount)</th>
+                      <th style={{ paddingBottom: '12px', fontWeight: '700', width: '140px', textAlign: 'center' }}>Rücknahme (Returned Amount)</th>
                     </tr>
                   </thead>
                   <tbody>
                     {materials.map((m, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <tr key={m.name} style={{ borderBottom: '1px solid #f1f5f9' }}>
                         <td style={{ padding: '12px 0', color: '#334155', fontWeight: '500' }}>{m.name}</td>
+                        
+                        {/* Ordered Inline Counter Selector Buttons */}
                         <td style={{ textAlign: 'center' }}>
-                          <input type="number" min="0" value={m.ordered} onChange={(e) => handleMaterialChange(idx, 'ordered', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center', fontWeight: 'bold', color: '#2563eb' }} />
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <button type="button" onClick={() => handleMaterialChange(idx, 'ordered', m.ordered - 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>-</button>
+                            <span style={{ minWidth: '24px', textAlign: 'center', fontWeight: '700', color: '#2563eb' }}>{m.ordered}</span>
+                            <button type="button" onClick={() => handleMaterialChange(idx, 'ordered', m.ordered + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>+</button>
+                          </div>
                         </td>
+
+                        {/* Returned Inline Counter Selector Buttons */}
                         <td style={{ textAlign: 'center' }}>
-                          <input type="number" min="0" value={m.returned} onChange={(e) => handleMaterialChange(idx, 'returned', parseInt(e.target.value) || 0)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center', fontWeight: 'bold', color: '#16a34a' }} />
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <button type="button" onClick={() => handleMaterialChange(idx, 'returned', m.returned - 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>-</button>
+                            <span style={{ minWidth: '24px', textAlign: 'center', fontWeight: '700', color: '#16a34a' }}>{m.returned}</span>
+                            <button type="button" onClick={() => handleMaterialChange(idx, 'returned', m.returned + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>+</button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -259,7 +299,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
                 </table>
               </div>
 
-              {/* Sonstiges Container Block */}
+              {/* Sonstiges Textfield Module */}
               <div style={{ backgroundColor: '#fffbeb', border: '1px solid #fef3c7', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '700', color: '#b45309', marginBottom: '8px' }}>Sonstiges (Miscellaneous)</label>
                 <input type="text" value={miscellaneous} onChange={(e) => setMiscellaneous(e.target.value)} placeholder="Kurze Beschreibung hier eingeben..." style={{ width: '100%', padding: '10px', border: '1px solid #fcd34d', borderRadius: '6px', fontSize: '14px', backgroundColor: '#ffffff' }} />
@@ -271,10 +311,10 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
             </form>
           </div>
 
-          {/* RIGHT SIDE PANELS */}
+          {/* RIGHT SIDE DASHBOARD PANELS */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
             
-            {/* Create Staff Account Side Panel */}
+            {/* Create Staff Panel */}
             {isAdmin && (
               <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
                 <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 6px 0', color: '#0f172a' }}>Mitarbeiter anlegen (Create Staff Account)</h3>
@@ -292,7 +332,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
               </div>
             )}
 
-            {/* Monthly Totals Metrics Section */}
+            {/* Monthly Summary Statistics Frame */}
             <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 6px 0', color: '#0f172a' }}>
                 {isAdmin ? '📅 Mitarbeiter Monatsabrechnung (Staff Monthly Totals)' : '📅 Meine Monatsübersicht (My Monthly Summary)'}
@@ -300,7 +340,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
               <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px 0' }}>Zusammenfassung aller geleisteten Arbeitsstunden sortiert nach Monat und Mitarbeiter.</p>
               
               <div style={{ backgroundColor: '#0f172a', color: 'white', padding: '12px 16px', borderRadius: '8px 8px 0 0', display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '700' }}>
-                <span>Monat: 2026-05</span>
+                <span>Monat: 2026-06</span>
                 <span style={{ color: '#94a3b8' }}>Abrechnung</span>
               </div>
 
@@ -327,7 +367,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
               </div>
             </div>
 
-            {/* Shift Logs Feed Section */}
+            {/* History Logs Feed Card */}
             <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 6px 0', color: '#0f172a' }}>
                 {isAdmin ? '📝 Eintragungshistorie (Master Tracking Log)' : '📝 Meine Arbeitsstunden (My Shift Log)'}
