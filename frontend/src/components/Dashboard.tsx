@@ -103,26 +103,37 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
     }
   }, [business]);
 
-  const fetchEntries = async () => {
+const fetchEntries = async () => {
   try {
+    // Retrieve username and role from localStorage or your state variables
+    const storedUsername = localStorage.getItem('username') || username || '';
+    const storedRole = localStorage.getItem('role') || role || 'employee';
+
     const res = await fetch('https://time-tracker-app-w8vf.onrender.com/api/entries', {
+      method: 'GET',
       headers: {
-        'x-user-username': username,
-        'x-user-role': role
+        'Content-Type': 'application/json',
+        'x-user-username': storedUsername,
+        'x-user-role': storedRole
       }
     });
+
     if (res.ok) {
       const data = await res.json();
       setEntries(data);
+    } else {
+      console.error("Server responded with an error fetching entries");
     }
   } catch (err) {
     console.error("Error fetching entries:", err);
   }
 };
 
-  useEffect(() => {
+useEffect(() => {
+  if (username) {
     fetchEntries();
-  }, []);
+  }
+}, [username, role]);
 
   const handleMaterialChange = (index: number, field: 'ordered' | 'returned', value: number) => {
     const updated = [...materials];
