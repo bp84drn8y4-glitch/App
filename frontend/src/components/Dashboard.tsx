@@ -64,7 +64,7 @@ const FUERST_HAUSER_TASKS = [
   "Zusätzliche Innenreinigung von Schaufenstern zu Dekorationsterminen mit zusätzlicher Anfahrt (Additional interior cleaning of shop windows for decoration appointments with an additional journey)",
   "Zusätzliche Innenreinigung von Schaufenstern zu Dekorationsterminen in Verbindung mit regelmäßiger Glasreinigung ohne zusätzliche Anfahrt (Additional interior cleaning of shop windows for decoration appointments in connection with regular glass cleaning without an additional journey)",
   "Reinigung von Spiegeln (Cleaning of mirrors)",
-  "Sonderleistungen",
+  "Sonderleistungen (Special services)",
   "Sonstiges (Other / Miscellaneous)"
 ];
 
@@ -102,42 +102,41 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       setMaterials(FUERST_HAUSER_MATERIALS.map(m => ({ ...m })));
     }
   }, [business]);
-
 const fetchEntries = async () => {
   try {
-    const storedUsername = localStorage.getItem('username') || '';
-    const storedRole = localStorage.getItem('role') || 'employee';
+    // Read directly from the real user object state that prints on your screen
+    const currentUsername = user?.username || '';
+    const currentRole = user?.role || 'employee';
 
-    // If no user is logged in yet, don't fetch anything
-    if (!storedUsername) return;
+    if (!currentUsername) {
+      console.log("Skipping fetch: No user object detected yet.");
+      return;
+    }
 
     const res = await fetch('https://time-tracker-app-w8vf.onrender.com/api/entries', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'x-user-username': storedUsername,
-        'x-user-role': storedRole
+        'x-user-username': currentUsername,
+        'x-user-role': currentRole
       }
     });
 
     if (res.ok) {
       const data = await res.json();
       setEntries(Array.isArray(data) ? data : []);
-    } else {
-      console.error("Server responded with an error fetching entries");
     }
   } catch (err) {
     console.error("Error fetching entries:", err);
   }
 };
 
-// FIXED EFFECT: Trigger fetch using localStorage safety checks
+// AUTOMATIC TRIGGER: Reload history logs whenever a user session is active
 useEffect(() => {
-  const loggedInUser = localStorage.getItem('username');
-  if (loggedInUser) {
+  if (user?.username) {
     fetchEntries();
   }
-}, []);
+}, [user]);
 
   const handleMaterialChange = (index: number, field: 'ordered' | 'returned', value: number) => {
     const updated = [...materials];
