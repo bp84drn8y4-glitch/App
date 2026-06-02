@@ -450,78 +450,81 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
               </div>
             </div>
 
-{/* History Logs Feed Card */}
-<div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
+{/* History Logs Feed Card - Clean Layout Fix */}
+<div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', width: '100%', marginTop: '24px', clear: 'both' }}>
   <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 6px 0', color: '#0f172a' }}>
     {isAdmin ? '📝 Eintragungshistorie (Master Tracking Log)' : '📝 Meine Arbeitsstunden (My Shift Log)'}
   </h3>
   <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px 0' }}>Historie Ihrer eingetragenen Stunden und verwendeten Reinigungsmaterialien.</p>
 
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
     {entries.length === 0 ? (
       <div style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '14px', textAlign: 'center', padding: '32px' }}>Keine Protokolleinträge vorhanden</div>
     ) : (
       entries.map((entry) => {
         const shiftHours = calculateHours(entry.startTime, entry.endTime);
         return (
-          <div key={entry.id} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', backgroundColor: '#f8fafc', position: 'relative' }}>
+          <div key={entry.id} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', backgroundColor: '#f8fafc', width: '100%', boxSizing: 'border-box' }}>
             
-            {/* ADMIN ACTIONS: EDIT & DELETE BUTTONS */}
-            {isAdmin && (
-              <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '8px' }}>
-                <button 
-                  type="button"
-                  onClick={() => {
-                    // Populate fields back into input state to edit
-                    setBusiness(entry.business);
-                    setEmployeeName(entry.employeeName);
-                    setDate(entry.date);
-                    setStartTime(entry.startTime);
-                    setEndTime(entry.endTime);
-                    setSelectedTasks(entry.tasks || []);
-                    setMiscellaneous(entry.miscellaneous || '');
-                    // Scroll back smoothly to top form input view
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  style={{ backgroundColor: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
-                >
-                  Bearbeiten (Edit)
-                </button>
-                <button 
-                  type="button"
-                  onClick={async () => {
-                    if (window.confirm('Möchten Sie diesen Eintrag wirklich löschen?')) {
-                      try {
-                        const res = await fetch(`https://time-tracker-app-w8vf.onrender.com/api/entries/${entry.id}`, {
-                          method: 'DELETE'
-                        });
-                        if (res.ok) {
-                          fetchEntries(); // Refresh history list feed
-                        } else {
-                          alert('Fehler beim Löschen des Eintrags.');
-                        }
-                      } catch (err) {
-                        console.error(err);
-                      }
-                    }
-                  }}
-                  style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
-                >
-                  Löschen (Delete)
-                </button>
+            {/* Header Area with Info and Action Buttons */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '12px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
+              <div>
+                <div style={{ fontWeight: '700', color: '#1e293b', fontSize: '16px', marginBottom: '4px' }}>👤 {entry.employeeName || entry.employee_name}</div>
+                <span style={{ color: '#475569', fontSize: '12px', fontWeight: '600', backgroundColor: '#e2e8f0', padding: '4px 10px', borderRadius: '6px' }}>🏢 {entry.business}</span>
               </div>
-            )}
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center', marginRight: isAdmin ? '160px' : '0' }}>
-              <span style={{ fontWeight: '700', color: '#1e293b', fontSize: '15px' }}>👤 {entry.employeeName}</span>
-              <span style={{ color: '#475569', fontSize: '13px', fontWeight: '600', backgroundColor: '#e2e8f0', padding: '4px 10px', borderRadius: '6px' }}>🏢 {entry.business}</span>
+              
+              {/* ADMIN ACTION CONTROLS */}
+              {isAdmin && (
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setBusiness(entry.business);
+                      setEmployeeName(entry.employeeName || entry.employee_name);
+                      setDate(entry.date);
+                      setStartTime(entry.startTime);
+                      setEndTime(entry.endTime);
+                      setSelectedTasks(entry.tasks || []);
+                      setMiscellaneous(entry.miscellaneous || '');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    style={{ backgroundColor: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                  >
+                    Bearbeiten (Edit)
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={async () => {
+                      if (window.confirm('Möchten Sie diesen Eintrag wirklich löschen?')) {
+                        try {
+                          const res = await fetch(`https://time-tracker-app-w8vf.onrender.com/api/entries/${entry.id}`, {
+                            method: 'DELETE'
+                          });
+                          if (res.ok) {
+                            fetchEntries();
+                          } else {
+                            alert('Fehler beim Löschen des Eintrags.');
+                          }
+                        } catch (err) {
+                          console.error(err);
+                        }
+                      }
+                    }}
+                    style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                  >
+                    Löschen (Delete)
+                  </button>
+                </div>
+              )}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748b', marginBottom: '8px' }}>
+
+            {/* Shift Meta Info */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748b', marginBottom: '12px' }}>
               <span>📅 Datum: <strong>{entry.date}</strong></span>
               <span>⏰ Zeit: <strong>{entry.startTime} - {entry.endTime}</strong> <span style={{ marginLeft: '6px', color: '#2563eb', fontWeight: '800' }}>{shiftHours.toFixed(1)} Std.</span></span>
             </div>
 
-            {/* MULTIPLE SAVED TASKS FOR SHIFT HISTORY */}
+            {/* Shift Tasks */}
             {entry.tasks && entry.tasks.length > 0 && (
               <div style={{ fontSize: '13px', color: '#0f172a', marginBottom: '12px', backgroundColor: '#e0f2fe', padding: '8px 12px', borderRadius: '6px', border: '1px solid #bae6fd' }}>
                 <div style={{ fontWeight: '700', marginBottom: '4px' }}>🛠️ Ausgeführte Aufgaben:</div>
@@ -533,31 +536,34 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
               </div>
             )}
 
-            {entry.materialsList && entry.materialsList.length > 0 && (
+            {/* FIXED MATERIAL LOGS SECTION */}
+            {((entry.materialsList && entry.materialsList.length > 0) || (entry.materials_list && entry.materials_list.length > 0)) && (
               <div style={{ fontSize: '13px', borderTop: '1px solid #e2e8f0', paddingTop: '10px', color: '#334155' }}>
+                <div style={{ fontWeight: '700', marginBottom: '6px', color: '#475569' }}>📦 Verbrauchtes Material:</div>
                 <ul style={{ margin: 0, paddingLeft: '20px', listStyleType: 'disc' }}>
-                  {entry.materialsList.map((m, mIdx) => (
-                    <li key={mIdx} style={{ marginBottom: '4px' }}>
-                      {m.name} — <span style={{ color: '#2563eb', fontWeight: '700' }}>B: {m.ordered}</span> | <span style={{ color: '#16a34a', fontWeight: '700' }}>R: {m.returned}</span>
+                  {((entry.materialsList || entry.materials_list || [])).map((m, mIdx) => (
+                    <li key={mIdx} style={{ marginBottom: '4px', fontSize: '13px' }}>
+                      <strong>{m.name || m.materialName || 'Material'}</strong> — <span style={{ color: '#2563eb', fontWeight: '700' }}>Bestellt: {m.ordered !== undefined ? m.ordered : m.orderedAmount}</span> | <span style={{ color: '#16a34a', fontWeight: '700' }}>Rücknahme: {m.returned !== undefined ? m.returned : m.returnedAmount}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             )}
 
+            {/* Miscellaneous Note */}
             {entry.miscellaneous && (
               <div style={{ fontSize: '13px', marginTop: '10px', color: '#b45309', backgroundColor: '#fffbeb', padding: '6px 12px', borderRadius: '6px', border: '1px solid #fef3c7' }}>
                 ℹ️ <em>{entry.miscellaneous}</em>
               </div>
             )}
+
           </div>
         );
       })
     )}
   </div>
 </div>
-          </div>
-
+</div>
         </div>
       </div>
     </div>
