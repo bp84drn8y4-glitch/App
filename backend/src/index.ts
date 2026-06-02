@@ -13,6 +13,20 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
+// LOGIN ENDPOINT
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // Simple authentication logic matching your user profiles
+  if (username === 'admin' && password === 'admin') {
+    return res.json({ username: 'admin', role: 'admin' });
+  } else if (username === 'employee' && password === 'password') {
+    return res.json({ username: 'employee', role: 'employee' });
+  } else {
+    return res.status(401).json({ error: 'Ungültiger Benutzername oder Passwort' });
+  }
+});
+
 // 1. GET ALL ENTRIES
 app.get('/api/entries', async (req, res) => {
   try {
