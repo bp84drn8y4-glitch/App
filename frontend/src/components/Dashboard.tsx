@@ -603,8 +603,10 @@ const handleEditEntry = (entry: any) => {
   <strong>Aufgaben (Tasks):</strong>{' '}
   {entry.tasks && entry.tasks.length > 0 ? (
     <ul style={{ margin: '4px 0 0 15px', padding: 0, listStyleType: 'disc' }}>
-      {entry.tasks.map((t: string, tIdx: number) => (
-        <li key={tIdx} style={{ color: '#1e293b', marginBottom: '2px' }}>{t}</li>
+      {entry.tasks.filter((t: string) => t && (t !== "Reinigung" || entry.tasks.length === 1)).map((t: string, tIdx: number) => (
+        <li key={tIdx} style={{ color: '#1e293b', marginBottom: '2px' }}>
+          {t}
+        </li>
       ))}
     </ul>
   ) : (
@@ -622,7 +624,7 @@ const handleEditEntry = (entry: any) => {
       Bearbeiten (Edit)
     </button>
     <button
-      onClick={() => handleDeleteEntry(entry._id)}
+      onClick={() => handleDeleteEntry(entry.id)}
       style={{ padding: '5px 12px', backgroundColor: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
     >
       Löschen (Delete)
