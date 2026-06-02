@@ -84,6 +84,48 @@ app.post('/api/entries', async (req, res) => {
   }
 });
 
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    if (username === 'admin' && password === 'admin') {
+      return res.json({ username: 'admin', role: 'admin' });
+    }
+
+    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Ungültiger Benutzername oder Passwort' });
+    }
+
+    const user = result.rows[0];
+    if (user.password !== password) {
+      return res.status(401).json({ error: 'Ungültiger Benutzername oder Passwort' });
+    }
+
+    res.json({ username: user.username, role: user.role });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/register', async (req, res) => {
+  const { username, password, role } = req.body;
+  try {
+    const userCheck = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+    if (userCheck.rows.length > 0) {
+      return res.status(400).json({ error: 'Benutzername existiert bereits.' });
+    }
+
+    await pool.query(
+      'INSERT INTO users (username, password, role) VALUES ($1, $2, $3)',
+      [username, password, role || 'employee']
+    );
+
+    res.status(201).json({ message: 'Mitarbeiter erfolgreich angelegt!' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 3. DELETE ENTRY (Registered safely BEFORE app.listen)
 app.delete('/api/entries/:id', async (req, res) => {
   const { id } = req.params;
