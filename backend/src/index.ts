@@ -1,59 +1,45 @@
 import express from 'express';
 import cors from 'cors';
-import { Pool } from 'pg';
+import { createClient } from '@supabase/supabase-js';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-
 app.use(cors());
 app.use(express.json());
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
+// 1. SUPABASE INITIALIZATION
+// Replace these placeholders with your actual credentials from your Supabase Dashboard settings!
+const SUPABASE_URL = 'https://your-project-id.supabase.co';
+const SUPABASE_KEY = 'your-anon-public-key'; 
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Schema Alter Patch for PostgreSQL
-pool.query(`
-  ALTER TABLE entries ADD COLUMN IF NOT EXISTS customer_name TEXT DEFAULT '';
-`)
-  .then(() => console.log("Database schema check complete: customer_name column ready."))
-  .catch((err) => console.error("Database schema update failed:", err));
-
-// LOGIN ENDPOINT (Connected to Supabase Database)
+// 2. AUTHENTICATION: LOGIN ENDPOINT
 app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
-
   try {
-    // 1. Search the database for the matching username
-    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+    const { username, password } = req.body;
 
-    if (result.rows.length === 0) {
+    // Fetch user profile from Supabase 'users' table
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', username)
+      .single();
+
+    if (error || !user) {
       return res.status(401).json({ error: 'Ungültiger Benutzername oder Passwort' });
     }
 
-    const user = result.rows[0];
+    // Verify plaintext password match
+    if (user.password !== password) {
+      return res.status(401).json({ error: 'Ungültiger Benutzername oder Passwort' });
+    }
 
-    // 2. Validate password (works for plain text and future encrypted accounts)
-    let isPasswordValid = (password === user.password);
-
-    if (!isPasswordValid && user.password.startsWith('$2')) {
-      try {
-        const bcrypt = require('bcrypt');
-        isPasswordValid = await bcrypt.compare(password, user.password);
-      } catch (err) {
-        console.error("Bcrypt failure:", err);
+    // Return identity profile and role to frontend context
+    res.json({
+      token: "authenticated-session-token",
+      user: {
+        username: user.username,
+        role: user.role // Returns 'admin' or 'employee' dynamically from Supabase
       }
-    }
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Ungültiger Benutzername oder Passwort' });
-    }
-
-    // 3. Success! Return user identity details to frontend
-    res.json({ 
-      username: user.username, 
-      role: user.role 
     });
 
   } catch (error) {
@@ -62,83 +48,94 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// 1. GET ENTRIES (Filtered by Role)
+// 3. GET ENTRIES (Role-Filtered Log Fetcher)
 app.get('/api/entries', async (req, res) => {
-  // Get the username and role sent from the frontend headers
-  const username = req.headers['x-user-username'] as string;
+  const username = req.headers['x-user-name'] as string;
   const role = req.headers['x-user-role'] as string;
 
   try {
-    let result;
-    
-    if (role === 'admin') {
-      // Admins see everything
-      result = await pool.query('SELECT * FROM entries ORDER BY date DESC, id DESC');
-    } else {
-      // Employees ONLY see rows matching their username
-      result = await pool.query(
-        'SELECT * FROM entries WHERE LOWER(employee_name) = LOWER($1) ORDER BY date DESC, id DESC',
-        [username]
-      );
+    let query = supabase.from('entries').select('*');
+
+    // Role Enforcement Filter
+    if (role !== 'admin') {
+      // Employees ONLY fetch rows matching their unique profile username
+      query = query.ilike('employee_name', username);
     }
 
-const formattedEntries = result.rows.map(row => ({
-  id: row.id,
-  employeeName: row.employee_name,
-  business: row.business,
-  date: row.date,
-  startTime: row.start_time,
-  endTime: row.end_time,
-  tasks: typeof row.task === 'string' ? JSON.parse(row.task) : row.task,
-  materialsList: typeof row.materials_list === 'string' ? JSON.parse(row.materials_list) : row.materials_list,
-  miscellaneous: row.miscellaneous,
-  customerName: row.customer_name // <-- Maps the lowercase db column to your UI badge code
-}));
-res.json(formattedEntries);
+    // Order logs cleanly by date and id descending
+    const { data: entries, error } = await query
+      .order('date', { ascending: false })
+      .order('id', { ascending: false });
 
+    if (error) throw error;
+
+    // Format fields with fallback maps so the React components never encounter unexpected empty rendering fields
+    const formattedEntries = (entries || []).map(row => ({
+      id: row.id,
+      employeeName: row.employee_name || row.employee,
+      employee_name: row.employee_name || row.employee,
+      employee: row.employee || row.employee_name,
+      business_name: row.business_name || row.business,
+      businessName: row.business_name || row.business,
+      business: row.business || row.business_name,
+      date: row.date,
+      startTime: row.start_time,
+      start_time: row.start_time,
+      endTime: row.end_time,
+      end_time: row.end_time,
+      tasks: row.tasks || (typeof row.task === 'string' ? JSON.parse(row.task) : row.task) || [],
+      materialsList: typeof row.materials_list === 'string' ? JSON.parse(row.materials_list) : row.materials_list,
+      miscellaneous: row.miscellaneous,
+      customerName: row.customer_name || row.customer,
+      customer_name: row.customer_name || row.customer
+    }));
+
+    res.json(formattedEntries);
   } catch (error) {
-    console.error("Error fetching entries:", error);
+    console.error("Error fetching entries from Supabase:", error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// 2. POST NEW ENTRY
+// 4. POST NEW ENTRY (Dual-Column Insertion Engine)
 app.post('/api/entries', async (req, res) => {
-  const { employeeName, business, date, startTime, endTime, tasks, miscellaneous, materialsList, customerName } = req.body;
   try {
-    await pool.query(
-      `INSERT INTO entries (employee_name, business, date, start_time, end_time, customer, task, materials_list, customer_name)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      [
-        employeeName,
-        business,
-        date,
-        startTime || '-',
-        endTime || '-',
-        customerName || 'Allgemein',
-        JSON.stringify(tasks || []),
-        JSON.stringify(materialsList || []),
-        customerName || ''
-      ]
-    );
-    res.json({ message: 'Entry logged successfully!' });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-}); 
+    const { 
+      employeeName, business, date, startTime, endTime, 
+      tasks, miscellaneous, materialsList, customerName 
+    } = req.body;
 
-// 3. DELETE ENTRY (Registered safely BEFORE app.listen)
-app.delete('/api/entries/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    await pool.query('DELETE FROM entries WHERE id = $1', [id]);
-    res.json({ message: 'Entry deleted successfully!' });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    // Insert data by explicitly syncing both historical variant name properties simultaneously
+    const { error } = await supabase.from('entries').insert([
+      {
+        employee_name: employeeName || '',
+        employee: employeeName || '',
+        business_name: business || '',
+        business: business || '',
+        date: date,
+        start_time: startTime,
+        end_time: endTime,
+        tasks: Array.isArray(tasks) ? tasks : [tasks],
+        task: Array.isArray(tasks) ? JSON.stringify(tasks) : JSON.stringify([tasks]),
+        materials_list: typeof materialsList === 'string' ? materialsList : JSON.stringify(materialsList || []),
+        miscellaneous: miscellaneous || '',
+        customer_name: customerName || '',
+        customer: customerName || ''
+      }
+    ]);
+
+    if (error) throw error;
+
+    res.json({ success: true, message: "Eintrag erfolgreich in Supabase gespeichert!" });
+  } catch (error) {
+    console.error("Error inserting entry into Supabase:", error);
+    res.status(500).json({ error: "Interner Serverfehler beim Speichern" });
   }
 });
 
-// 4. START SERVER LISTENER
+// 5. SERVER DEPLOYMENT LISTENER
+const PORT = 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server successfully executing on port ${PORT}`);
+  console.log(`🔗 Connected natively to Supabase Cloud API Instance.`);
 });
