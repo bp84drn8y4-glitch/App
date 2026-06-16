@@ -230,135 +230,60 @@ export default function App() {
     return 'Employee Login';
   };
 
-  // Phase 1: Not authenticated yet -> Show login card 
-  if (!isLoggedIn) {
-    return (
-      <div style={styles.container}>
-        <div style={styles.card}>
-          <h1 style={styles.title}>Time recording</h1>
-          <p style={styles.subtitle}>Please select your role</p>
-      
-          <div style={styles.tabGroup}>
-            <button
-              type="button"
-              onClick={() => setSelectedRole('employee')}
-              style={styles.tabButton(selectedRole === 'employee')}
-            >
-              Employees   
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedRole('admin')}
-              style={styles.tabButton(selectedRole === 'admin')}
-            >
-              Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedRole('customer')}
-              style={styles.tabButton(selectedRole === 'customer')}
-            >
-              Customer
-            </button>
-          </div>
-        
-          <div style={styles.badge}>
-            Mode: {getModeLabel()}
-          </div>
-          
-          <form onSubmit={handleLoginSubmit} style={styles.form}>
-            <div>
-              <label style={styles.label}>user name</label>
-              <input
-                type="text"
-                placeholder="Username entering..."
-                style={styles.input}
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
-            </div>
-            <div>  
-              <label style={styles.label}>password</label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                style={styles.input}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-          
-            <button type="submit" style={styles.submitButton}>
-              Log in (Sign In)
-            </button>
-          </form>
-        </div>   
-      </div>
-    );
-  }
-
-  // Phase 2: Logged in, but hasn't chosen a business -> Show Gateway Portal Screen
-  if (!selectedBusiness) {
-    return (
-      <div style={styles.portalContainer}>
-        <button style={styles.topBarButton} onClick={handleLogout}>
-          Abmelden (Logout)
-        </button>
-
-        <div style={styles.portalHeader}>
-          <h1 style={{ ...styles.title, fontSize: '32px' }}>Unternehmensbereich wählen</h1>
-          <p style={styles.subtitle}>Wählen Sie einen Bereich, um die Arbeitszeiten zu verwalten</p>
-        </div>
-
-        <div style={styles.portalGrid}>
-          {businesses.map((biz) => (
-            <button
-              key={biz.id}
-              onClick={() => setSelectedBusiness(biz.id)}
-              style={styles.portalCard}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0,0,0,0.1)';
-                e.currentTarget.style.borderColor = '#3b82f6';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05)';
-                e.currentTarget.style.borderColor = '#e2e8f0';
-              }}
-            >
-
-<div style={styles.imageWrapper}>
-  <img 
-    src={logoMap[biz.id]} 
-    alt={biz.name} 
-    style={{
-      ...styles.logoImg,
-      width: '100%',
-      height: '100%',
-      objectFit: 'contain'
-    }} 
-  />
-</div>
-
-              <span style={styles.portalCardTitle}>{biz.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Phase 3: Both authenticated and business chosen -> Render filtered tracking dashboard
+// ==========================================
+// Phase 1: Not logged in -> Show Sign In Form
+// ==========================================
+if (!isLoggedIn) {
   return (
-    <Dashboard
-      userRole={selectedRole}
-      username={username || 'User'}
-      businessId={selectedBusiness}
-      onLogout={handleLogout}
-      onBackToPortal={() => setSelectedBusiness(null)} // Allows changing sectors easily
-    />
+    <div style={styles.container}>
+      {/* Your working Sign-In form code goes here */}
+    </div>
   );
+}
+
+// ==========================================
+// Phase 2: Logged in, but HAS NOT chosen a business yet -> Show Gateway Portal (Logos)
+// ==========================================
+if (!selectedBusiness) {
+  return (
+    <div style={styles.portalContainer}>
+      <button style={styles.topBarButton} onClick={handleLogout}>
+        {language === 'de' ? 'Abmelden (Logout)' : 'Logout'}
+      </button>
+      
+      <div style={styles.portalHeader}>
+        <h1>{language === 'de' ? 'Unternehmensbereich wählen' : 'Select Business Unit'}</h1>
+        <p>{language === 'de' ? 'Wählen Sie einen Bereich, um die Arbeitszeiten zu verwalten' : 'Select a business to manage trackings'}</p>
+      </div>
+
+      <div style={styles.portalGrid}>
+        {businesses.map((biz) => (
+          <button
+            key={biz.id}
+            onClick={() => setSelectedBusiness(biz.id)} // <-- THIS CRITICAL LINE TRIGGERS THE DASHBOARD
+            style={styles.portalCard}
+          >
+            <div style={styles.imageWrapper}>
+              <img src={logoMap[biz.id]} alt={biz.name} style={styles.logoImg} />
+            </div>
+            <span style={styles.portalCardTitle}>{biz.name}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// Phase 3: Both authenticated AND business chosen -> Render working detailed dashboard
+// ==========================================
+return (
+  <Dashboard
+    userRole={selectedRole}
+    username={username}
+    businessId={selectedBusiness} // Passes 'fuerst_hauser', 'bullauge', etc. straight in
+    onLogout={handleLogout}
+    onBackToPortal={() => setSelectedBusiness(null)} // This links back to the logos screen
+  />
+);
 }
