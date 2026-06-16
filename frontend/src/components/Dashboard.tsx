@@ -100,16 +100,17 @@ useEffect(() => {
   const targetSource = 
     businessId === 'bullauge' ? WASCHSALON_MATERIALS : 
     businessId === 'fuerst_hauser' ? GEBAEUDEREINIGUNG_MATERIALS :
-    businessId === 'hauser_mittel' ? ['Etiketten', 'Abfüllbehälter'] : 
-    ['Schlüsselkarten', 'Prospekte'];
+    businessId === 'hauser_mittel' ? ['Etiketten', 'Abfüllbehälter (1L)', 'Kartonagen'] : 
+    ['Schlüsselkarten', 'Prospekte', 'Büromaterial'];
 
-  const initialRows = targetSource.map(name => ({ name, ordered: 0, returned: 0 }));
+  const initialRows = (targetSource || []).map(name => ({ name, ordered: 0, returned: 0 }));
   setMaterialRows(initialRows);
-}, [businessId]); // Updated dependency from business to businessId
+}, [businessId]); // ✅ Double check that this is businessId
 
-  useEffect(() => {
-    setTasks(['']);
-  }, [business]);
+
+useEffect(() => {
+  setTasks(['']);
+}, [businessId]); // ✅ Updated dependency tracking from business to businessId
 
   const handleCounterChange = (index: number, field: 'ordered' | 'returned', delta: number) => {
     setMaterialRows(prev => prev.map((row, i) => {
