@@ -72,12 +72,13 @@ export function Dashboard({
   const [language, setLanguage] = useState<LanguageType>('de');
 
   // --- FORM STATES ---
-  const [business, setBusiness] = useState(() => {
+const [business, setBusiness] = useState(() => {
+  if (businessId === 'bullauge') return 'Bullauge Waschsalon';
   if (businessId === 'fuerst_hauser') return 'Fürst Hauser Gebäudereinigung';
   if (businessId === 'hauser_mittel') return 'Hauser Reinigungsmittel';
-  if (businessId === 'bullauge') return 'Bullauge Waschsalon';
   return 'Signature Vista';
 });
+
   const [customer, setCustomer] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [startTime, setStartTime] = useState('12:30');
@@ -91,19 +92,20 @@ export function Dashboard({
 const availableTasks = 
   businessId === 'bullauge' ? WASCHSALON_TASKS : 
   businessId === 'fuerst_hauser' ? GEBAEUDEREINIGUNG_TASKS :
-  businessId === 'hauser_mittel' ? ['Produktverpackung', 'Qualitätskontrolle', 'Lagerverwaltung'] : 
-  ['Gästebetreuung', 'Objektverwaltung', 'Rezeptionsdienst'];
+  businessId === 'hauser_mittel' ? ['Produktverpackung', 'Qualitätskontrolle'] : 
+  ['Gästebetreuung', 'Objektverwaltung'];
   const [materialRows, setMaterialRows] = useState<MaterialRowState[]>([]);
 
-  useEffect(() => {
-   const targetSource = 
-  businessId === 'bullauge' ? WASCHSALON_MATERIALS : 
-  businessId === 'fuerst_hauser' ? GEBAEUDEREINIGUNG_MATERIALS :
-  businessId === 'hauser_mittel' ? ['Etiketten', 'Abfüllbehälter (1L)', 'Kartonagen'] : 
-  ['Schlüsselkarten', 'Prospekte', 'Büromaterial'];
-    const initialRows = targetSource.map(name => ({ name, ordered: 0, returned: 0 }));
-    setMaterialRows(initialRows);
-  }, [business]);
+useEffect(() => {
+  const targetSource = 
+    businessId === 'bullauge' ? WASCHSALON_MATERIALS : 
+    businessId === 'fuerst_hauser' ? GEBAEUDEREINIGUNG_MATERIALS :
+    businessId === 'hauser_mittel' ? ['Etiketten', 'Abfüllbehälter'] : 
+    ['Schlüsselkarten', 'Prospekte'];
+
+  const initialRows = targetSource.map(name => ({ name, ordered: 0, returned: 0 }));
+  setMaterialRows(initialRows);
+}, [businessId]); // Updated dependency from business to businessId
 
   useEffect(() => {
     setTasks(['']);

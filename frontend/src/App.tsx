@@ -231,59 +231,61 @@ export default function App() {
   };
 
 // ==========================================
-// Phase 1: Not logged in -> Show Sign In Form
-// ==========================================
-if (!isLoggedIn) {
-  return (
-    <div style={styles.container}>
-      {/* Your working Sign-In form code goes here */}
-    </div>
-  );
-}
-
-// ==========================================
-// Phase 2: Logged in, but HAS NOT chosen a business yet -> Show Gateway Portal (Logos)
-// ==========================================
-if (!selectedBusiness) {
-  return (
-    <div style={styles.portalContainer}>
-      <button style={styles.topBarButton} onClick={handleLogout}>
-        {language === 'de' ? 'Abmelden (Logout)' : 'Logout'}
-      </button>
-      
-      <div style={styles.portalHeader}>
-        <h1>{language === 'de' ? 'Unternehmensbereich wählen' : 'Select Business Unit'}</h1>
-        <p>{language === 'de' ? 'Wählen Sie einen Bereich, um die Arbeitszeiten zu verwalten' : 'Select a business to manage trackings'}</p>
+  // Phase 1: Not logged in -> Show Sign In Form
+  // ==========================================
+  if (!isLoggedIn) {
+    return (
+      <div style={styles.container}>
+        {/* Your working login form controls go here */}
       </div>
+    );
+  }
 
-      <div style={styles.portalGrid}>
-        {businesses.map((biz) => (
-          <button
-            key={biz.id}
-            onClick={() => setSelectedBusiness(biz.id)} // <-- THIS CRITICAL LINE TRIGGERS THE DASHBOARD
-            style={styles.portalCard}
-          >
-            <div style={styles.imageWrapper}>
-              <img src={logoMap[biz.id]} alt={biz.name} style={styles.logoImg} />
-            </div>
-            <span style={styles.portalCardTitle}>{biz.name}</span>
+  // ==========================================
+  // Phase 2: Gateway Portal Screen (Show Logos)
+  // ==========================================
+  if (!selectedBusiness) {
+    return (
+      <div style={styles.portalContainer}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px' }}>
+          <button style={styles.topBarButton} onClick={handleLogout}>
+            Abmelden (Logout)
           </button>
-        ))}
-      </div>
-    </div>
-  );
-}
+        </div>
+        
+        <div style={styles.portalHeader}>
+          <h1>Unternehmensbereich wählen</h1>
+          <p>Wählen Sie einen Bereich, um die Arbeitszeiten zu verwalten</p>
+        </div>
 
-// ==========================================
-// Phase 3: Both authenticated AND business chosen -> Render working detailed dashboard
-// ==========================================
-return (
-  <Dashboard
-    userRole={selectedRole}
-    username={username}
-    businessId={selectedBusiness} // Passes 'fuerst_hauser', 'bullauge', etc. straight in
-    onLogout={handleLogout}
-    onBackToPortal={() => setSelectedBusiness(null)} // This links back to the logos screen
-  />
-);
-}
+        <div style={styles.portalGrid}>
+          {businesses.map((biz) => (
+            <button
+              key={biz.id}
+              onClick={() => setSelectedBusiness(biz.id)}
+              style={styles.portalCard}
+            >
+              <div style={styles.imageWrapper}>
+                <img src={logoMap[biz.id]} alt={biz.name} style={styles.logoImg} />
+              </div>
+              <span style={styles.portalCardTitle}>{biz.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // Phase 3: Business Selected -> Show Detailed Dashboard
+  // ==========================================
+  return (
+    <Dashboard
+      userRole={selectedRole}
+      username={username}
+      businessId={selectedBusiness}
+      onLogout={handleLogout}
+      onBackToPortal={() => setSelectedBusiness(null)}
+    />
+  );
+} // <--- THIS CLOSES THE FULL 'export default function App()' FUNCTION
