@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
 import { Dashboard } from './components/Dashboard';
+import fuerstHauserLogo from './assets/logos/fuerst_hauser.jpg';
+import hauserMittelLogo from './assets/logos/hauser_mittel.jpg';
+import bullaugeLogo from './assets/logos/bullauge.jpg';
+import signatureVistaLogo from './assets/logos/signature_vista.jpg';
+
+const logoMap: Record<string, string> = {
+  fuerst_hauser: fuerstHauserLogo,
+  hauser_mittel: hauserMittelLogo,
+  bullauge: bullaugeLogo,
+  signature_vista: signatureVistaLogo,
+};
 
 // Step 1: Define the structured Business type definition
 interface Business {
@@ -318,9 +329,20 @@ export default function App() {
                 e.currentTarget.style.borderColor = '#e2e8f0';
               }}
             >
-              <div style={styles.imageWrapper}>
-                <img src={biz.logo} alt={biz.name} style={styles.logoImg} />
-              </div>
+
+<div style={styles.imageWrapper}>
+  <img 
+    src={logoMap[biz.id]} 
+    alt={biz.name} 
+    style={{
+      ...styles.logoImg,
+      width: '100%',
+      height: '100%',
+      objectFit: 'contain'
+    }} 
+  />
+</div>
+
               <span style={styles.portalCardTitle}>{biz.name}</span>
             </button>
           ))}
