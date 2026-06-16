@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
 interface DashboardProps {
-  userRole: 'admin' | 'employee' | 'customer';
+  userRole: 'employee' | 'admin' | 'customer';
   username: string;
+  businessId: string;         // <--- Add this
   onLogout: () => void;
+  onBackToPortal: () => void; // <--- Add this
 }
 
 type LanguageType = 'de' | 'en' | 'es' | 'fr' | 'it' | 'pt' | 'nl' | 'pl' | 'tr' | 'si' | 'uk';
@@ -58,16 +60,24 @@ const GEBAEUDEREINIGUNG_MATERIALS = [
   'Handseife (Hand soap) 10 Liter'
 ];
 
-export function Dashboard({ userRole, username, onLogout }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<string>(
-    userRole === 'admin' ? 'add-users' : userRole === 'customer' ? 'client-view' : 'add-record'
-  );
+export function Dashboard({ 
+  userRole, 
+  username, 
+  onLogout,
+  businessId,     // <-- Add this
+  onBackToPortal  // <-- Add this
+}: DashboardProps) {
   
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [language, setLanguage] = useState<LanguageType>('de');
 
   // --- FORM STATES ---
-  const [business, setBusiness] = useState('Fürst Hauser Gebäudereinigung');
+  const [business, setBusiness] = useState(() => {
+  if (businessId === 'fuerst_hauser') return 'Fürst Hauser Gebäudereinigung';
+  if (businessId === 'hauser_mittel') return 'Hauser Reinigungsmittel';
+  if (businessId === 'bullauge') return 'Bullauge Waschsalon';
+  return 'Signature Vista';
+});
   const [customer, setCustomer] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [startTime, setStartTime] = useState('12:30');
@@ -78,12 +88,19 @@ export function Dashboard({ userRole, username, onLogout }: DashboardProps) {
 
   // --- DYNAMIC TASK LABELS ---
   const [tasks, setTasks] = useState<string[]>(['']);
-  const availableTasks = business === 'Bullaude Waschsalon' ? WASCHSALON_TASKS : GEBAEUDEREINIGUNG_TASKS;
-
+const availableTasks = 
+  businessId === 'bullauge' ? WASCHSALON_TASKS : 
+  businessId === 'fuerst_hauser' ? GEBAEUDEREINIGUNG_TASKS :
+  businessId === 'hauser_mittel' ? ['Produktverpackung', 'Qualitätskontrolle', 'Lagerverwaltung'] : 
+  ['Gästebetreuung', 'Objektverwaltung', 'Rezeptionsdienst'];
   const [materialRows, setMaterialRows] = useState<MaterialRowState[]>([]);
 
   useEffect(() => {
-    const targetSource = business === 'Bullaude Waschsalon' ? WASCHSALON_MATERIALS : GEBAEUDEREINIGUNG_MATERIALS;
+   const targetSource = 
+  businessId === 'bullauge' ? WASCHSALON_MATERIALS : 
+  businessId === 'fuerst_hauser' ? GEBAEUDEREINIGUNG_MATERIALS :
+  businessId === 'hauser_mittel' ? ['Etiketten', 'Abfüllbehälter (1L)', 'Kartonagen'] : 
+  ['Schlüsselkarten', 'Prospekte', 'Büromaterial'];
     const initialRows = targetSource.map(name => ({ name, ordered: 0, returned: 0 }));
     setMaterialRows(initialRows);
   }, [business]);
@@ -252,11 +269,37 @@ export function Dashboard({ userRole, username, onLogout }: DashboardProps) {
     <div style={styles.wrapper}>
       <header style={styles.header}>
         <div style={styles.headerContent}>
-          <h1 style={styles.logo}>{t.panelTitle[language]}</h1>
-          <div style={styles.rightHeader}>
-            <span style={styles.badge}>{userRole}: {username}</span>
-            <button style={styles.logoutBtn} onClick={onLogout}>{t.logout[language]}</button>
-          </div>
+	<h1 style={styles.logo}>
+  {t.panelTitle[language]} — {
+    businessId === 'fuerst_hauser' ? 'Fürst Hauser' :
+    businessId === 'hauser_mittel' ? 'Hauser Reinigungsmittel' :
+    businessId === 'bullauge' ? 'Bullauge Waschsalon' : 'Signature Vista'
+  }
+</h1>
+	<div style={styles.rightHeader}>
+  <span style={styles.badge}>{userRole}: {username}</span>
+  
+  {/* NEW: Switch Business Button */}
+  <button 
+    type="button"
+    onClick={onBackToPortal}
+    style={{
+      padding: '8px 14px',
+      backgroundColor: isDarkMode ? '#334155' : '#f1f5f9',
+      color: isDarkMode ? '#f8fafc' : '#334155',
+      border: `1px solid ${isDarkMode ? '#475569' : '#cbd5e1'}`,
+      borderRadius: '8px',
+      cursor: 'pointer',
+      marginRight: '10px',
+      fontWeight: '600',
+      fontSize: '13px'
+    }}
+  >
+    🏢 {language === 'de' ? 'Bereich wechseln' : 'Switch Business'}
+  </button>
+
+  <button style={styles.logoutBtn} onClick={onLogout}>{t.logout[language]}</button>
+</div>
         </div>
       </header>
 
