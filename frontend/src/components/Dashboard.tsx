@@ -27,6 +27,13 @@ interface SubmittedRecord {
   notes: string;
 }
 
+interface UserProfile {
+  id: string;
+  username: string;
+  role: 'employee' | 'admin' | 'customer';
+  businessId: string;
+}
+
 const translations: Record<string, Record<string, string>> = {
   de: {
     dashboardTitle: 'Arbeitsbereich',
@@ -36,10 +43,12 @@ const translations: Record<string, Record<string, string>> = {
     navEntry: 'Datenerfassung',
     navRecords: 'Tagesübersicht',
     navMonthly: 'Monatsübersicht',
+    navUsers: 'Mitarbeiter verwalten',
     navSettings: 'Einstellungen',
     headerData: 'Arbeitszeit & Material erfassen',
     headerRecords: 'Meine erfassten Tagesberichte',
     headerMonthly: 'Monatliche Arbeitsstunden',
+    headerUsers: 'Neuen Mitarbeiter anlegen',
     headerSettings: 'Systemeinstellungen',
     labelCustomer: 'Kunde / Objekt',
     labelDate: 'Datum',
@@ -59,7 +68,15 @@ const translations: Record<string, Record<string, string>> = {
     thHours: 'Stunden',
     langLabel: 'Sprachauswahl',
     noRecords: 'Keine Einträge für diesen Zeitraum vorhanden.',
-    noTrackingRequired: 'Für diesen Unternehmensbereich ist keine separate Material- oder Aufgabenliste erforderlich. Bitte erfassen Sie Ihre Arbeitszeiten und Notizen unten.'
+    noTrackingRequired: 'Für diesen Unternehmensbereich ist keine separate Material- oder Aufgabenliste erforderlich. Bitte erfassen Sie Ihre Arbeitszeiten und Notizen unten.',
+    lblNewUser: 'Benutzername',
+    lblNewPass: 'Passwort',
+    lblNewBiz: 'Zugeordnetes Unternehmen',
+    btnCreateUser: 'Profil Erstellen',
+    userCreatedMsg: 'Mitarbeiter-Profil erfolgreich angelegt!',
+    thRole: 'Rolle',
+    thBiz: 'Unternehmen',
+    existingUsersTitle: 'Bestehende Profile im System'
   },
   en: {
     dashboardTitle: 'Workspace',
@@ -69,10 +86,12 @@ const translations: Record<string, Record<string, string>> = {
     navEntry: 'Data Entry',
     navRecords: 'Daily Log',
     navMonthly: 'Monthly Hours',
+    navUsers: 'Manage Staff',
     navSettings: 'Settings',
     headerData: 'Log Hours & Materials',
     headerRecords: 'My Daily Records',
     headerMonthly: 'Monthly Worked Hours',
+    headerUsers: 'Create New Employee Profile',
     headerSettings: 'System Settings',
     labelCustomer: 'Customer / Object',
     labelDate: 'Date',
@@ -92,13 +111,21 @@ const translations: Record<string, Record<string, string>> = {
     thHours: 'Hours',
     langLabel: 'Select Language',
     noRecords: 'No tracking records found for this scope.',
-    noTrackingRequired: 'No dedicated material or task lists are required for this business unit. Please log your working hours and notes below.'
+    noTrackingRequired: 'No dedicated material or task lists are required for this business unit. Please log your working hours and notes below.',
+    lblNewUser: 'Username',
+    lblNewPass: 'Password',
+    lblNewBiz: 'Assigned Business Unit',
+    btnCreateUser: 'Create Profile',
+    userCreatedMsg: 'Employee profile created successfully!',
+    thRole: 'Role',
+    thBiz: 'Business Scope',
+    existingUsersTitle: 'Active System User Profiles'
   }
 };
 
-// BUSINESS CONFIGURATION DATA MODELS
-const BUSINESS_DATA: Record<string, { tasks: string[]; materials: { name: string; spec: string }[]; customers: string[]; requiresDetailedTracking: boolean }> = {
+const BUSINESS_DATA: Record<string, { label: string; tasks: string[]; materials: { name: string; spec: string }[]; customers: string[]; requiresDetailedTracking: boolean }> = {
   fuerst_hauser: {
+    label: 'Fürst Hauser Gebäudereinigung',
     requiresDetailedTracking: true,
     customers: ['Edeka Pocking', 'Gewerbepark Pleiskirchen', 'Rathaus Altötting', 'Klinikum Burghausen'],
     tasks: [
@@ -131,6 +158,7 @@ const BUSINESS_DATA: Record<string, { tasks: string[]; materials: { name: string
     ]
   },
   bullauge: {
+    label: 'Bullauge Waschsalon',
     requiresDetailedTracking: true,
     customers: ['Münchner Str. Filiale', 'Hauptbahnhof Express', 'Uni-Viertel Salon'],
     tasks: ['Maschinenreinigung', 'Kassenabrechnung', 'Flusensiebe leeren', 'Boden wischen & desinfizieren', 'Wäschepflege & Bügeln'],
@@ -144,12 +172,14 @@ const BUSINESS_DATA: Record<string, { tasks: string[]; materials: { name: string
     ]
   },
   hauser_mittel: {
+    label: 'Hauser Reinigungsmittel',
     requiresDetailedTracking: false,
     customers: [],
     tasks: [],
     materials: []
   },
   signature_vista: {
+    label: 'Signature Vista',
     requiresDetailedTracking: false,
     customers: [],
     tasks: [],
@@ -160,7 +190,7 @@ const BUSINESS_DATA: Record<string, { tasks: string[]; materials: { name: string
 export function Dashboard({ userRole, username, businessId, onLogout, onBackToPortal }: DashboardProps) {
   const scopeConfig = BUSINESS_DATA[businessId] || BUSINESS_DATA.fuerst_hauser;
 
-  const [activeTab, setActiveTab] = useState<'entry' | 'records' | 'monthly' | 'settings'>('entry');
+  const [activeTab, setActiveTab] = useState<'entry' | 'records' | 'monthly' | 'users' | 'settings'>('entry');
   const [language, setLanguage] = useState<'de' | 'en'>('de');
   const t = translations[language];
 
@@ -173,11 +203,21 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
   const [miscellaneous, setMiscellaneous] = useState('');
   const [formStatus, setFormStatus] = useState<string | null>(null);
 
+  // New Profile Form State (Admin Only)
+  const [newUsername, setNewUsername] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newBusinessScope, setNewBusinessScope] = useState('fuerst_hauser');
+  const [userSuccessStatus, setUserSuccessStatus] = useState<string | null>(null);
+
   // Dynamic Material Counter Rows State
   const [materialRows, setMaterialRows] = useState<MaterialRowState[]>([]);
 
   // Persistent Mock Database Context Arrays
   const [allRecords, setAllRecords] = useState<SubmittedRecord[]>([]);
+  const [systemUsers, setSystemUsers] = useState<UserProfile[]>([
+    { id: '1', username: 'admin', role: 'admin', businessId: 'fuerst_hauser' },
+    { id: '2', username: 'demo_staff', role: 'employee', businessId: 'bullauge' }
+  ]);
 
   // Sync Material and Customer rows when changing businesses
   useEffect(() => {
@@ -218,7 +258,6 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
     setAllRecords(prev => [currentEntry, ...prev]);
     setFormStatus(t.successMsg);
 
-    // Reset workflow inputs
     setMiscellaneous('');
     if (scopeConfig.requiresDetailedTracking) {
       setSelectedTasks(['']);
@@ -227,6 +266,27 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
     }
 
     setTimeout(() => setFormStatus(null), 5000);
+  };
+
+  const handleCreateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUsername || !newPassword) return;
+
+    const newUser: UserProfile = {
+      id: `user-${Date.now()}`,
+      username: newUsername,
+      role: 'employee',
+      businessId: newBusinessScope
+    };
+
+    setSystemUsers(prev => [...prev, newUser]);
+    setUserSuccessStatus(t.userCreatedMsg);
+    
+    // Reset admin user management fields
+    setNewUsername('');
+    setNewPassword('');
+
+    setTimeout(() => setUserSuccessStatus(null), 4000);
   };
 
   const adjustMaterial = (idx: number, type: 'ordered' | 'returned', step: number) => {
@@ -252,16 +312,10 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
     return deltaMin > 0 ? (deltaMin / 60).toFixed(2) : '0.00';
   };
 
-  // Filter visibility scopes: regular employees only see their own entries
   const filteredRecords = allRecords.filter(rec => {
     if (userRole === 'admin') return true;
     return rec.employee.toLowerCase() === username.toLowerCase();
   });
-
-  const businessLabel = 
-    businessId === 'fuerst_hauser' ? 'Fürst Hauser Gebäudereinigung' :
-    businessId === 'bullauge' ? 'Bullauge Waschsalon' :
-    businessId === 'hauser_mittel' ? 'Hauser Reinigungsmittel' : 'Signature Vista';
 
   return (
     <div style={{ display: 'flex', height: '100vh', fontFamily: 'sans-serif', backgroundColor: '#f1f5f9', overflow: 'hidden' }}>
@@ -270,7 +324,7 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
       <div style={{ width: '260px', backgroundColor: '#1e293b', color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '20px 0' }}>
         <div>
           <div style={{ padding: '0 20px 20px 20px', borderBottom: '1px solid #334155', marginBottom: '20px' }}>
-            <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#38bdf8' }}>{businessLabel}</h3>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#38bdf8' }}>{scopeConfig.label}</h3>
             <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '5px' }}>{t.dashboardTitle}</div>
           </div>
 
@@ -284,6 +338,14 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
             <button onClick={() => setActiveTab('monthly')} style={{ width: '100%', padding: '12px 15px', textAlign: 'left', backgroundColor: activeTab === 'monthly' ? '#334155' : 'transparent', color: activeTab === 'monthly' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
               📊 {t.navMonthly}
             </button>
+            
+            {/* ADMIN ONLY PROFILE CREATION INTERFACE TRIGGER */}
+            {userRole === 'admin' && (
+              <button onClick={() => setActiveTab('users')} style={{ width: '100%', padding: '12px 15px', textAlign: 'left', backgroundColor: activeTab === 'users' ? '#334155' : 'transparent', color: activeTab === 'users' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                👥 {t.navUsers}
+              </button>
+            )}
+
             <button onClick={() => setActiveTab('settings')} style={{ width: '100%', padding: '12px 15px', textAlign: 'left', backgroundColor: activeTab === 'settings' ? '#334155' : 'transparent', color: activeTab === 'settings' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
               ⚙️ {t.navSettings}
             </button>
@@ -538,7 +600,77 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
             </div>
           )}
 
-          {/* VIEWPORT 4: SETTINGS AND LOCALIZATION */}
+          {/* VIEWPORT 4: ADMIN ONLY PROFILE ADDITION MODULE */}
+          {activeTab === 'users' && userRole === 'admin' && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', alignItems: 'start' }}>
+              
+              <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerUsers}</h2>
+                
+                {userSuccessStatus && (
+                  <div style={{ padding: '12px', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '6px', marginBottom: '20px', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                    ✓ {userSuccessStatus}
+                  </div>
+                )}
+
+                <form onSubmit={handleCreateUser}>
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.lblNewUser}</label>
+                    <input type="text" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} required placeholder="z.B. m.schmidt" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+                  </div>
+
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.lblNewPass}</label>
+                    <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required placeholder="••••••••" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+                  </div>
+
+                  <div style={{ marginBottom: '25px' }}>
+                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.lblNewBiz}</label>
+                    <select value={newBusinessScope} onChange={(e) => setNewBusinessScope(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                      {Object.entries(BUSINESS_DATA).map(([id, cfg]) => (
+                        <option key={id} value={id}>{cfg.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', boxShadow: '0 2px 4px rgba(59,130,246,0.2)' }}>
+                    ➕ {t.btnCreateUser}
+                  </button>
+                </form>
+              </div>
+
+              <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#0f172a', borderBottom: '2px solid #f1f5f9', paddingBottom: '10px' }}>👥 {t.existingUsersTitle}</h3>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
+                      <th style={{ padding: '10px 6px' }}>{t.lblNewUser}</th>
+                      <th style={{ padding: '10px 6px' }}>{t.thRole}</th>
+                      <th style={{ padding: '10px 6px' }}>{t.thBiz}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {systemUsers.map((u) => (
+                      <tr key={u.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '10px 6px', fontWeight: 'bold', color: '#1e293b' }}>{u.username}</td>
+                        <td style={{ padding: '10px 6px' }}>
+                          <span style={{ padding: '3px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: u.role === 'admin' ? '#fee2e2' : '#d1fae5', color: u.role === 'admin' ? '#ef4444' : '#065f46' }}>
+                            {u.role}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px 6px', color: '#475569' }}>
+                          {BUSINESS_DATA[u.businessId]?.label || u.businessId}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          )}
+
+          {/* VIEWPORT 5: SETTINGS AND LOCALIZATION */}
           {activeTab === 'settings' && (
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', maxWidth: '500px' }}>
               <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerSettings}</h2>
