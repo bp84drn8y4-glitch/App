@@ -27,7 +27,6 @@ interface SubmittedRecord {
   notes: string;
 }
 
-// Global Translations Dictionary
 const translations: Record<string, Record<string, string>> = {
   de: {
     dashboardTitle: 'Arbeitsbereich',
@@ -58,8 +57,9 @@ const translations: Record<string, Record<string, string>> = {
     adminNotice: 'Als Admin können Sie Einträge bearbeiten oder löschen.',
     thEmployee: 'Mitarbeiter',
     thHours: 'Stunden',
-    langLabel: 'Sprachauswahl (Language)',
-    noRecords: 'Keine Einträge für diesen Zeitraum vorhanden.'
+    langLabel: 'Sprachauswahl',
+    noRecords: 'Keine Einträge für diesen Zeitraum vorhanden.',
+    noTrackingRequired: 'Für diesen Unternehmensbereich ist keine separate Material- oder Aufgabenliste erforderlich. Bitte erfassen Sie Ihre Arbeitszeiten und Notizen unten.'
   },
   en: {
     dashboardTitle: 'Workspace',
@@ -91,13 +91,15 @@ const translations: Record<string, Record<string, string>> = {
     thEmployee: 'Employee',
     thHours: 'Hours',
     langLabel: 'Select Language',
-    noRecords: 'No tracking records found for this scope.'
+    noRecords: 'No tracking records found for this scope.',
+    noTrackingRequired: 'No dedicated material or task lists are required for this business unit. Please log your working hours and notes below.'
   }
 };
 
 // BUSINESS CONFIGURATION DATA MODELS
-const BUSINESS_DATA: Record<string, { tasks: string[]; materials: { name: string; spec: string }[]; customers: string[] }> = {
+const BUSINESS_DATA: Record<string, { tasks: string[]; materials: { name: string; spec: string }[]; customers: string[]; requiresDetailedTracking: boolean }> = {
   fuerst_hauser: {
+    requiresDetailedTracking: true,
     customers: ['Edeka Pocking', 'Gewerbepark Pleiskirchen', 'Rathaus Altötting', 'Klinikum Burghausen'],
     tasks: [
       'Außenreinigung Schaufenster und Eingangstüren',
@@ -129,46 +131,41 @@ const BUSINESS_DATA: Record<string, { tasks: string[]; materials: { name: string
     ]
   },
   bullauge: {
+    requiresDetailedTracking: true,
     customers: ['Münchner Str. Filiale', 'Hauptbahnhof Express', 'Uni-Viertel Salon'],
-    tasks: ['Maschinenreinigung', 'Kassenabrechnung', 'Flusensiebe leeren', 'Boden wischen & desinfizieren'],
+    tasks: ['Maschinenreinigung', 'Kassenabrechnung', 'Flusensiebe leeren', 'Boden wischen & desinfizieren', 'Wäschepflege & Bügeln'],
     materials: [
-      { name: 'Waschmittel Pro', spec: 'Flüssig' },
-      { name: 'Weichspüler Eco', spec: 'Kanister' },
-      { name: 'Desinfektionsspray', spec: '500 ml' },
-      { name: 'Müllbeutel Stark', spec: '60 L' }
+      { name: 'Handfolien', spec: 'Standard' },
+      { name: 'Bügelstärke', spec: 'Sprühflasche' },
+      { name: 'Chlor', spec: 'Bleichmittel' },
+      { name: 'Waschpulver', spec: '20 kg' },
+      { name: 'Weichspüler', spec: '20 L' },
+      { name: 'Sonstiges', spec: 'Verbrauchsmaterial' }
     ]
   },
   hauser_mittel: {
-    customers: ['Logistikzentrum West', 'Produktionshalle 1', 'Abfüllstation Nord'],
-    tasks: ['Produktverpackung', 'Qualitätskontrolle Flaschen', 'Lagerverwaltung', 'Paletten-Stauung'],
-    materials: [
-      { name: 'Rollenetiketten', spec: 'Standard' },
-      { name: 'Abfüllbehälter', spec: '1 L Leerflasche' },
-      { name: 'Kartonagen Groß', spec: 'Wellpappe' }
-    ]
+    requiresDetailedTracking: false,
+    customers: [],
+    tasks: [],
+    materials: []
   },
   signature_vista: {
-    customers: ['Penthouse Suite A', 'Konferenzbereich 1-4', 'Lounge Bereich'],
-    tasks: ['Gästebetreuung Vorbereitung', 'Objektverwaltung Premium', 'Rezeptionsdienst Übergabe'],
-    materials: [
-      { name: 'Schlüsselkarten', spec: 'RFID' },
-      { name: 'Imageprospekte', spec: 'Hochglanz' },
-      { name: 'Büromaterial Set', spec: 'Premium' }
-    ]
+    requiresDetailedTracking: false,
+    customers: [],
+    tasks: [],
+    materials: []
   }
 };
 
 export function Dashboard({ userRole, username, businessId, onLogout, onBackToPortal }: DashboardProps) {
-  // Config Scope Resolution
   const scopeConfig = BUSINESS_DATA[businessId] || BUSINESS_DATA.fuerst_hauser;
 
-  // Active Menu Navigation View State
   const [activeTab, setActiveTab] = useState<'entry' | 'records' | 'monthly' | 'settings'>('entry');
   const [language, setLanguage] = useState<'de' | 'en'>('de');
   const t = translations[language];
 
   // Form Inputs State
-  const [customer, setCustomer] = useState(scopeConfig.customers[0] || '');
+  const [customer, setCustomer] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [startTime, setStartTime] = useState('07:00');
   const [endTime, setEndTime] = useState('16:00');
@@ -176,37 +173,31 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
   const [miscellaneous, setMiscellaneous] = useState('');
   const [formStatus, setFormStatus] = useState<string | null>(null);
 
-  // Dynamic Material Counter Array Rows State
+  // Dynamic Material Counter Rows State
   const [materialRows, setMaterialRows] = useState<MaterialRowState[]>([]);
 
   // Persistent Mock Database Context Arrays
-  const [allRecords, setAllRecords] = useState<SubmittedRecord[]>([
-    {
-      id: 'mock-1',
-      employee: 'Samadhi',
-      date: '2026-06-15',
-      customer: scopeConfig.customers[0] || 'Objekt A',
-      startTime: '08:00',
-      endTime: '12:00',
-      tasks: [scopeConfig.tasks[0]],
-      materials: [{ name: scopeConfig.materials[0]?.name || 'Müllbeutel', ordered: 5, returned: 2 }],
-      notes: 'Routinekontrolle durchgeführt.'
-    }
-  ]);
+  const [allRecords, setAllRecords] = useState<SubmittedRecord[]>([]);
 
-  // Sync Material rows when changing businesses
+  // Sync Material and Customer rows when changing businesses
   useEffect(() => {
-    const rows = scopeConfig.materials.map(m => ({
-      name: m.name,
-      specification: m.spec,
-      ordered: 0,
-      returned: 0
-    }));
-    setMaterialRows(rows);
-    setCustomer(scopeConfig.customers[0] || '');
-  }, [businessId]);
+    if (scopeConfig.requiresDetailedTracking) {
+      const rows = scopeConfig.materials.map(m => ({
+        name: m.name,
+        specification: m.spec,
+        ordered: 0,
+        returned: 0
+      }));
+      setMaterialRows(rows);
+      setCustomer(scopeConfig.customers[0] || '');
+      setSelectedTasks(['']);
+    } else {
+      setMaterialRows([]);
+      setCustomer('');
+      setSelectedTasks([]);
+    }
+  }, [businessId, scopeConfig]);
 
-  // Form Submission Logic
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -214,13 +205,13 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
       id: `record-${Date.now()}`,
       employee: username || 'Mitarbeiter',
       date,
-      customer,
+      customer: scopeConfig.requiresDetailedTracking ? customer : 'Standardbetrieb',
       startTime,
       endTime,
-      tasks: selectedTasks.filter(tk => tk !== ''),
-      materials: materialRows
-        .filter(r => r.ordered > 0 || r.returned > 0)
-        .map(r => ({ name: r.name, ordered: r.ordered, returned: r.returned })),
+      tasks: scopeConfig.requiresDetailedTracking ? selectedTasks.filter(tk => tk !== '') : ['Allgemeine Betriebstätigkeiten'],
+      materials: scopeConfig.requiresDetailedTracking 
+        ? materialRows.filter(r => r.ordered > 0 || r.returned > 0).map(r => ({ name: r.name, ordered: r.ordered, returned: r.returned }))
+        : [],
       notes: miscellaneous
     };
 
@@ -228,15 +219,16 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
     setFormStatus(t.successMsg);
 
     // Reset workflow inputs
-    setSelectedTasks(['']);
     setMiscellaneous('');
-    const resetRows = scopeConfig.materials.map(m => ({ name: m.name, specification: m.spec, ordered: 0, returned: 0 }));
-    setMaterialRows(resetRows);
+    if (scopeConfig.requiresDetailedTracking) {
+      setSelectedTasks(['']);
+      const resetRows = scopeConfig.materials.map(m => ({ name: m.name, specification: m.spec, ordered: 0, returned: 0 }));
+      setMaterialRows(resetRows);
+    }
 
     setTimeout(() => setFormStatus(null), 5000);
   };
 
-  // Safe Math Up/Down Counter Modification Handles
   const adjustMaterial = (idx: number, type: 'ordered' | 'returned', step: number) => {
     setMaterialRows(prev => prev.map((row, i) => {
       if (i !== idx) return row;
@@ -253,7 +245,6 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
     });
   };
 
-  // Calculate decimal hours difference
   const calculateHours = (start: string, end: string) => {
     const [sH, sM] = start.split(':').map(Number);
     const [eH, eM] = end.split(':').map(Number);
@@ -261,10 +252,10 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
     return deltaMin > 0 ? (deltaMin / 60).toFixed(2) : '0.00';
   };
 
-  // Filter visibility scopes based on permission parameters
+  // Filter visibility scopes: regular employees only see their own entries
   const filteredRecords = allRecords.filter(rec => {
-    if (userRole === 'admin') return true; // Admin views global state
-    return rec.employee.toLowerCase() === username.toLowerCase(); // Employees isolated
+    if (userRole === 'admin') return true;
+    return rec.employee.toLowerCase() === username.toLowerCase();
   });
 
   const businessLabel = 
@@ -275,7 +266,7 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
   return (
     <div style={{ display: 'flex', height: '100vh', fontFamily: 'sans-serif', backgroundColor: '#f1f5f9', overflow: 'hidden' }}>
       
-      {/* SIDEBAR SIDE NAVIGATION MENU PANEL */}
+      {/* SIDEBAR NAVIGATION MENU */}
       <div style={{ width: '260px', backgroundColor: '#1e293b', color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '20px 0' }}>
         <div>
           <div style={{ padding: '0 20px 20px 20px', borderBottom: '1px solid #334155', marginBottom: '20px' }}>
@@ -309,17 +300,15 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
         </div>
       </div>
 
-      {/* CORE WORKSPACE APPLICATION WINDOW VIEWPORTS */}
+      {/* CORE WORKSPACE WINDOW */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         
-        {/* UPPER CONTEXT COMPONENT META BAR */}
         <header style={{ height: '60px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '0 30px' }}>
           <span style={{ fontSize: '0.9rem', color: '#64748b' }}>
             {t.userLabel}: <strong style={{ color: '#0f172a' }}>{username}</strong> (<span style={{ color: userRole === 'admin' ? '#ef4444' : '#10b981', fontWeight: 'bold' }}>{userRole}</span>)
           </span>
         </header>
 
-        {/* WORKSPACE APP PANELS SCROLL CONTAINER */}
         <main style={{ flex: 1, padding: '30px', overflowY: 'auto' }}>
           
           {formStatus && (
@@ -332,15 +321,24 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
           {activeTab === 'entry' && (
             <div>
               <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerData}</h2>
-              <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', alignItems: 'start' }}>
+              <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: scopeConfig.requiresDetailedTracking ? '1fr 1fr' : '1fr', gap: '30px', alignItems: 'start' }}>
                 
                 <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                  <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelCustomer}</label>
-                    <select value={customer} onChange={(e) => setCustomer(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-                      {scopeConfig.customers.map((c, i) => <option key={i} value={c}>{c}</option>)}
-                    </select>
-                  </div>
+                  
+                  {!scopeConfig.requiresDetailedTracking && (
+                    <div style={{ padding: '12px', backgroundColor: '#eff6ff', color: '#1e40af', borderRadius: '6px', marginBottom: '20px', fontSize: '0.9rem' }}>
+                      ℹ️ {t.noTrackingRequired}
+                    </div>
+                  )}
+
+                  {scopeConfig.requiresDetailedTracking && (
+                    <div style={{ marginBottom: '15px' }}>
+                      <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelCustomer}</label>
+                      <select value={customer} onChange={(e) => setCustomer(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                        {scopeConfig.customers.map((c, i) => <option key={i} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                  )}
 
                   <div style={{ marginBottom: '15px' }}>
                     <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelDate}</label>
@@ -358,25 +356,27 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
                     </div>
                   </div>
 
-                  <div style={{ marginBottom: '20px', borderTop: '1px solid #f1f5f9', paddingTop: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#334155' }}>{t.labelTasks}</label>
-                    {selectedTasks.map((tRow, index) => (
-                      <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                        <select value={tRow} onChange={(e) => handleTaskRowChange(index, e.target.value)} required style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-                          <option value="">-- Tätigkeit wählen --</option>
-                          {scopeConfig.tasks.map((taskLabel, idx) => (
-                            <option key={idx} value={taskLabel}>{taskLabel}</option>
-                          ))}
-                        </select>
-                        {selectedTasks.length > 1 && (
-                          <button type="button" onClick={() => setSelectedTasks(prev => prev.filter((_, i) => i !== index))} style={{ padding: '10px', backgroundColor: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>✕</button>
-                        )}
-                      </div>
-                    ))}
-                    <button type="button" onClick={() => setSelectedTasks(prev => [...prev, ''])} style={{ padding: '8px 12px', backgroundColor: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', color: '#475569' }}>
-                      {t.btnAddTask}
-                    </button>
-                  </div>
+                  {scopeConfig.requiresDetailedTracking && (
+                    <div style={{ marginBottom: '20px', borderTop: '1px solid #f1f5f9', paddingTop: '15px' }}>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#334155' }}>{t.labelTasks}</label>
+                      {selectedTasks.map((tRow, index) => (
+                        <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                          <select value={tRow} onChange={(e) => handleTaskRowChange(index, e.target.value)} required style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                            <option value="">-- Tätigkeit wählen --</option>
+                            {scopeConfig.tasks.map((taskLabel, idx) => (
+                              <option key={idx} value={taskLabel}>{taskLabel}</option>
+                            ))}
+                          </select>
+                          {selectedTasks.length > 1 && (
+                            <button type="button" onClick={() => setSelectedTasks(prev => prev.filter((_, i) => i !== index))} style={{ padding: '10px', backgroundColor: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>✕</button>
+                          )}
+                        </div>
+                      ))}
+                      <button type="button" onClick={() => setSelectedTasks(prev => [...prev, ''])} style={{ padding: '8px 12px', backgroundColor: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', color: '#475569' }}>
+                        {t.btnAddTask}
+                      </button>
+                    </div>
+                  )}
 
                   <div style={{ marginBottom: '20px' }}>
                     <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelNotes}</label>
@@ -388,49 +388,50 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
                   </button>
                 </div>
 
-                {/* MATERIAL CONSUMPTIONS UP/DOWN COMPONENT MATRIX */}
-                <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', maxHeight: '78vh', overflowY: 'auto' }}>
-                  <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#0f172a', borderBottom: '2px solid #f1f5f9', paddingBottom: '10px' }}>📦 {t.matTitle}</h3>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
-                        <th style={{ padding: '10px 6px' }}>{t.matName}</th>
-                        <th style={{ padding: '10px 6px', textAlign: 'center', width: '100px' }}>{t.matOrdered}</th>
-                        <th style={{ padding: '10px 6px', textAlign: 'center', width: '100px' }}>{t.matReturned}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {materialRows.map((row, idx) => (
-                        <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                          <td style={{ padding: '12px 6px' }}>
-                            <div style={{ fontWeight: 'bold', color: '#334155' }}>{row.name}</div>
-                            <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{row.specification}</div>
-                          </td>
-                          {/* Sprintf Counters using arrow handles */}
-                          <td style={{ padding: '12px 6px', textAlign: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                              <button type="button" onClick={() => adjustMaterial(idx, 'ordered', -1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
-                              <span style={{ minWidth: '20px', fontWeight: 'bold', color: '#0f172a' }}>{row.ordered}</span>
-                              <button type="button" onClick={() => adjustMaterial(idx, 'ordered', 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
-                            </div>
-                          </td>
-                          <td style={{ padding: '12px 6px', textAlign: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                              <button type="button" onClick={() => adjustMaterial(idx, 'returned', -1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
-                              <span style={{ minWidth: '20px', fontWeight: 'bold', color: '#0f172a' }}>{row.returned}</span>
-                              <button type="button" onClick={() => adjustMaterial(idx, 'returned', 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
-                            </div>
-                          </td>
+                {/* MATERIAL CONSUMPTION ROW MODULE */}
+                {scopeConfig.requiresDetailedTracking && (
+                  <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', maxHeight: '78vh', overflowY: 'auto' }}>
+                    <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#0f172a', borderBottom: '2px solid #f1f5f9', paddingBottom: '10px' }}>📦 {t.matTitle}</h3>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
+                          <th style={{ padding: '10px 6px' }}>{t.matName}</th>
+                          <th style={{ padding: '10px 6px', textAlign: 'center', width: '100px' }}>{t.matOrdered}</th>
+                          <th style={{ padding: '10px 6px', textAlign: 'center', width: '100px' }}>{t.matReturned}</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {materialRows.map((row, idx) => (
+                          <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '12px 6px' }}>
+                              <div style={{ fontWeight: 'bold', color: '#334155' }}>{row.name}</div>
+                              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{row.specification}</div>
+                            </td>
+                            <td style={{ padding: '12px 6px', textAlign: 'center' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                                <button type="button" onClick={() => adjustMaterial(idx, 'ordered', -1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
+                                <span style={{ minWidth: '20px', fontWeight: 'bold', color: '#0f172a' }}>{row.ordered}</span>
+                                <button type="button" onClick={() => adjustMaterial(idx, 'ordered', 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
+                              </div>
+                            </td>
+                            <td style={{ padding: '12px 6px', textAlign: 'center' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                                <button type="button" onClick={() => adjustMaterial(idx, 'returned', -1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
+                                <span style={{ minWidth: '20px', fontWeight: 'bold', color: '#0f172a' }}>{row.returned}</span>
+                                <button type="button" onClick={() => adjustMaterial(idx, 'returned', 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </form>
             </div>
           )}
 
-          {/* VIEWPORT 2: DAILY ACCUMULATED RECORDS TAB */}
+          {/* VIEWPORT 2: DAILY LOGS AND RECORDS PANEL */}
           {activeTab === 'records' && (
             <div>
               <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerRecords}</h2>
@@ -465,14 +466,16 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
                         <span style={{ fontSize: '0.95rem', color: '#1e293b' }}>{rec.employee}</span>
                       </div>
 
-                      <div style={{ marginBottom: '10px' }}>
-                        <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block', fontWeight: 'bold' }}>{t.labelTasks}:</span>
-                        <ul style={{ margin: '5px 0 0 0', paddingLeft: '20px', fontSize: '0.95rem', color: '#1e293b' }}>
-                          {rec.tasks.map((tsk, i) => <li key={i}>{tsk}</li>)}
-                        </ul>
-                      </div>
+                      {rec.tasks && rec.tasks.length > 0 && (
+                        <div style={{ marginBottom: '10px' }}>
+                          <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block', fontWeight: 'bold' }}>{t.labelTasks}:</span>
+                          <ul style={{ margin: '5px 0 0 0', paddingLeft: '20px', fontSize: '0.95rem', color: '#1e293b' }}>
+                            {rec.tasks.map((tsk, i) => <li key={i}>{tsk}</li>)}
+                          </ul>
+                        </div>
+                      )}
 
-                      {rec.materials.length > 0 && (
+                      {rec.materials && rec.materials.length > 0 && (
                         <div>
                           <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block', fontWeight: 'bold' }}>Verbrauchtes Material:</span>
                           <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginTop: '5px' }}>
@@ -487,7 +490,7 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
                       
                       {rec.notes && (
                         <div style={{ marginTop: '10px', fontStyle: 'italic', color: '#475569', fontSize: '0.9rem', backgroundColor: '#f8fafc', padding: '8px', borderRadius: '4px' }}>
-                          Note: {rec.notes}
+                          Notizen: {rec.notes}
                         </div>
                       )}
                     </div>
@@ -497,7 +500,7 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
             </div>
           )}
 
-          {/* VIEWPORT 3: MONTHLY CONSOLIDATED HOURS TOTALS TAB */}
+          {/* VIEWPORT 3: MONTHLY CONSOLIDATED WORKED HOURS */}
           {activeTab === 'monthly' && (
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerMonthly}</h2>
@@ -510,7 +513,6 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
                 </thead>
                 <tbody>
                   {userRole === 'admin' ? (
-                    // Admin dynamically aggregates hours across all tracking entities
                     Object.entries(
                       allRecords.reduce((acc, r) => {
                         const hrs = parseFloat(calculateHours(r.startTime, r.endTime));
@@ -524,7 +526,6 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
                       </tr>
                     ))
                   ) : (
-                    // Regular isolation tracking block for current employee
                     <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
                       <td style={{ padding: '12px', fontWeight: 'bold', color: '#334155' }}>{username}</td>
                       <td style={{ padding: '12px', color: '#10b981', fontWeight: 'bold' }}>
@@ -537,13 +538,13 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
             </div>
           )}
 
-          {/* VIEWPORT 4: DYNAMIC LOCALIZATION LANGUAGES CONTROLS */}
+          {/* VIEWPORT 4: SETTINGS AND LOCALIZATION */}
           {activeTab === 'settings' && (
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', maxWidth: '500px' }}>
               <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerSettings}</h2>
               <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', color: '#334155' }}>{t.langLabel}</label>
               <select value={language} onChange={(e) => setLanguage(e.target.value as 'de' | 'en')} style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', fontWeight: 'bold', color: '#1e293b' }}>
-                <option value="de">Deutsch (German)</option>
+                <option value="de">Deutsch</option>
                 <option value="en">English</option>
               </select>
             </div>
