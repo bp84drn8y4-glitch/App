@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-// Define the component properties interface
 interface DashboardProps {
   userRole: 'employee' | 'admin' | 'customer';
   username: string;
@@ -15,7 +14,6 @@ interface MaterialRowState {
   returned: number;
 }
 
-// FALLBACK SOURCE DATA LISTS
 const WASCHSALON_TASKS = ['Maschinenreinigung', 'Kassenabrechnung', 'Flusensiebe leeren', 'Boden wischen'];
 const GEBAEUDEREINIGUNG_TASKS = ['Büroreinigung', 'Unterhaltsreinigung', 'Fenster putzen', 'Mülleimer leeren'];
 
@@ -24,10 +22,7 @@ const GEBAEUDEREINIGUNG_MATERIALS = ['Allzweckreiniger', 'Glasreiniger', 'Mikrof
 
 export function Dashboard({ userRole, username, businessId, onLogout, onBackToPortal }: DashboardProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [language, setLanguage] = useState<'de' | 'en'>('de');
 
-  // --- FORM STATES ---
-  // Derive display context dynamically from businessId to eliminate double-selection inputs
   const business = 
     businessId === 'bullauge' ? 'Bullauge Waschsalon' : 
     businessId === 'fuerst_hauser' ? 'Fürst Hauser Gebäudereinigung' :
@@ -42,7 +37,6 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
   const [showMaterialList, setShowMaterialList] = useState(true);
   const [formStatus, setFormStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
 
-  // --- DYNAMIC TASK LABELS ---
   const [tasks, setTasks] = useState<string[]>(['']);
 
   const availableTasks = 
@@ -53,12 +47,8 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
 
   const [materialRows, setMaterialRows] = useState<MaterialRowState[]>([]);
 
-  // UNIFIED LIFECYCLE EFFECT
   useEffect(() => {
-    // 1. Safely reset task forms when routing between sectors
     setTasks(['']);
-
-    // 2. Select matching material lists layout defensively
     const targetSource = 
       businessId === 'bullauge' ? WASCHSALON_MATERIALS : 
       businessId === 'fuerst_hauser' ? GEBAEUDEREINIGUNG_MATERIALS :
@@ -69,12 +59,10 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
     setMaterialRows(initialRows);
   }, [businessId]);
 
-  // UI Event Actions
   const handleCounterChange = (index: number, field: 'ordered' | 'returned', delta: number) => {
     setMaterialRows(prev => prev.map((row, i) => {
       if (i !== index) return row;
-      const val = Math.max(0, row[field] + delta);
-      return { ...row, [field]: val };
+      return { ...row, [field]: Math.max(0, row[field] + delta) };
     }));
   };
 
@@ -95,35 +83,30 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif', backgroundColor: isDarkMode ? '#1a1a1a' : '#f8fafc', color: isDarkMode ? '#f3f4f6' : '#1f2937', minHeight: '100vh' }}>
-      
-      {/* Top Navigation Headers Bar */}
+    <div style={{ padding: '20px', fontFamily: 'sans-serif', backgroundColor: '#f8fafc', color: '#1f2937', minHeight: '100vh' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
         <div>
-          <button onClick={onBackToPortal} style={{ padding: '8px 12px', marginRight: '15px', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          <button type="button" onClick={onBackToPortal} style={{ padding: '8px 12px', marginRight: '15px', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
             ← Zurück zur Übersicht
           </button>
           <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{business} Workspace</span>
         </div>
         <div>
           <span style={{ marginRight: '15px' }}>Nutzer: <strong>{username}</strong> ({userRole})</span>
-          <button onClick={onLogout} style={{ padding: '8px 12px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          <button type="button" onClick={onLogout} style={{ padding: '8px 12px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
             Abmelden
           </button>
         </div>
       </div>
 
       {formStatus.type && (
-        <div style={{ padding: '15px', marginBottom: '20px', borderRadius: '4px', backgroundColor: formStatus.type === 'success' ? '#d1fae5' : '#fee2e2', color: formStatus.type === 'success' ? '#065f46' : '#991b1b' }}>
+        <div style={{ padding: '15px', marginBottom: '20px', borderRadius: '4px', backgroundColor: '#d1fae5', color: '#065f46' }}>
           {formStatus.message}
         </div>
       )}
 
-      {/* Main Operational Workspace Input Grid */}
       <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-        
-        {/* Left Column Controls */}
-        <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', color: '#1f2937' }}>
+        <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
           <h3 style={{ marginTop: 0, marginBottom: '15px' }}>Zeiterfassung</h3>
           
           <div style={{ marginBottom: '15px' }}>
@@ -147,14 +130,13 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
             </div>
           </div>
 
-          {/* Dynamic Task Form Row Inputs */}
           <div style={{ marginBottom: '15px' }}>
             <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Ausgeführte Tätigkeiten</label>
-            {(tasks || []).map((task, index) => (
+            {tasks.map((task, index) => (
               <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
                 <select value={task} onChange={(e) => handleTaskChange(index, e.target.value)} required style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}>
                   <option value="">-- Tätigkeit wählen --</option>
-                  {(availableTasks || []).map((option, oIdx) => (
+                  {availableTasks.map((option, oIdx) => (
                     <option key={oIdx} value={option}>{option}</option>
                   ))}
                 </select>
@@ -178,13 +160,9 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
           </button>
         </div>
 
-        {/* Right Column Material Logs Counter Table */}
-        <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', color: '#1f2937' }}>
+        <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
             <h3 style={{ margin: 0 }}>Materialverbrauch</h3>
-            <button type="button" onClick={() => setShowMaterialList(!showMaterialList)} style={{ padding: '4px 8px', fontSize: '0.85rem', cursor: 'pointer' }}>
-              {showMaterialList ? 'Ausblenden' : 'Einblenden'}
-            </button>
           </div>
 
           {showMaterialList && (
@@ -197,9 +175,9 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
                 </tr>
               </thead>
               <tbody>
-                {(materialRows || []).map((row, idx) => (
+                {materialRows.map((row, idx) => (
                   <tr key={idx} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                    <td style={{ padding: '8px' }}>{row?.name || 'Unbekanntes Material'}</td>
+                    <td style={{ padding: '8px' }}>{row.name}</td>
                     <td style={{ padding: '8px', textAlign: 'center' }}>
                       <button type="button" onClick={() => handleCounterChange(idx, 'ordered', -1)} style={{ padding: '2px 8px', marginRight: '5px' }}>-</button>
                       <span style={{ display: 'inline-block', width: '25px', fontWeight: 'bold' }}>{row.ordered}</span>
@@ -216,7 +194,6 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
             </table>
           )}
         </div>
-
       </form>
     </div>
   );

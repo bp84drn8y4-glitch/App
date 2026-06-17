@@ -279,13 +279,13 @@ export default function App() {
   // ==========================================
   // Phase 3: Business Selected -> Show Detailed Dashboard
   // ==========================================
-  return (
-    <Dashboard
-      userRole={selectedRole}
-      username={username}
-      businessId={selectedBusiness}
-      onLogout={handleLogout}
-      onBackToPortal={() => setSelectedBusiness(null)}
-    />
-  );
+	return (
+  <Dashboard
+    userRole={selectedRole}
+    username={username}
+    businessId={selectedBusiness}
+    onLogout={handleLogout}
+    onBackToPortal={() => setSelectedBusiness(null)}
+  />
+);
 } // <--- THIS CLOSES THE FULL 'export default function App()' FUNCTION
