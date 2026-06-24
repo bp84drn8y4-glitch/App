@@ -67,7 +67,7 @@ const translations: Record<string, any> = {
     dashboardTitle: 'Area di lavoro', backBtn: '← Torna al portale', logoutBtn: 'Disconnetti', userLabel: 'Utente', navEntry: 'Inserimento Dati', navRecords: 'Registro Giornaliero', navMonthly: 'Ore Mensili', navUsers: 'Gestisci Staff', navSettings: 'Impostazioni', headerData: 'Registra Ore e Materiali', headerRecords: 'I Miei Registri Giornalieri', headerMonthly: 'Ore Lavorate Mensili', headerUsers: 'Crea Nuovo Profilo Dipendente', headerSettings: 'Impostazioni di Sistema', labelCustomer: 'Cliente / Oggetto', labelDate: 'Data', labelStart: 'Ora Inizio', labelEnd: 'Ora Fine', labelTasks: 'Attività Eseguite', labelNotes: 'Note / Varie', btnAddTask: '+ Aggiungi Riga Attività', btnSubmit: 'Invia Registrazione', matTitle: 'Tracciamento Materiali', matName: 'Nome Materiale', matOrdered: 'Prelevato', matReturned: 'Reso', successMsg: 'Dati registrati con successo! Il record è bloccato.', adminNotice: 'Modalità Admin: Diritti di modifica e cancellazione concessi.', thEmployee: 'Dipendente', thHours: 'Ore', langLabel: 'Seleziona Lingua', noRecords: 'Nessun record trovato per questo ambito.', noTrackingRequired: 'Non sono richieste liste materiali o attività per questa unità aziendale. Registra le tue ore e note qui sotto.', lblNewUser: 'Nome utente', lblNewPass: 'Password', lblNewBiz: 'Unità Aziendale Assegnata', btnCreateUser: 'Crea Profilo', userCreatedMsg: 'Profilo dipendente creato con successo!', thRole: 'Ruolo', thBiz: 'Ambito Aziendale', existingUsersTitle: 'Profili Utente Attivi', selectTaskPlaceholder: '-- Seleziona Attività --',
     biz_fuerst_customers: ['Edeka Pocking Filiale', 'Gewerbepark Pleiskirchen', 'Municipio Altötting', 'Clinica Burghausen'],
     biz_fuerst_tasks: ['Pulizia esterna vetrine e porte d\'ingresso', 'Pulizia interna vetrine e porte d\'ingresso', 'Pulizia bifacciale vetrate nella zona vendita', 'Pulizia bifacciale vetrate nella zona dipendenti', 'Pulizia interna vetrine straordinaria per decorazioni con viaggio extra', 'Pulizia interna vetrine per decorazioni abbinata alla pulizia regolare', 'Pulizia di specchi', 'Servizi speciali e vari'],
-    biz_fuerst_materials: [{n:'Sacchi spazzatura grandi',s:'120 L'},{n:'Sacchi spazzatura medi',s:'60 L'},{n:'Sacchi spazzatura piccoli',s:'28 L'},{n:'Mocio in microfibra',s:'50 cm'},{n:'Mocio in cotone',s:'50 cm'},{n:'Panno in microfibra rosso',s:'40 x 40 cm'},{n:'Panno in microfibra blu',s:'40 x 40 cm'},{n:'Panno in microfibra verde',s:'40 x 40 cm'},{n:'Panno in microfibra giallo',s:'40 x 40 cm'},{n:'Asciugamani da cucina',s:'70 x 50 cm'},{n:'Detergente sanitario Milizid',s:'Flacone spray'},{n:'Detergente pavimenti Torrun',s:'Concentrato'},{n:'Detergente per superfici',s:'Pronto all\'uso'},{n:'Carta igienica',s:'A strati'},{n:'Asciugamani di carta piegati',s:'Carta'},{n:'Sapone per le mani',s:'Tanica da 10 litri'}],
+    biz_fuerst_materials: [{n:'Sacchi spazzatura grandi',s:'120 L'},{n:'Sacchi spazzatura medi',s:'60 L'},{n:'Sacchi spazzatura piccoli',s:'28 L'},{n:'Mocio in microfibra',s:'50 cm'},{n:'Mocio in cotone',s:'50 cm'},{n:'Panno in microfibra rosso',s:'40 x 40 cm'},{n:'Panno in microfibra blu',s:'40 x 40 cm'},{n:'Panno in microfibra verde',s:'40 x 40 cm'},{n:'Panno in microfibra giallo',s:'40 x 40 cm'},{n:'Asciugamani da cucina',s:'70 x 50 cm'},{n:'Detergente sanitario Milizid',s:'Flacone spray'},{n:'Detergente pavimenti Torrun',s:'Concentrato'},{n:'Detergente per surfaces',s:'Pronto all\'uso'},{n:'Carta igienica',s:'A strati'},{n:'Asciugamani di carta piegati',s:'Carta'},{n:'Sapone per le mani',s:'Tanica da 10 litri'}],
     biz_bullauge_customers: ['Filiale Münchner Str.', 'Espresso Stazione Centrale', 'Salone del quartiere universitario'],
     biz_bullauge_tasks: ['Pulizia profonda lavatrici', 'Riconciliazione cassa', 'Svuotamento filtri lanugine', 'Lavaggio e disinfezione pavimenti', 'Cura della lavanderia e stiratura'],
     biz_bullauge_materials: [{n:'Pellicola trasparente rotoli',s:'Standard'},{n:'Appretto spray',s:'Flacone spray'},{n:'Cloro candeggina',s:'Agente sbiancante'},{n:'Detersivo in polvere',s:'20 kg'},{n:'Ammorbidente',s:'20 L'},{n:'Materiali di consumo vari',s:'Consumo'}]
@@ -82,7 +82,7 @@ const translations: Record<string, any> = {
     biz_bullauge_materials: [{n:'Film étirable manuel rotatifs',s:'Standard'},{n:'Amidon en spray',s:'Flacon spray'},{n:'Chlore javellisant',s:'Agent de blanchiment'},{n:'Lessive en poudre',s:'20 kg'},{n:'Adoucissant text.',s:'20 L'},{n:'Consommables divers',s:'Consommation'}]
   },
   es: {
-    dashboardTitle: 'Espacio de Trabajo', backBtn: '← Volver al Portal', logoutBtn: 'Cerrar Sesión', userLabel: 'Usuario', navEntry: 'Registro de Datos', navRecords: 'Registro Diario', navMonthly: 'Horas Mensuales', navUsers: 'Gestionar Personal', navSettings: 'Ajustes', headerData: 'Registrar Horas y Materiales', headerRecords: 'Mis Registros Diarios', headerMonthly: 'Horas Trabajadas Mensuales', headerUsers: 'Crear Perfil de Empleado', headerSettings: 'Ajustes del Sistema', labelCustomer: 'Cliente / Objeto', labelDate: 'Fecha', labelStart: 'Hora de Inicio', labelEnd: 'Hora de Finalización', labelTasks: 'Tareas Ejecutadas', labelNotes: 'Notas / Varios', btnAddTask: '+ Añadir Línea de Tarea', btnSubmit: 'Enviar Registro', matTitle: 'Control de Materiales', matName: 'Nombre del Material', matOrdered: 'Retirado', matReturned: 'Devuelto', successMsg: '¡Datos registrados con éxito! El registro está bloqueado.', adminNotice: 'Modo Administrador: Derechos de edición y eliminación concedidos.', thEmployee: 'Empleado', thHours: 'Horas', langLabel: 'Seleccionar Idioma', noRecords: 'No se encontraron registros para este ámbito.', noTrackingRequired: 'No se requieren listas específicas de materiales o tareas para esta unidad de negocio. Registre sus horas de trabajo y notas abajo.', lblNewUser: 'Nombre de usuario', lblNewPass: 'Contraseña', lblNewBiz: 'Unidad de Negocio Asignada', btnCreateUser: 'Crear Perfil', userCreatedMsg: '¡Perfil de empleado creado con éxito!', thRole: 'Rol', thBiz: 'Ámbito Comercial', existingUsersTitle: 'Perfiles de Usuario Activos', selectTaskPlaceholder: '-- Seleccionar Tarea --',
+    dashboardTitle: 'Espacio de Trabajo', backBtn: '¡Volver al Portal', logoutBtn: 'Cerrar Sesión', userLabel: 'Usuario', navEntry: 'Registro de Datos', navRecords: 'Registro Diario', navMonthly: 'Horas Mensuales', navUsers: 'Gestionar Personal', navSettings: 'Ajustes', headerData: 'Registrar Horas y Materiales', headerRecords: 'Mis Registros Diarios', headerMonthly: 'Horas Trabajadas Mensuales', headerUsers: 'Crear Perfil de Empleado', headerSettings: 'Ajustes del Sistema', labelCustomer: 'Cliente / Objeto', labelDate: 'Fecha', labelStart: 'Hora de Inicio', labelEnd: 'Hora de Finalización', labelTasks: 'Tareas Ejecutadas', labelNotes: 'Notas / Varios', btnAddTask: '+ Añadir Línea de Tarea', btnSubmit: 'Enviar Registro', matTitle: 'Control de Materiales', matName: 'Nombre del Material', matOrdered: 'Retirado', matReturned: 'Devuelto', successMsg: '¡Datos registrados con éxito! El registro está bloqueado.', adminNotice: 'Modo Administrador: Derechos de edición y eliminación concedidos.', thEmployee: 'Empleado', thHours: 'Horas', langLabel: 'Seleccionar Idioma', noRecords: 'No se encontraron registros para este ámbito.', noTrackingRequired: 'No se requieren listas específicas de materiales o tareas para esta unidad de negocio. Registre sus horas de trabajo y notas abajo.', lblNewUser: 'Nombre de usuario', lblNewPass: 'Contraseña', lblNewBiz: 'Unidad de Negocio Asignada', btnCreateUser: 'Crear Perfil', userCreatedMsg: '¡Perfil de empleado creado con éxito!', thRole: 'Rol', thBiz: 'Ámbito Comercial', existingUsersTitle: 'Perfiles de Usuario Activos', selectTaskPlaceholder: '-- Seleccionar Tarea --',
     biz_fuerst_customers: ['Sucursal Edeka Pocking', 'Parque empresarial Pleiskirchen', 'Ayuntamiento de Altötting', 'Clínica de Burghausen'],
     biz_fuerst_tasks: ['Limpieza exterior de escaparates y puertas de entrada', 'Limpieza interior de escaparates y puertas de entrada', 'Limpieza de cristales a dos caras en zona de ventas', 'Limpieza de cristales a dos caras en zona de empleados', 'Limpieza interior extra de escaparates por decoración con viaje adicional', 'Limpieza interior de escaparates por decoración junto con limpieza regular', 'Limpieza de espejos', 'Servicios especiales y varios'],
     biz_fuerst_materials: [{n:'Bolsas de basura grandes',s:'120 L'},{n:'Bolsas de basura medianas',s:'60 L'},{n:'Bolsas de basura pequeñas',s:'28 L'},{n:'Fregona de microfibra',s:'50 cm'},{n:'Fregona de algodón',s:'50 cm'},{n:'Paño de microfibra rojo',s:'40 x 40 cm'},{n:'Paño de microfibra azul',s:'40 x 40 cm'},{n:'Paño de microfibra verde',s:'40 x 40 cm'},{n:'Paño de microfibra amarillo',s:'40 x 40 cm'},{n:'Paños de cocina',s:'70 x 50 cm'},{n:'Limpiador sanitario Milizid',s:'Botella de spray'},{n:'Limpiador de suelos Torrun',s:'Concentrado'},{n:'Limpiador de superficies',s:'Listo para usar'},{n:'Papel higiénico',s:'Por capas'},{n:'Toallas de papel plegadas',s:'Papel'},{n:'Jabón de manos',s:'Garrafa de 10 litros'}],
@@ -94,7 +94,7 @@ const translations: Record<string, any> = {
     dashboardTitle: 'Espacio de Trabajo', backBtn: '← Volver al Portal', logoutBtn: 'Cerrar Sesión', userLabel: 'Usuario', navEntry: 'Registro de Datos', navRecords: 'Bitácora Diaria', navMonthly: 'Horas del Mes', navUsers: 'Administrar Personal', navSettings: 'Configuración', headerData: 'Registrar Horas y Materiales', headerRecords: 'Mis Bitácoras Diarias', headerMonthly: 'Horas Trabajadas en el Mes', headerUsers: 'Crear Perfil de Empleado', headerSettings: 'Configuración del Sistema', labelCustomer: 'Cliente / Objeto', labelDate: 'Fecha', labelStart: 'Hora de Entrada', labelEnd: 'Hora de Salida', labelTasks: 'Tareas Realizadas', labelNotes: 'Notas / Varios', btnAddTask: '+ Agregar Línea de Tarea', btnSubmit: 'Enviar Reporte', matTitle: 'Control de Materiales', matName: 'Nombre del Material', matOrdered: 'Surtido', matReturned: 'Devolución', successMsg: '¡Reporte guardado con éxito! El registro está bloqueado.', adminNotice: 'Modo Administrador: Permisos de edición y eliminación activados.', thEmployee: 'Empleado', thHours: 'Horas', langLabel: 'Seleccionar Idioma', noRecords: 'No hay registros en este periodo.', noTrackingRequired: 'No se requieren listas de materiales o tareas para esta área. Favor de registrar sus horas y notas abajo.', lblNewUser: 'Usuario', lblNewPass: 'Contraseña', lblNewBiz: 'Unidad de Negocio Asignada', btnCreateUser: 'Crear Perfil', userCreatedMsg: '¡Perfil de empleado creado con éxito!', thRole: 'Rol', thBiz: 'Área del Negocio', existingUsersTitle: 'Usuarios Activos del Sistema', selectTaskPlaceholder: '-- Seleccionar Tarea --',
     biz_fuerst_customers: ['Tienda Edeka Pocking', 'Parque industrial Pleiskirchen', 'Palacio Municipal Altötting', 'Clínica de Burghausen'],
     biz_fuerst_tasks: ['Limpieza exterior de aparadores y puertas de acceso', 'Limpieza interior de aparadores y puertas de acceso', 'Limpieza de cristales por ambos lados en piso de venta', 'Limpieza de cristales por ambos lados en área de personal', 'Limpieza interior extra de aparadores por montaje de exhibición con traslado', 'Limpieza interior de aparadores por montaje junto con limpieza programada', 'Limpieza de espejos', 'Servicios especiales y varios'],
-    biz_fuerst_materials: [{n:'Bolsas de basura grandes',s:'120 L'},{n:'Bolsas de basura medianas',s:'60 L'},{n:'Bolsas de basura chicas',s:'28 L'},{n:'Mopa de microfibra',s:'50 cm'},{n:'Mopa de algodón',s:'50 cm'},{n:'Trapo de microfibra rojo',s:'40 x 40 cm'},{n:'Trapo de microfibra azul',s:'40 x 40 cm'},{n:'Trapo de microfibra verde',s:'40 x 40 cm'},{n:'Trapo de microfibra amarillo',s:'40 x 40 cm'},{n:'Toallas para trastes',s:'70 x 50 cm'},{n:'Limpiador de baños Milizid',s:'Atomizador'},{n:'Limpiador para pisos Torrun',s:'Concentrado'},{n:'Limpiador de superficies',s:'Listo para usar'},{n:'Papel higiénico rudo',s:'Por capas'},{n:'Toallas de papel interdobladas',s:'Papel'},{n:'Jabón líquido de manos',s:'Porrón de 10 litros'}],
+    biz_fuerst_materials: [{n:'Bolsas de basura grandes',s:'120 L'},{n:'Bolsas de basura medianas',s:'60 L'},{n:'Bolsas de basura chicas',s:'28 L'},{n:'Mopa de microfibra',s:'50 cm'},{n:'Mopa de algodón',s:'50 cm'},{n:'Trapo de microfibra rojo',s:'40 x 40 cm'},{n:'Trapo de microfibra azul',s:'40 x 40 cm'},{n:'Trapo de microfibra verde',s:'40 x 40 cm'},{n:'Trapo de microfibra amarillo',s:'40 x 40 cm'},{n:'Toallas para trastes',s:'70 x 50 cm'},{n:'Limpiador de baños Milizid',s:'Atomizador'},{n:'Limpiador para pisos Torrun',s:'Concentrato'},{n:'Limpiador de superficies',s:'Listo para usar'},{n:'Papel higiénico rudo',s:'Por capas'},{n:'Toallas de papel interdobladas',s:'Papel'},{n:'Jabón líquido de manos',s:'Porrón de 10 litros'}],
     biz_bullauge_customers: ['Sucursal Münchner Str.', 'Express Estación Central', 'Lavandería Zona Universitaria'],
     biz_bullauge_tasks: ['Lavado profundo de maquinaria', 'Corte de caja matutino/vespertino', 'Limpieza de filtros de pelusa', 'Trapeado y desinfección de pisos', 'Cuidado de prendas y planchado'],
     biz_bullauge_materials: [{n:'Playo manual rollo',s:'Estándar'},{n:'Almidón en aerosol',s:'Atomizador'},{n:'Cloro líquido',s:'Blanqueador'},{n:'Detergente en polvo',s:'20 kg'},{n:'Suavizante de telas',s:'20 L'},{n:'Insumos de consumo varios',s:'Consumo'}]
@@ -109,7 +109,7 @@ const translations: Record<string, any> = {
     biz_bullauge_materials: [{n:'Стретч-плівка ручна',s:'Стандарт'},{n:'Крохмаль-спрей',s:'Розпилювач'},{n:'Хлорний відбілювач',s:'Рідина'},{n:'Пральний порошок',s:'20 кг'},{n:'Кондиціонер для білизни',s:'20 л'},{n:'Інші витратні матеріали',s:'Витратні матеріали'}]
   },
   hi: {
-    dashboardTitle: 'कार्यक्षेत्र', backBtn: '← पोर्टल पर वापस जाएं', logoutBtn: 'लॉगआउट', userLabel: 'उपयोगकर्ता', navEntry: 'डेटा प्रविष्टि', navRecords: 'दैनिक लॉग', navMonthly: 'मासिक घंटे', navUsers: 'कर्मचारी प्रबंधन', navSettings: 'सेटिंग्स', headerData: 'समय और सामग्री दर्ज करें', headerRecords: 'मेरे दैनिक रिकॉर्ड', headerMonthly: 'मासिक कार्य के घंटे', headerUsers: 'नया कर्मचारी प्रोफाइल बनाएं', headerSettings: 'सिस्टम सेटिंग्स', labelCustomer: 'ग्राहक / ऑब्जेक्ट', labelDate: 'तारीख', labelStart: 'शुरू होने का समय', labelEnd: 'समाप्ति का समय', labelTasks: 'किए गए कार्य', labelNotes: 'विविध / नोट्स', btnAddTask: '+ कार्य पंक्ति जोड़ें', btnSubmit: 'रिकॉर्ड जमा करें', matTitle: 'सामग्री ट्रैकिंग', matName: 'सामग्री का नाम', matOrdered: 'लिया गया', matReturned: 'वापस किया', successMsg: 'डेटा सफलतापूर्वक दर्ज किया गया! रिकॉर्ड लॉक है।', adminNotice: 'एडमिन मोड: संपादन और हटाने के अधिकार दिए गए हैं।', thEmployee: 'कर्मचारी', thHours: 'घंटे', langLabel: 'भाषा चुनें', noRecords: 'इस कार्यक्षेत्र के लिए कोई रिकॉर्ड नहीं मिला।', noTrackingRequired: 'इस व्यावसायिक इकाई के लिए किसी समर्पित सामग्री या कार्य सूची की आवश्यकता नहीं है। कृपया नीचे अपने कार्य के घंटे और नोट्स दर्ज करें।', lblNewUser: 'यूज़रनेम', lblNewPass: 'पासवर्ड', lblNewBiz: 'सौंपी गई व्यावसायिक इकाई', btnCreateUser: 'प्रोफाइल बनाएं', userCreatedMsg: 'कर्मचारी प्रोफाइल सफलतापूर्वक बनाई गई!', thRole: 'भूमिका', thBiz: 'व्यवसाय का दायरा', existingUsersTitle: 'सक्रिय सिस्टम उपयोगकर्ता प्रोफाइल', selectTaskPlaceholder: '-- कार्य चुनें --',
+    dashboardTitle: 'कार्यक्षेत्र', backBtn: '← पोर्टल पर वापस जाएं', logoutBtn: 'लॉगआउट', userLabel: 'उपयोगकर्ता', navEntry: 'डेटा प्रविष्टि', navRecords: 'दैनिक लॉग', navMonthly: 'मासिक घंटे', navUsers: 'कर्मचारी प्रबंधन', navSettings: 'सेटिंग्स', headerData: 'समय और सामग्री दर्ज करें', headerRecords: 'मेरे दैनिक रिकॉर्ड', headerMonthly: 'मासिक कार्य के घंटे', headerUsers: 'नया कर्मचारी प्रोफाइल बनाएं', headerSettings: 'सिस्टम सेटिंग्ड', labelCustomer: 'ग्राहक / ऑब्जेक्ट', labelDate: 'तारीख', labelStart: 'शुरू होने का समय', labelEnd: 'समाप्ति का समय', labelTasks: 'किए गए कार्य', labelNotes: 'विविध / नोट्स', btnAddTask: '+ कार्य पंक्ति जोड़ें', btnSubmit: 'रिकॉर्ड जमा करें', matTitle: 'सामग्री ट्रैकिंग', matName: 'सामग्री का नाम', matOrdered: 'लिया गया', matReturned: 'वापस किया', successMsg: 'डेटा सफलतापूर्वक दर्ज किया गया! रिकॉर्ड लॉक है।', adminNotice: 'एडमिन मोड: संपादन और हटाने के अधिकार दिए गए हैं।', thEmployee: 'कर्मचारी', thHours: 'घंटे', langLabel: 'भाषा चुनें', noRecords: 'इस कार्यक्षेत्र के लिए कोई रिकॉर्ड नहीं मिला।', noTrackingRequired: 'इस व्यावसायिक इकाई के लिए किसी समर्पित सामग्री या कार्य सूची की आवश्यकता नहीं है। कृपया नीचे अपने कार्य के घंटे और नोट्स दर्ज करें।', lblNewUser: 'यूज़रनेम', lblNewPass: 'पासवर्ड', lblNewBiz: 'सौंपी गई व्यावसायिक इकाई', btnCreateUser: 'प्रोफाइल बनाएं', userCreatedMsg: 'कर्मचारी प्रोफाइल सफलतापूर्वक बनाई गई!', thRole: 'भूमिका', thBiz: 'व्यवसाय का दायरा', existingUsersTitle: 'सक्रिय सिस्टम उपयोगकर्ता प्रोफाइल', selectTaskPlaceholder: '-- कार्य चुनें --',
     biz_fuerst_customers: ['एडेका पोकिंग शाखा', 'प्लीस्किर्चेन बिजनेस पार्क', 'अल्टोटिंग टाउन हॉल', 'बर्गहाउसेन क्लिनिक'],
     biz_fuerst_tasks: ['दुकान की खिड़कियों और प्रवेश द्वारों की बाहरी सफाई', 'दुकान की खिड़कियों और प्रवेश द्वारों की आंतरिक सफाई', 'बिक्री क्षेत्र में कांच की सतहों की दोनों तरफ से सफाई', 'कर्मचारी क्षेत्र में कांच की सतहों की दोनों तरफ से सफाई', 'अतिरिक्त पारगमन यात्रा के साथ सजावट तिथियों के लिए दुकान की खिड़कियों की अतिरिक्त आंतरिक सफाई', 'नियमित शेड्यूलिंग के साथ सजावट तिथियों के लिए अतिरिक्त आंतरिक सफाई', 'दर्पण की सतहों की सफाई', 'विशेष परिचालन अनुरोध / विविध'],
     biz_fuerst_materials: [{n:'कचरा बैग बड़ा',s:'120 लीटर'},{n:'कचरा बैग मध्यम',s:'60 लीटर'},{n:'कचरा बैग छोटा',s:'28 लीटर'},{n:'माइक्रोफाइबर मॉप हेड',s:'50 सेमी'},{n:'कॉटन मॉप हेड',s:'50 सेमी'},{n:'माइक्रोफाइबर कपड़ा लाल',s:'40 x 40 सेमी'},{n:'माइक्रोफाइबर कपड़ा नीला',s:'40 x 40 सेमी'},{n:'माइक्रोफाइबर कपड़ा हरा',s:'40 x 40 सेमी'},{n:'माइक्रोफाइबर कपड़ा पीला',s:'40 x 40 सेमी'},{n:'किचन टॉवल',s:'70 x 50 सेमी'},{n:'सैनिटरी क्लीनर मिलिज़िड',s:'स्प्रे बोतल'},{n:'फ्लोर क्लीनर टोरुन',s:'केंद्रित'},{n:'सतह क्लीनर',s:'उपयोग के लिए तैयार'},{n:'शौचालय के कागज रोल',s:'परतदार'},{n:'मुड़े हुए कागज के हाथ वाले तौलिए',s:'कागज'},{n:'तरल हाथ साबुन',s:'10 लीटर कैनिस्टर'}],
@@ -132,7 +132,7 @@ const translations: Record<string, any> = {
     biz_fuerst_tasks: ['Наружная мойка витрин и входных дверей', 'Внутренняя мойка витрин и входных дверей', 'Двусторонняя очистка стеклянных поверхностей в торговой зоне', 'Двусторонняя очистка стеклянных поверхностей в зоне для персонала', 'Дополнительная внутренняя мойка витрин перед оформлением с выездом', 'Дополнительная внутренняя мойка витрин перед оформлением вместе с регулярной уборкой', 'Очистка зеркал', 'Специальные услуги и прочее'],
     biz_fuerst_materials: [{n:'Мешки для мусора большие',s:'120 л'},{n:'Мешки для мусора средние',s:'60 л'},{n:'Мешки для мусора малые',s:'28 л'},{n:'Швабра из микрофибры',s:'50 см'},{n:'Швабра из хлопка',s:'50 см'},{n:'Салфетка из микрофибры красная',s:'40 х 40 см'},{n:'Салфетка из microfibra синяя',s:'40 х 40 см'},{n:'Салфетка из микрофибры зеленая',s:'40 х 40 см'},{n:'Салфетка из микрофибры желтая',s:'40 х 40 см'},{n:'Кухонные полотенца',s:'70 х 50 см'},{n:'Санитарный очиститель Milizid',s:'Распылитель'},{n:'Очиститель пола Torrun',s:'Концентрат'},{n:'Очиститель поверхностей',s:'Готовый к использованию'},{n:'Туалетная бумага',s:'Рулонная'},{n:'Бумажные полотенца сложенные',s:'Бумага'},{n:'Жидкое мыло для рук',s:'Канистра 10 л'}],
     biz_bullauge_customers: ['Филиал на Münchner Str.', 'Экспресс Главный вокзал', 'Салон в университетском квартале'],
-    biz_bullauge_tasks: ['Глубокая очистка стиральных машин', 'Сведение кассы', 'Очистка фильтров от ворса', 'Мытье и дезинфекция полов', 'Уход за бельем и глажка'],
+    biz_bullauge_tasks: ['Глубокая очистка стиральных машин', 'Сведение кассы', 'Очистка фильтров от ворсу', 'Мытье и дезинфекция полов', 'Уход за бельем и глажка'],
     biz_bullauge_materials: [{n:'Стретч-пленка ручная',s:'Стандарт'},{n:'Крахмал-спрей',s:'Распылитель'},{n:'Хлорный отбеливатель',s:'Жидкость'},{n:'Стиральный порошок',s:'20 кг'},{n:'Кондиционер для белья',s:'20 л'},{n:'Прочие расходные материалы',s:'Расходные материалы'}]
   }
 };
@@ -149,6 +149,8 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
 
   const [activeTab, setActiveTab] = useState<'entry' | 'records' | 'monthly' | 'users' | 'settings'>('entry');
   const [language, setLanguage] = useState<string>('de');
+  // State layout hooks for dynamic window tracking
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   
   // Dynamic calculation fallback hooks
   const t = translations[language] || translations.de;
@@ -285,50 +287,92 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
     <div style={{ display: 'flex', height: '100vh', fontFamily: 'sans-serif', backgroundColor: '#f1f5f9', overflow: 'hidden', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
       
       {/* SIDEBAR NAVIGATION MENU */}
-      <div style={{ width: '260px', backgroundColor: '#1e293b', color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '20px 0', textAlign: isRTL ? 'right' : 'left' }}>
-        <div>
-          <div style={{ padding: '0 20px 20px 20px', borderBottom: '1px solid #334155', marginBottom: '20px' }}>
-            <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#38bdf8' }}>{scopeConfig.label}</h3>
-            <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '5px' }}>{t.dashboardTitle}</div>
-          </div>
+      <div 
+        style={{ 
+          width: isSidebarOpen ? '260px' : '0px', 
+          backgroundColor: '#1e293b', 
+          color: '#fff', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'space-between', 
+          padding: isSidebarOpen ? '20px 0' : '20px 0', 
+          textAlign: isRTL ? 'right' : 'left',
+          overflow: 'hidden',
+          transition: 'width 0.25s ease-in-out',
+          position: 'relative',
+          zIndex: 50
+        }}
+      >
+        {isSidebarOpen && (
+          <>
+            <div>
+              <div style={{ padding: '0 20px 20px 20px', borderBottom: '1px solid #334155', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#38bdf8' }}>{scopeConfig.label}</h3>
+                  <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '5px' }}>{t.dashboardTitle}</div>
+                </div>
+                {/* Close Button Trigger for Menu */}
+                <button 
+                  type="button"
+                  onClick={() => setIsSidebarOpen(false)}
+                  style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1.2rem', padding: '2px 6px', borderRadius: '4px' }}
+                  title="Close Menu"
+                >
+                  ✕
+                </button>
+              </div>
 
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '0 10px' }}>
-            <button onClick={() => setActiveTab('entry')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'entry' ? '#334155' : 'transparent', color: activeTab === 'entry' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-              📝 {t.navEntry}
-            </button>
-            <button onClick={() => setActiveTab('records')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'records' ? '#334155' : 'transparent', color: activeTab === 'records' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-              📅 {t.navRecords}
-            </button>
-            <button onClick={() => setActiveTab('monthly')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'monthly' ? '#334155' : 'transparent', color: activeTab === 'monthly' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-              📊 {t.navMonthly}
-            </button>
-            
-            {userRole === 'admin' && (
-              <button onClick={() => setActiveTab('users')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'users' ? '#334155' : 'transparent', color: activeTab === 'users' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-                👥 {t.navUsers}
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '0 10px' }}>
+                <button onClick={() => setActiveTab('entry')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'entry' ? '#334155' : 'transparent', color: activeTab === 'entry' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  📝 {t.navEntry}
+                </button>
+                <button onClick={() => setActiveTab('records')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'records' ? '#334155' : 'transparent', color: activeTab === 'records' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  📅 {t.navRecords}
+                </button>
+                <button onClick={() => setActiveTab('monthly')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'monthly' ? '#334155' : 'transparent', color: activeTab === 'monthly' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  📊 {t.navMonthly}
+                </button>
+                
+                {userRole === 'admin' && (
+                  <button onClick={() => setActiveTab('users')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'users' ? '#334155' : 'transparent', color: activeTab === 'users' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                    👥 {t.navUsers}
+                  </button>
+                )}
+
+                <button onClick={() => setActiveTab('settings')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'settings' ? '#334155' : 'transparent', color: activeTab === 'settings' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  ⚙️ {t.navSettings}
+                </button>
+              </nav>
+            </div>
+
+            <div style={{ padding: '0 15px' }}>
+              <button onClick={onBackToPortal} style={{ width: '100%', padding: '10px', backgroundColor: '#475569', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', marginBottom: '10px', fontSize: '0.85rem' }}>
+                {t.backBtn}
               </button>
-            )}
-
-            <button onClick={() => setActiveTab('settings')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'settings' ? '#334155' : 'transparent', color: activeTab === 'settings' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-              ⚙️ {t.navSettings}
-            </button>
-          </nav>
-        </div>
-
-        <div style={{ padding: '0 15px' }}>
-          <button onClick={onBackToPortal} style={{ width: '100%', padding: '10px', backgroundColor: '#475569', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', marginBottom: '10px', fontSize: '0.85rem' }}>
-            {t.backBtn}
-          </button>
-          <button onClick={onLogout} style={{ width: '100%', padding: '10px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-            {t.logoutBtn}
-          </button>
-        </div>
+              <button onClick={onLogout} style={{ width: '100%', padding: '10px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                {t.logoutBtn}
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* CORE WORKSPACE WINDOW */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', textAlign: isRTL ? 'right' : 'left' }} dir={isRTL ? 'rtl' : 'ltr'}>
         
-        <header style={{ height: '60px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: isRTL ? 'flex-start' : 'flex-end', padding: '0 30px' }}>
+        <header style={{ height: '60px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 30px' }}>
+          <div>
+            {/* Open Hamburger Trigger when side navigation panel is toggled shut */}
+            {!isSidebarOpen && (
+              <button 
+                type="button" 
+                onClick={() => setIsSidebarOpen(true)} 
+                style={{ backgroundColor: '#1e293b', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+              >
+                ☰
+              </button>
+            )}
+          </div>
           <span style={{ fontSize: '0.9rem', color: '#64748b' }}>
             {t.userLabel}: <strong style={{ color: '#0f172a' }}>{username}</strong> (<span style={{ color: userRole === 'admin' ? '#ef4444' : '#10b981', fontWeight: 'bold' }}>{userRole}</span>)
           </span>
@@ -413,7 +457,7 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
                   </button>
                 </div>
 
-                {/* MATERIAL CONSUMPTION ROW MODULE */}
+                {/* MATERIAL CONSUMPTION ROW MODULE (Repositioned down under Notes block layout sequence) */}
                 {scopeConfig.requiresDetailedTracking && (
                   <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', maxHeight: '78vh', overflowY: 'auto' }}>
                     <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#0f172a', borderBottom: '2px solid #f1f5f9', paddingBottom: '10px' }}>📦 {t.matTitle}</h3>
