@@ -78,7 +78,8 @@ const translations: Record<string, Record<string, string>> = {
   }
 };
 
-export default function Dashboard() {
+// FIXED EXPORT LINE TO MATCH APP.TSX EXPECTATIONS
+export function Dashboard() {
   // --- Sidebar & UI States ---
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [language, setLanguage] = useState<string>('de');
@@ -190,7 +191,6 @@ export default function Dashboard() {
         <div className="max-w-4xl mx-auto flex flex-col gap-6">
           
           {activeTab === 'settings' ? (
-            /* Settings Tab View */
             <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
               <div className="flex items-center gap-2 mb-4 border-b pb-3">
                 <Globe className="text-sky-500" size={20} />
@@ -207,7 +207,6 @@ export default function Dashboard() {
               </select>
             </div>
           ) : (
-            /* Main Form View with Fixed Stacked Layout Layout */
             <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 border border-slate-200 space-y-6">
               
               <div>
@@ -275,7 +274,6 @@ export default function Dashboard() {
 
               <hr className="border-slate-200 my-6" />
 
-              {/* ================= STACKED PLACEMENT: MATERIALS UNDERNEATH NOTES ================= */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <Package className="text-amber-600" size={20} />
