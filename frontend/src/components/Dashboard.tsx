@@ -293,6 +293,7 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
       {/* INJECT DYNAMIC MEDIA QUERY STYLE SPECIFICATIONS DIRECTLY FOR PORTABLE DRAWER SUPPORT */}
       <style>{`
 	@media (max-width: 768px) {
+  /* Lock the drawer to the screen safely */
   .responsive-sidebar {
     position: fixed !important;
     top: 0 !important;
@@ -300,16 +301,52 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
     left: ${isRTL ? 'auto' : '0'} !important;
     right: ${isRTL ? '0' : 'auto'} !important;
     width: 280px !important;
-    height: 100dvh !important; /* Locks it to exact mobile viewport height */
-    z-index: 9999 !important;
-    overflow-y: auto !important; /* Allows internal menu scrolling if long */
-    overflow-x: hidden !important; /* Prevents side-to-side floating */
+    height: 100dvh !important;
+    background-color: #ffffff !important; /* Forces solid background so text won't bleed through */
+    z-index: 10000 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     transform: ${isSidebarOpen ? 'translateX(0)' : isRTL ? 'translateX(100%)' : 'translateX(-100%)'} !important;
-    transition: transform 0.3s ease-in-out !important;
-    box-shadow: 4px 0 15px rgba(0,0,0,0.2) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  /* Make sure the close button is cleanly visible at the top right inside the drawer */
+  .sidebar-close-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f1f5f9;
+    border: none;
+    cursor: pointer;
+  }
+
+  .mobile-trigger-header-btn {
+    display: block !important;
   }
 }
       `}</style>
+
+{/* Backdrop overlay layout block to capture close actions instantly */}
+{isSidebarOpen && (
+  <div 
+    onClick={() => setIsSidebarOpen(false)}
+    style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.4)',
+      backdropFilter: 'blur(4px)',
+      zIndex: 9999,
+      transition: 'opacity 0.3s ease'
+    }}
+  />
+)}
 
       {/* SIDEBAR NAVIGATION MENU */}
       <div 
@@ -320,13 +357,13 @@ style={{ width: '280px', padding: '20px 0', borderRight: '1px solid #334155', he
           <div style={{ padding: '0 20px 20px 20px', borderBottom: '1px solid #334155', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             
             {/* CLOSE BUTTON Inside side menu container (Automatically hidden dynamically on Wide Screen Devices) */}
-            <button 
-              className="sidebar-close-btn"
-              onClick={() => setIsSidebarOpen(false)}
-              style={{ display: 'none', width: '100%', padding: '8px 12px', backgroundColor: '#334155', color: '#f8fafc', border: '1px solid #475569', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center', marginBottom: '5px' }}
-            >
-              {t.closeMenu || '✕ Close'}
-            </button>
+		<button
+  className="sidebar-close-btn"
+  onClick={() => setIsSidebarOpen(false)}
+  aria-label="Close menu"
+>
+  ✕
+</button>
 
             <div>
               <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#38bdf8' }}>{scopeConfig.label}</h3>
@@ -368,7 +405,16 @@ style={{ width: '280px', padding: '20px 0', borderRight: '1px solid #334155', he
       </div>
 
       {/* CORE WORKSPACE WINDOW */}
-<div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden', textAlign: isRTL ? 'right' : 'left' }} dir={isRTL ? 'rtl' : 'ltr'}>
+<div style={{ 
+  flex: 1, 
+  minWidth: 0, 
+  maxWidth: '100vw', 
+  display: 'flex', 
+  flexDirection: 'column', 
+  height: '100dvh', 
+  overflow: 'hidden', 
+  textAlign: isRTL ? 'right' : 'left' 
+}} dir={isRTL ? 'rtl' : 'ltr'}>
         
         <header style={{ height: '60px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 30px' }}>
           
@@ -386,7 +432,7 @@ style={{ width: '280px', padding: '20px 0', borderRight: '1px solid #334155', he
           </span>
         </header>
 
-        <main style={{ flex: 1, padding: '30px', overflowY: 'auto' }}>
+<main style={{ flex: 1, padding: '16px', overflowY: 'auto', overflowX: 'hidden', width: '100%' }}>
           
           {formStatus && (
             <div style={{ padding: '15px', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '6px', marginBottom: '20px', fontWeight: 'bold' }}>
