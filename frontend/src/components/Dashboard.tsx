@@ -288,7 +288,7 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', fontFamily: 'sans-serif', backgroundColor: '#f1f5f9', overflow: 'hidden', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+<div style={{ display: 'flex', minHeight: '100dvh', width: '100vw', fontFamily: 'sans-serif', backgroundColor: '#f1f5f9', overflowX: 'hidden', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
       
       {/* INJECT DYNAMIC MEDIA QUERY STYLE SPECIFICATIONS DIRECTLY FOR PORTABLE DRAWER SUPPORT */}
       <style>{`
@@ -368,7 +368,7 @@ style={{ width: '280px', padding: '20px 0', borderRight: '1px solid #334155', he
       </div>
 
       {/* CORE WORKSPACE WINDOW */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', textAlign: isRTL ? 'right' : 'left' }} dir={isRTL ? 'rtl' : 'ltr'}>
+<div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden', textAlign: isRTL ? 'right' : 'left' }} dir={isRTL ? 'rtl' : 'ltr'}>
         
         <header style={{ height: '60px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 30px' }}>
           
@@ -376,7 +376,7 @@ style={{ width: '280px', padding: '20px 0', borderRight: '1px solid #334155', he
           <button
             className="mobile-trigger-header-btn"
             onClick={() => setIsSidebarOpen(true)}
-            style={{ display: 'none', padding: '8px 12px', backgroundColor: '#0f172a', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 'bold' }}
+	style={{ padding: '8px 12px', backgroundColor: '#0f172a', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 'bold' }}
           >
             ☰
           </button>
