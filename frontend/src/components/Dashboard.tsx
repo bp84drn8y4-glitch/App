@@ -11,14 +11,12 @@ interface DashboardProps {
 export function Dashboard({ userRole, username, onLogout, onBackToPortal }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<'entry' | 'daily' | 'monthly' | 'settings'>('entry');
   
-  // Form fields
   const [customer, setCustomer] = useState('Edeka Pocking');
   const [date, setDate] = useState('2026-06-24');
   const [startTime, setStartTime] = useState('07:00');
   const [endTime, setEndTime] = useState('16:00');
   const [notes, setNotes] = useState('');
 
-  // Materials list
   const [materials, setMaterials] = useState([
     { id: '1', name: 'Große Müllsäcke 120 L', count: 0 },
     { id: '2', name: 'Mittlere Müllsäcke 60 L', count: 0 },
@@ -87,7 +85,7 @@ export function Dashboard({ userRole, username, onLogout, onBackToPortal }: Dash
         </div>
       </aside>
 
-      {/* Main Content Container */}
+      {/* Main Content */}
       <main className="flex-1 p-8">
         <div className="max-w-3xl mx-auto">
           
@@ -99,7 +97,6 @@ export function Dashboard({ userRole, username, onLogout, onBackToPortal }: Dash
           </div>
 
           {activeTab === 'entry' && (
-            /* Force stacked layout flow using flex-col */
             <div className="flex flex-col gap-6">
               
               {/* Form Input Card */}
@@ -140,7 +137,7 @@ export function Dashboard({ userRole, username, onLogout, onBackToPortal }: Dash
                 </div>
               </div>
 
-              {/* Material Consumption Card - Positioned underneath */}
+              {/* Material Consumption Card */}
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <h3 className="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Materialverbrauch</h3>
                 <div className="flex flex-col gap-3">
