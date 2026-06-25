@@ -248,24 +248,47 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
     }
   };
 
-  const handleCreateUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newUsername || !newPassword) return;
+    const handleCreateUser = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    const newUser: UserProfile = {
-      id: `user-${Date.now()}`,
-      username: newUsername,
-      role: 'employee',
-      businessId: newBusinessScope
-    };
+  if (!newUsername.trim() || !newPassword.trim()) {
+    alert("Bitte füllen Sie alle Felder aus.");
+    return;
+  }
 
-    setSystemUsers(prev => [...prev, newUser]);
-    setUserSuccessStatus(t.userCreatedMsg);
-    
-    setNewUsername('');
-    setNewPassword('');
-    setTimeout(() => setUserSuccessStatus(null), 4000);
-  };
+  try {
+    // 1. Insert directly into your Supabase 'users' table
+    const { data, error } = await supabase
+      .from('users')
+      .insert([
+        {
+          username: newUsername,
+          password: newPassword,
+          role: 'employee',
+          businessId: newBusinessScope // Links the profile to the assigned company dropdown value
+        }
+      ])
+      .select();
+
+    if (error) {
+      alert(`Fehler beim Speichern in der Datenbank: ${error.message}`);
+      return;
+    }
+
+    // 2. If successful, push it to local state so the table updates instantly on screen
+    if (data && data.length > 0) {
+      setSystemUsers([...systemUsers, data[0]]);
+      setUserSuccessStatus(t.userCreatedMsg);
+      
+      // Clear input fields
+      setNewUsername('');
+      setNewPassword('');
+    }
+  } catch (err) {
+    console.error("Unexpected error:", err);
+  }
+};
+
 
   const adjustMaterial = (idx: number, type: 'ordered' | 'returned', step: number) => {
     setMaterialRows(prev => prev.map((row, i) => {
@@ -295,6 +318,39 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
     setActiveTab(tab);
     setIsSidebarOpen(false);
   };
+
+// ==========================================
+  // PUSH THIS GROUPS CODE RIGHT HERE (ABOVE THE RETURN)
+  // ==========================================
+  const getMonthLabel = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+  };
+
+  const getMonthlyHoursGrouped = () => {
+    const groups: { [key: string]: { employee: string; monat: string; stunden: number } } = {};
+
+    allRecords.forEach((r) => {
+      const monatLabel = getMonthLabel(r.date); 
+      const employeeKey = r.employee;
+      const uniqueGroupKey = `${monatLabel}_${employeeKey}`;
+      const hours = parseFloat(calculateHours(r.startTime, r.endTime)) || 0;
+
+      if (!groups[uniqueGroupKey]) {
+        groups[uniqueGroupKey] = {
+          employee: employeeKey,
+          monat: monatLabel,
+          stunden: 0
+        };
+      }
+      groups[uniqueGroupKey].stunden += hours;
+    });
+
+    return Object.values(groups);
+  };
+
+  const groupedMonthlyData = getMonthlyHoursGrouped();
+  // ==========================================
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', width: '100%', fontFamily: 'sans-serif', backgroundColor: '#f1f5f9', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
@@ -638,28 +694,24 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
             </div>
           )}
 
-          {/* VIEWPORT 3: MONTHLY CONSOLIDATED WORKED HOURS */}
+	{/* VIEWPORT 3: MONTHLY CONSOLIDATED WORKED HOURS */}
           {activeTab === 'monthly' && (
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerMonthly}</h2>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: isRTL ? 'right' : 'left' }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b' }}>
+                    <th style={{ padding: '12px' }}>Monat</th>
                     <th style={{ padding: '12px' }}>{t.thEmployee}</th>
                     <th style={{ padding: '12px' }}>{t.thHours}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.entries(
-                    allRecords.reduce((acc, r) => {
-                      const hrs = parseFloat(calculateHours(r.startTime, r.endTime));
-                      acc[r.employee] = (acc[r.employee] || 0) + hrs;
-                      return acc;
-                    }, {} as Record<string, number>)
-                  ).map(([emp, hrs], i) => (
+                  {groupedMonthlyData.map((row, i) => (
                     <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '12px', fontWeight: 'bold', color: '#334155' }}>{emp}</td>
-                      <td style={{ padding: '12px', color: '#10b981', fontWeight: 'bold' }}>{hrs.toFixed(2)} {t.thHours}</td>
+                      <td style={{ padding: '12px', color: '#475569' }}>{row.monat}</td>
+                      <td style={{ padding: '12px', fontWeight: 'bold', color: '#334155' }}>{row.employee}</td>
+                      <td style={{ padding: '12px', color: '#10b981', fontWeight: 'bold' }}>{row.stunden.toFixed(2)} {t.thHours}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -736,7 +788,19 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', maxWidth: '500px' }}>
               <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerSettings}</h2>
               <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', color: '#334155' }}>{t.langLabel}</label>
-              <select value={language} onChange={(e) => setLanguage(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', fontWeight: 'bold', color: '#1e293b' }}>
+              <select 
+                value={language} 
+                onChange={(e) => setLanguage(e.target.value)} 
+                style={{ 
+                  width: '100%', 
+                  padding: '12px', 
+                  borderRadius: '6px', 
+                  border: '1px solid #cbd5e1', 
+                  fontSize: '1rem', 
+                  fontWeight: 'bold', 
+                  color: '#1e293b' 
+                }}
+              >
                 <option value="de">Deutsch (Deutschland)</option>
                 <option value="at">Deutsch (Österreich)</option>
                 <option value="en">English</option>
@@ -756,3 +820,4 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
     </div>
   );
 }
+export default Dashboard;
