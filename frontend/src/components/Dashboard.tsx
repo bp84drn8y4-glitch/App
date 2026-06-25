@@ -149,23 +149,29 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
   }, [username, userRole, businessId, activeTab]);
 
   // Sync material item default counters context configuration variations
-  useEffect(() => {
-    if (scopeConfig.requiresDetailedTracking) {
-      const rows = rawMaterials.map(m => ({
-        name: m.n,
-        specification: m.s,
-        ordered: 0,
-        returned: 0
-      }));
-      setMaterialRows(rows);
-      setCustomer(currentCustomers[0] || '');
-      setSelectedTasks(['']);
-    } else {
-      setMaterialRows([]);
-      setCustomer('');
-      setSelectedTasks([]);
+useEffect(() => {
+  const fetchData = async () => {
+    // 1. Start building the query
+    let query = supabase.from('tracking_records').select('*');
+    
+    // 2. SECURITY FILTER: 
+    // If the role is NOT admin, restrict data to their assigned businessId
+    if (userRole !== 'admin') {
+      query = query.eq('business_id', businessId); 
     }
-  }, [businessId, language]); 
+    
+    // 3. Execute the filtered query
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error("Error fetching records:", error);
+    } else {
+	setAllRecords(data || []);
+    }
+  };
+
+  fetchData();
+}, [businessId, userRole]); // Re-run if these props change
 
   // SUBMIT HANDLER: Writes cleanly directly to your tracking_records table
   const handleSubmit = async (e: React.FormEvent) => {

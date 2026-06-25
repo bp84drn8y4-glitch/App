@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { Lock } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize the Supabase client
+const supabase = createClient('https://hichuaezkyuvdaovyrlh.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpY2h1YWV6a3l1dmRhb3Z5cmxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1OTQ4MjQsImV4cCI6MjA5NzE3MDgyNH0.u5HKNlUESD9mKMszhVOH2NChBNEiB-rPV0tGkFn-wt0');
 
 interface LoginProps {
-  onLoginSuccess: (user: { id: number; username: string; role: string }) => void;
+  onLoginSuccess: (user: { id: string; username: string; role: string; businessId: string }) => void;
 }
 
 export function Login({ onLoginSuccess }: LoginProps) {
@@ -15,47 +18,42 @@ export function Login({ onLoginSuccess }: LoginProps) {
     setError('');
 
     try {
-      // 🌐 Connecting directly to your verified clean Render backend instance
-	const res = await fetch('https://tracker-backend-yki1.onrender.com/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
+      // Query the users table directly in Supabase
+      const { data, error: dbError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .eq('password', password)
+        .single();
 
-      const data = await res.json();
-
-      if (res.ok) {
-        // Successfully log in and pass user details straight to the application
-        onLoginSuccess(data);
-      } else {
-        setError(data.error || 'Anmeldedaten ungültig (Invalid Credentials)');
+      if (dbError || !data) {
+        setError('Benutzername oder Passwort ungültig.');
+        return;
       }
+
+      // On success, pass the user details (including businessId) back to the app
+      onLoginSuccess({
+        id: data.id,
+        username: data.username,
+        role: data.role,
+        businessId: data.businessId
+      });
     } catch (err) {
-      setError('Verbindung zum Server fehlgeschlagen. (Backend offline)');
+      setError('Verbindung zum Datenbank-Server fehlgeschlagen.');
     }
   };
 
   return (
     <div style={{ minHeight: '85vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: '100%', maxWidth: '420px', padding: '35px', background: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.08)', border: '1px solid #eaeaea' }}>
+      <div style={{ width: '100%', maxWidth: '420px', padding: '35px', background: '#ffffff', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+        <h2 style={{ marginBottom: '25px', textAlign: 'center' }}>Login</h2>
         
-        {/* Header Icon & Title */}
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <div style={{ width: '60px', height: '60px', background: '#eff6ff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 15px' }}>
-            <Lock size={28} color="#2563eb" />
-          </div>
-          <h2 style={{ margin: '0 0 5px', fontSize: '24px', color: '#1e293b', fontWeight: '700' }}>Zeiterfassung</h2>
-          <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>Anmeldung erforderlich (Login Required)</p>
-        </div>
-
-        {/* Error Notification Alert */}
         {error && (
-          <div style={{ display: 'flex', gap: '10px', background: '#fef2f2', border: '1px solid #fca5a5', padding: '12px', borderRadius: '8px', marginBottom: '20px', color: '#991b1b', fontSize: '13px' }}>
-            <span>{error}</span>
+          <div style={{ padding: '10px', marginBottom: '20px', background: '#fee2e2', color: '#991b1b', borderRadius: '6px', fontSize: '14px' }}>
+            {error}
           </div>
         )}
 
-        {/* Login Credentials Form */}
         <form onSubmit={handleAuth}>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>Benutzername (Username)</label>
@@ -81,9 +79,9 @@ export function Login({ onLoginSuccess }: LoginProps) {
 
           <button 
             type="submit" 
-            style={{ width: '100%', padding: '12px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+            style={{ width: '100%', padding: '12px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
           >
-            Einloggen (Sign In)
+            Anmelden
           </button>
         </form>
       </div>
