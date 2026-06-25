@@ -316,7 +316,7 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
       {/* SIDEBAR NAVIGATION MENU */}
       <div 
         className="responsive-sidebar"
-style={{ width: '280px', padding: '20px 0', borderRight: '1px solid #334155', height: '100vh', float: isRTL ? 'right' : 'left', flexShrink: 0 }}x
+style={{ width: '280px', padding: '20px 0', borderRight: '1px solid #334155', height: '100vh', float: isRTL ? 'right' : 'left', flexShrink: 0 }}
       >
         <div>
           <div style={{ padding: '0 20px 20px 20px', borderBottom: '1px solid #334155', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
