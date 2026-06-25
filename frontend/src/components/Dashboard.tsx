@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface DashboardProps {
   userRole: 'employee' | 'admin' | 'customer';
@@ -8,189 +8,550 @@ interface DashboardProps {
   onBackToPortal: () => void;
 }
 
-export function Dashboard({ userRole, username, onLogout, onBackToPortal }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<'entry' | 'daily' | 'monthly' | 'settings'>('entry');
-  
-  // Form input fields
-  const [customer, setCustomer] = useState('Edeka Pocking');
-  const [date, setDate] = useState('2026-06-24');
+interface MaterialRowState {
+  name: string;
+  specification: string;
+  ordered: number;
+  returned: number;
+}
+
+interface SubmittedRecord {
+  id: string;
+  employee: string;
+  date: string;
+  customer: string;
+  startTime: string;
+  endTime: string;
+  tasks: string[];
+  materials: { name: string; ordered: number; returned: number }[];
+  notes: string;
+}
+
+const translations: Record<string, Record<string, string>> = {
+  de: {
+    dashboardTitle: 'Arbeitsbereich',
+    backBtn: '← Zurück zur Übersicht',
+    logoutBtn: 'Abmelden',
+    userLabel: 'Nutzer',
+    navEntry: 'Datenerfassung',
+    navRecords: 'Tagesübersicht',
+    navMonthly: 'Monatsübersicht',
+    navSettings: 'Einstellungen',
+    headerData: 'Arbeitszeit & Material erfassen',
+    headerRecords: 'Meine erfassten Tagesberichte',
+    headerMonthly: 'Monatliche Arbeitsstunden',
+    headerSettings: 'Systemeinstellungen',
+    labelCustomer: 'Kunde / Objekt',
+    labelDate: 'Datum',
+    labelStart: 'Beginn',
+    labelEnd: 'Ende',
+    labelTasks: 'Ausgeführte Tätigkeiten',
+    labelNotes: 'Sonstiges / Notizen',
+    btnAddTask: '+ Tätigkeit hinzufügen',
+    btnSubmit: 'Eintrag Abschicken',
+    matTitle: 'Materialverbrauch',
+    matName: 'Materialbezeichnung',
+    matOrdered: 'Mitgenommen',
+    matReturned: 'Retoure',
+    successMsg: 'Arbeitszeit erfolgreich und unveränderlich übermittelt!',
+    adminNotice: 'Als Admin können Sie Einträge bearbeiten oder löschen.',
+    thEmployee: 'Mitarbeiter',
+    thHours: 'Stunden',
+    langLabel: 'Sprachauswahl',
+    noRecords: 'Keine Einträge für diesen Zeitraum vorhanden.',
+    noTrackingRequired: 'Für diesen Unternehmensbereich ist keine separate Material- oder Aufgabenliste erforderlich. Bitte erfassen Sie Ihre Arbeitszeiten und Notizen unten.'
+  },
+  en: {
+    dashboardTitle: 'Workspace',
+    backBtn: '← Back to Portal',
+    logoutBtn: 'Logout',
+    userLabel: 'User',
+    navEntry: 'Data Entry',
+    navRecords: 'Daily Log',
+    navMonthly: 'Monthly Hours',
+    navSettings: 'Settings',
+    headerData: 'Log Hours & Materials',
+    headerRecords: 'My Daily Records',
+    headerMonthly: 'Monthly Worked Hours',
+    headerSettings: 'System Settings',
+    labelCustomer: 'Customer / Object',
+    labelDate: 'Date',
+    labelStart: 'Start Time',
+    labelEnd: 'End Time',
+    labelTasks: 'Executed Tasks',
+    labelNotes: 'Miscellaneous / Notes',
+    btnAddTask: '+ Add Task Line',
+    btnSubmit: 'Submit Entry',
+    matTitle: 'Material Tracking',
+    matName: 'Material Name',
+    matOrdered: 'Taken Out',
+    matReturned: 'Returned',
+    successMsg: 'Data logged successfully! Record is now locked.',
+    adminNotice: 'Admin Mode: Editing and deletion rights granted.',
+    thEmployee: 'Employee',
+    thHours: 'Hours',
+    langLabel: 'Select Language',
+    noRecords: 'No tracking records found for this scope.',
+    noTrackingRequired: 'No dedicated material or task lists are required for this business unit. Please log your working hours and notes below.'
+  }
+};
+
+// BUSINESS CONFIGURATION DATA MODELS
+const BUSINESS_DATA: Record<string, { tasks: string[]; materials: { name: string; spec: string }[]; customers: string[]; requiresDetailedTracking: boolean }> = {
+  fuerst_hauser: {
+    requiresDetailedTracking: true,
+    customers: ['Edeka Pocking', 'Gewerbepark Pleiskirchen', 'Rathaus Altötting', 'Klinikum Burghausen'],
+    tasks: [
+      'Außenreinigung Schaufenster und Eingangstüren',
+      'Innenreinigung Schaufenster und Eingangstüren',
+      'Beidseitige Reinigung von Glasflächen im Verkaufsbereich',
+      'Beidseitige Reinigung von Glasflächen im Mitarbeiterbereich',
+      'Zusätzliche Innenreinigung von Schaufenstern zu Dekorationsterminen mit zusätzlicher Anfahrt',
+      'Zusätzliche Innenreinigung von Schaufenstern zu Dekorationsterminen in Verbindung mit regelmäßiger Glasreinigung ohne zusätzliche Anfahrt',
+      'Reinigung von Spiegeln',
+      'Sonderleistungen und Sonstiges'
+    ],
+    materials: [
+      { name: 'Müllbeutel Groß', spec: '120 L' },
+      { name: 'Müllbeutel Medium', spec: '60 L' },
+      { name: 'Müllbeutel Klein', spec: '28 L' },
+      { name: 'Wischmopp Mikrofaser', spec: '50 cm' },
+      { name: 'Wischmopp Baumwolle', spec: '50 cm' },
+      { name: 'Mikrofaser Lappen rot', spec: '40 x 40 cm' },
+      { name: 'Mikrofaser Lappen blau', spec: '40 x 40 cm' },
+      { name: 'Mikrofaser Lappen grün', spec: '40 x 40 cm' },
+      { name: 'Mikrofaser Lappen gelb', spec: '40 x 40 cm' },
+      { name: 'Geschirrtücher', spec: '70 x 50 cm' },
+      { name: 'Sanitärreiniger Milizid', spec: 'Sprühflasche' },
+      { name: 'Bodenreiniger Torrun', spec: 'Konzentrat' },
+      { name: 'Oberflächenreiniger', spec: 'Gebrauchsfertig' },
+      { name: 'Toilettenpapier', spec: 'Lagenware' },
+      { name: 'Falthandtücher', spec: 'Papier' },
+      { name: 'Handseife', spec: '10 Liter Kanister' }
+    ]
+  },
+  bullauge: {
+    requiresDetailedTracking: true,
+    customers: ['Münchner Str. Filiale', 'Hauptbahnhof Express', 'Uni-Viertel Salon'],
+    tasks: ['Maschinenreinigung', 'Kassenabrechnung', 'Flusensiebe leeren', 'Boden wischen & desinfizieren', 'Wäschepflege & Bügeln'],
+    materials: [
+      { name: 'Handfolien', spec: 'Standard' },
+      { name: 'Bügelstärke', spec: 'Sprühflasche' },
+      { name: 'Chlor', spec: 'Bleichmittel' },
+      { name: 'Waschpulver', spec: '20 kg' },
+      { name: 'Weichspüler', spec: '20 L' },
+      { name: 'Sonstiges', spec: 'Verbrauchsmaterial' }
+    ]
+  },
+  hauser_mittel: {
+    requiresDetailedTracking: false,
+    customers: [],
+    tasks: [],
+    materials: []
+  },
+  signature_vista: {
+    requiresDetailedTracking: false,
+    customers: [],
+    tasks: [],
+    materials: []
+  }
+};
+
+export function Dashboard({ userRole, username, businessId, onLogout, onBackToPortal }: DashboardProps) {
+  const scopeConfig = BUSINESS_DATA[businessId] || BUSINESS_DATA.fuerst_hauser;
+
+  const [activeTab, setActiveTab] = useState<'entry' | 'records' | 'monthly' | 'settings'>('entry');
+  const [language, setLanguage] = useState<'de' | 'en'>('de');
+  const t = translations[language];
+
+  // Form Inputs State
+  const [customer, setCustomer] = useState('');
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [startTime, setStartTime] = useState('07:00');
   const [endTime, setEndTime] = useState('16:00');
-  const [notes, setNotes] = useState('');
+  const [selectedTasks, setSelectedTasks] = useState<string[]>(['']);
+  const [miscellaneous, setMiscellaneous] = useState('');
+  const [formStatus, setFormStatus] = useState<string | null>(null);
 
-  // Original materials list state
-  const [materials, setMaterials] = useState([
-    { id: '1', name: 'Große Müllsäcke 120 L', count: 0 },
-    { id: '2', name: 'Mittlere Müllsäcke 60 L', count: 0 },
-    { id: '3', name: 'Kleine Müllsäcke 28 L', count: 0 },
-    { id: '4', name: 'Mikrofasermopp 50 cm', count: 0 },
-    { id: '5', name: 'Baumwollmopp 50 cm', count: 0 },
-    { id: '6', name: 'Rotes Mikrofasertuch 40 x 40 cm', count: 0 },
-  ]);
+  // Dynamic Material Counter Rows State
+  const [materialRows, setMaterialRows] = useState<MaterialRowState[]>([]);
 
-  const handleCountChange = (id: string, increment: boolean) => {
-    setMaterials(materials.map(m => {
-      if (m.id === id) {
-        const newCount = increment ? m.count + 1 : m.count - 1;
-        return { ...m, count: Math.max(0, newCount) };
-      }
-      return m;
+  // Persistent Mock Database Context Arrays
+  const [allRecords, setAllRecords] = useState<SubmittedRecord[]>([]);
+
+  // Sync Material and Customer rows when changing businesses
+  useEffect(() => {
+    if (scopeConfig.requiresDetailedTracking) {
+      const rows = scopeConfig.materials.map(m => ({
+        name: m.name,
+        specification: m.spec,
+        ordered: 0,
+        returned: 0
+      }));
+      setMaterialRows(rows);
+      setCustomer(scopeConfig.customers[0] || '');
+      setSelectedTasks(['']);
+    } else {
+      setMaterialRows([]);
+      setCustomer('');
+      setSelectedTasks([]);
+    }
+  }, [businessId, scopeConfig]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const currentEntry: SubmittedRecord = {
+      id: `record-${Date.now()}`,
+      employee: username || 'Mitarbeiter',
+      date,
+      customer: scopeConfig.requiresDetailedTracking ? customer : 'Standardbetrieb',
+      startTime,
+      endTime,
+      tasks: scopeConfig.requiresDetailedTracking ? selectedTasks.filter(tk => tk !== '') : ['Allgemeine Betriebstätigkeiten'],
+      materials: scopeConfig.requiresDetailedTracking 
+        ? materialRows.filter(r => r.ordered > 0 || r.returned > 0).map(r => ({ name: r.name, ordered: r.ordered, returned: r.returned }))
+        : [],
+      notes: miscellaneous
+    };
+
+    setAllRecords(prev => [currentEntry, ...prev]);
+    setFormStatus(t.successMsg);
+
+    // Reset workflow inputs
+    setMiscellaneous('');
+    if (scopeConfig.requiresDetailedTracking) {
+      setSelectedTasks(['']);
+      const resetRows = scopeConfig.materials.map(m => ({ name: m.name, specification: m.spec, ordered: 0, returned: 0 }));
+      setMaterialRows(resetRows);
+    }
+
+    setTimeout(() => setFormStatus(null), 5000);
+  };
+
+  const adjustMaterial = (idx: number, type: 'ordered' | 'returned', step: number) => {
+    setMaterialRows(prev => prev.map((row, i) => {
+      if (i !== idx) return row;
+      const val = Math.max(0, row[type] + step);
+      return { ...row, [type]: val };
     }));
   };
 
+  const handleTaskRowChange = (idx: number, val: string) => {
+    setSelectedTasks(prev => {
+      const arr = [...prev];
+      arr[idx] = val;
+      return arr;
+    });
+  };
+
+  const calculateHours = (start: string, end: string) => {
+    const [sH, sM] = start.split(':').map(Number);
+    const [eH, eM] = end.split(':').map(Number);
+    const deltaMin = (eH * 60 + eM) - (sH * 60 + sM);
+    return deltaMin > 0 ? (deltaMin / 60).toFixed(2) : '0.00';
+  };
+
+  // Filter visibility scopes: regular employees only see their own entries
+  const filteredRecords = allRecords.filter(rec => {
+    if (userRole === 'admin') return true;
+    return rec.employee.toLowerCase() === username.toLowerCase();
+  });
+
+  const businessLabel = 
+    businessId === 'fuerst_hauser' ? 'Fürst Hauser Gebäudereinigung' :
+    businessId === 'bullauge' ? 'Bullauge Waschsalon' :
+    businessId === 'hauser_mittel' ? 'Hauser Reinigungsmittel' : 'Signature Vista';
+
   return (
-    <div className="flex min-h-screen bg-slate-100 font-sans">
+    <div style={{ display: 'flex', height: '100vh', fontFamily: 'sans-serif', backgroundColor: '#f1f5f9', overflow: 'hidden' }}>
       
-      {/* ================= SIDEBAR NAVIGATION ================= */}
-      <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between p-4 shrink-0">
+      {/* SIDEBAR NAVIGATION MENU */}
+      <div style={{ width: '260px', backgroundColor: '#1e293b', color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '20px 0' }}>
         <div>
-          <div className="mb-6 pb-4 border-b border-slate-800">
-            <h2 className="text-xl font-bold text-white">Fürst Hauser</h2>
-            <h3 className="text-lg font-semibold text-sky-400">Gebäudereinigung</h3>
-            <span className="text-xs text-slate-500 block mt-1">Arbeitsbereich</span>
+          <div style={{ padding: '0 20px 20px 20px', borderBottom: '1px solid #334155', marginBottom: '20px' }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#38bdf8' }}>{businessLabel}</h3>
+            <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '5px' }}>{t.dashboardTitle}</div>
           </div>
 
-          <nav className="flex flex-col gap-2">
-            <button 
-              onClick={() => setActiveTab('entry')}
-              className={`w-full text-left p-3 rounded-lg font-medium transition ${activeTab === 'entry' ? 'bg-slate-800 text-sky-400' : 'hover:bg-slate-800'}`}
-            >
-              📄 Datenerfassung
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '0 10px' }}>
+            <button onClick={() => setActiveTab('entry')} style={{ width: '100%', padding: '12px 15px', textAlign: 'left', backgroundColor: activeTab === 'entry' ? '#334155' : 'transparent', color: activeTab === 'entry' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+              📝 {t.navEntry}
             </button>
-            <button 
-              onClick={() => setActiveTab('daily')}
-              className={`w-full text-left p-3 rounded-lg font-medium transition ${activeTab === 'daily' ? 'bg-slate-800 text-sky-400' : 'hover:bg-slate-800'}`}
-            >
-              📅 Tagesübersicht
+            <button onClick={() => setActiveTab('records')} style={{ width: '100%', padding: '12px 15px', textAlign: 'left', backgroundColor: activeTab === 'records' ? '#334155' : 'transparent', color: activeTab === 'records' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+              📅 {t.navRecords}
             </button>
-            <button 
-              onClick={() => setActiveTab('monthly')}
-              className={`w-full text-left p-3 rounded-lg font-medium transition ${activeTab === 'monthly' ? 'bg-slate-800 text-sky-400' : 'hover:bg-slate-800'}`}
-            >
-              📊 Monatsübersicht
+            <button onClick={() => setActiveTab('monthly')} style={{ width: '100%', padding: '12px 15px', textAlign: 'left', backgroundColor: activeTab === 'monthly' ? '#334155' : 'transparent', color: activeTab === 'monthly' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+              📊 {t.navMonthly}
             </button>
-            <button 
-              onClick={() => setActiveTab('settings')}
-              className={`w-full text-left p-3 rounded-lg font-medium transition ${activeTab === 'settings' ? 'bg-slate-800 text-sky-400' : 'hover:bg-slate-800'}`}
-            >
-              ⚙️ Einstellungen
+            <button onClick={() => setActiveTab('settings')} style={{ width: '100%', padding: '12px 15px', textAlign: 'left', backgroundColor: activeTab === 'settings' ? '#334155' : 'transparent', color: activeTab === 'settings' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+              ⚙️ {t.navSettings}
             </button>
           </nav>
         </div>
 
-        <div className="flex flex-col gap-2 pt-4 border-t border-slate-800">
-          <button onClick={onBackToPortal} className="w-full p-2 bg-slate-800 text-white rounded-md text-sm hover:bg-slate-700 transition">
-            ← Zurück zur Übersicht
+        <div style={{ padding: '0 15px' }}>
+          <button onClick={onBackToPortal} style={{ width: '100%', padding: '10px', backgroundColor: '#475569', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', marginBottom: '10px', fontSize: '0.85rem' }}>
+            {t.backBtn}
           </button>
-          <button onClick={onLogout} className="w-full p-2 bg-red-600 text-white font-semibold rounded-md text-sm hover:bg-red-700 transition">
-            Abmelden
+          <button onClick={onLogout} style={{ width: '100%', padding: '10px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+            {t.logoutBtn}
           </button>
         </div>
-      </aside>
+      </div>
 
-      {/* ================= MAIN CONTENT AREA ================= */}
-      <main className="flex-1 p-8 overflow-y-auto">
-        <div className="max-w-6xl mx-auto">
+      {/* CORE WORKSPACE WINDOW */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        
+        <header style={{ height: '60px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '0 30px' }}>
+          <span style={{ fontSize: '0.9rem', color: '#64748b' }}>
+            {t.userLabel}: <strong style={{ color: '#0f172a' }}>{username}</strong> (<span style={{ color: userRole === 'admin' ? '#ef4444' : '#10b981', fontWeight: 'bold' }}>{userRole}</span>)
+          </span>
+        </header>
+
+        <main style={{ flex: 1, padding: '30px', overflowY: 'auto' }}>
           
-          {/* Top Info Bar */}
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-slate-900">
-              {activeTab === 'entry' && 'Arbeitszeit & Material erfassen'}
-              {activeTab === 'daily' && 'Tagesübersicht'}
-              {activeTab === 'monthly' && 'Monatsübersicht'}
-              {activeTab === 'settings' && 'Einstellungen'}
-            </h1>
-            <div className="text-sm text-slate-600 bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm">
-              Benutzer: <span className="font-semibold text-slate-900">{username}</span> ({userRole})
-            </div>
-          </div>
-
-          {/* ================= TAB CONTENTS ================= */}
-          {activeTab === 'entry' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-              
-              {/* Left Column: Core Form Input Card */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Kunde / Objekt</label>
-                  <select value={customer} onChange={(e) => setCustomer(e.target.value)} className="w-full p-2.5 border border-slate-300 rounded-lg bg-white shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none">
-                    <option value="Edeka Pocking">Edeka Pocking</option>
-                    <option value="Aldi Pfarrkirchen">Aldi Pfarrkirchen</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Datum</label>
-                  <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full p-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">Beginn</label>
-                    <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="w-full p-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">Ende</label>
-                    <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="w-full p-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none" />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Sonstiges / Notizen</label>
-                  <textarea 
-                    rows={4} 
-                    value={notes} 
-                    onChange={(e) => setNotes(e.target.value)} 
-                    placeholder="Geben Sie hier zusätzliche Details ein..." 
-                    className="w-full p-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none resize-none"
-                  />
-                </div>
-
-                <button className="w-full mt-2 p-3.5 bg-emerald-600 text-white font-bold rounded-lg shadow-md hover:bg-emerald-700 active:scale-[0.99] transition-all">
-                  Eintrag absenden
-                </button>
-              </div>
-
-              {/* Right Column: Material Consumption Tracker Card */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 className="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
-                  📦 Materialverbrauch
-                </h3>
-                <div className="flex flex-col gap-3">
-                  {materials.map((item) => (
-                    <div key={item.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
-                      <span className="font-medium text-slate-800">{item.name}</span>
-                      <div className="flex items-center gap-3">
-                        <button 
-                          type="button" 
-                          onClick={() => handleCountChange(item.id, false)}
-                          className="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white rounded-md font-bold text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition"
-                        >
-                          -
-                        </button>
-                        <span className="w-6 text-center font-bold text-slate-900">{item.count}</span>
-                        <button 
-                          type="button" 
-                          onClick={() => handleCountChange(item.id, true)}
-                          className="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white rounded-md font-bold text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
+          {formStatus && (
+            <div style={{ padding: '15px', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '6px', marginBottom: '20px', fontWeight: 'bold' }}>
+              ✓ {formStatus}
             </div>
           )}
 
-          {activeTab === 'daily' && <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-slate-600">Keine Einträge für heute vorhanden.</div>}
-          {activeTab === 'monthly' && <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-slate-600">Monatsübersicht Auswertung lädt...</div>}
-          {activeTab === 'settings' && <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-slate-600">Systemeinstellungen verwalten.</div>}
+          {/* VIEWPORT 1: DATA LOG ENTRY FORMS */}
+          {activeTab === 'entry' && (
+            <div>
+              <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerData}</h2>
+              <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: scopeConfig.requiresDetailedTracking ? '1fr 1fr' : '1fr', gap: '30px', alignItems: 'start' }}>
+                
+                <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  
+                  {!scopeConfig.requiresDetailedTracking && (
+                    <div style={{ padding: '12px', backgroundColor: '#eff6ff', color: '#1e40af', borderRadius: '6px', marginBottom: '20px', fontSize: '0.9rem' }}>
+                      ℹ️ {t.noTrackingRequired}
+                    </div>
+                  )}
 
-        </div>
-      </main>
+                  {scopeConfig.requiresDetailedTracking && (
+                    <div style={{ marginBottom: '15px' }}>
+                      <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelCustomer}</label>
+                      <select value={customer} onChange={(e) => setCustomer(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                        {scopeConfig.customers.map((c, i) => <option key={i} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                  )}
+
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelDate}</label>
+                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelStart}</label>
+                      <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelEnd}</label>
+                      <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                    </div>
+                  </div>
+
+                  {scopeConfig.requiresDetailedTracking && (
+                    <div style={{ marginBottom: '20px', borderTop: '1px solid #f1f5f9', paddingTop: '15px' }}>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#334155' }}>{t.labelTasks}</label>
+                      {selectedTasks.map((tRow, index) => (
+                        <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                          <select value={tRow} onChange={(e) => handleTaskRowChange(index, e.target.value)} required style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                            <option value="">-- Tätigkeit wählen --</option>
+                            {scopeConfig.tasks.map((taskLabel, idx) => (
+                              <option key={idx} value={taskLabel}>{taskLabel}</option>
+                            ))}
+                          </select>
+                          {selectedTasks.length > 1 && (
+                            <button type="button" onClick={() => setSelectedTasks(prev => prev.filter((_, i) => i !== index))} style={{ padding: '10px', backgroundColor: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>✕</button>
+                          )}
+                        </div>
+                      ))}
+                      <button type="button" onClick={() => setSelectedTasks(prev => [...prev, ''])} style={{ padding: '8px 12px', backgroundColor: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', color: '#475569' }}>
+                        {t.btnAddTask}
+                      </button>
+                    </div>
+                  )}
+
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelNotes}</label>
+                    <textarea value={miscellaneous} onChange={(e) => setMiscellaneous(e.target.value)} rows={3} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                  </div>
+
+                  <button type="submit" style={{ width: '100%', padding: '14px', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
+                    🚀 {t.btnSubmit}
+                  </button>
+                </div>
+
+                {/* MATERIAL CONSUMPTION ROW MODULE */}
+                {scopeConfig.requiresDetailedTracking && (
+                  <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', maxHeight: '78vh', overflowY: 'auto' }}>
+                    <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#0f172a', borderBottom: '2px solid #f1f5f9', paddingBottom: '10px' }}>📦 {t.matTitle}</h3>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
+                          <th style={{ padding: '10px 6px' }}>{t.matName}</th>
+                          <th style={{ padding: '10px 6px', textAlign: 'center', width: '100px' }}>{t.matOrdered}</th>
+                          <th style={{ padding: '10px 6px', textAlign: 'center', width: '100px' }}>{t.matReturned}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {materialRows.map((row, idx) => (
+                          <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '12px 6px' }}>
+                              <div style={{ fontWeight: 'bold', color: '#334155' }}>{row.name}</div>
+                              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{row.specification}</div>
+                            </td>
+                            <td style={{ padding: '12px 6px', textAlign: 'center' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                                <button type="button" onClick={() => adjustMaterial(idx, 'ordered', -1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
+                                <span style={{ minWidth: '20px', fontWeight: 'bold', color: '#0f172a' }}>{row.ordered}</span>
+                                <button type="button" onClick={() => adjustMaterial(idx, 'ordered', 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
+                              </div>
+                            </td>
+                            <td style={{ padding: '12px 6px', textAlign: 'center' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                                <button type="button" onClick={() => adjustMaterial(idx, 'returned', -1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
+                                <span style={{ minWidth: '20px', fontWeight: 'bold', color: '#0f172a' }}>{row.returned}</span>
+                                <button type="button" onClick={() => adjustMaterial(idx, 'returned', 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </form>
+            </div>
+          )}
+
+          {/* VIEWPORT 2: DAILY LOGS AND RECORDS PANEL */}
+          {activeTab === 'records' && (
+            <div>
+              <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerRecords}</h2>
+              {userRole === 'admin' && (
+                <div style={{ padding: '10px 15px', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '6px', marginBottom: '20px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                  🛡️ {t.adminNotice}
+                </div>
+              )}
+              {filteredRecords.length === 0 ? (
+                <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '8px', textAlign: 'center', color: '#64748b' }}>{t.noRecords}</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {filteredRecords.map((rec) => (
+                    <div key={rec.id} style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', borderLeft: '4px solid #3b82f6' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px', marginBottom: '15px' }}>
+                        <div>
+                          <strong style={{ fontSize: '1.1rem', color: '#0f172a' }}>{rec.customer}</strong>
+                          <span style={{ marginLeft: '15px', color: '#64748b', fontSize: '0.9rem' }}>📅 {rec.date}</span>
+                        </div>
+                        <div style={{ fontSize: '0.9rem', color: '#334155' }}>
+                          ⏱ <strong>{rec.startTime} - {rec.endTime}</strong> ({calculateHours(rec.startTime, rec.endTime)} Std)
+                          {userRole === 'admin' && (
+                            <button onClick={() => setAllRecords(prev => prev.filter(r => r.id !== rec.id))} style={{ marginLeft: '15px', padding: '4px 8px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}>
+                              Löschen
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div style={{ marginBottom: '10px' }}>
+                        <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block', fontWeight: 'bold' }}>Mitarbeiter:</span>
+                        <span style={{ fontSize: '0.95rem', color: '#1e293b' }}>{rec.employee}</span>
+                      </div>
+
+                      {rec.tasks && rec.tasks.length > 0 && (
+                        <div style={{ marginBottom: '10px' }}>
+                          <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block', fontWeight: 'bold' }}>{t.labelTasks}:</span>
+                          <ul style={{ margin: '5px 0 0 0', paddingLeft: '20px', fontSize: '0.95rem', color: '#1e293b' }}>
+                            {rec.tasks.map((tsk, i) => <li key={i}>{tsk}</li>)}
+                          </ul>
+                        </div>
+                      )}
+
+                      {rec.materials && rec.materials.length > 0 && (
+                        <div>
+                          <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block', fontWeight: 'bold' }}>Verbrauchtes Material:</span>
+                          <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginTop: '5px' }}>
+                            {rec.materials.map((mat, i) => (
+                              <span key={i} style={{ backgroundColor: '#f1f5f9', padding: '4px 10px', borderRadius: '4px', fontSize: '0.85rem', color: '#334155' }}>
+                                📦 <strong>{mat.name}</strong> (Mitgenommen: {mat.ordered} | Retoure: {mat.returned})
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {rec.notes && (
+                        <div style={{ marginTop: '10px', fontStyle: 'italic', color: '#475569', fontSize: '0.9rem', backgroundColor: '#f8fafc', padding: '8px', borderRadius: '4px' }}>
+                          Notizen: {rec.notes}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* VIEWPORT 3: MONTHLY CONSOLIDATED WORKED HOURS */}
+          {activeTab === 'monthly' && (
+            <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerMonthly}</h2>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b' }}>
+                    <th style={{ padding: '12px' }}>{t.thEmployee}</th>
+                    <th style={{ padding: '12px' }}>{t.thHours} insgesamt</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userRole === 'admin' ? (
+                    Object.entries(
+                      allRecords.reduce((acc, r) => {
+                        const hrs = parseFloat(calculateHours(r.startTime, r.endTime));
+                        acc[r.employee] = (acc[r.employee] || 0) + hrs;
+                        return acc;
+                      }, {} as Record<string, number>)
+                    ).map(([emp, hrs], i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '12px', fontWeight: 'bold', color: '#334155' }}>{emp}</td>
+                        <td style={{ padding: '12px', color: '#10b981', fontWeight: 'bold' }}>{hrs.toFixed(2)} Std</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '12px', fontWeight: 'bold', color: '#334155' }}>{username}</td>
+                      <td style={{ padding: '12px', color: '#10b981', fontWeight: 'bold' }}>
+                        {filteredRecords.reduce((sum, r) => sum + parseFloat(calculateHours(r.startTime, r.endTime)), 0).toFixed(2)} Std
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* VIEWPORT 4: SETTINGS AND LOCALIZATION */}
+          {activeTab === 'settings' && (
+            <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', maxWidth: '500px' }}>
+              <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerSettings}</h2>
+              <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', color: '#334155' }}>{t.langLabel}</label>
+              <select value={language} onChange={(e) => setLanguage(e.target.value as 'de' | 'en')} style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', fontWeight: 'bold', color: '#1e293b' }}>
+                <option value="de">Deutsch</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+          )}
+
+        </main>
+      </div>
     </div>
   );
 }
