@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dashboard } from './components/Dashboard';
+import Dashboard from './components/Dashboard';
 
 // Asset logo imports
 import fuerstHauserLogo from './assets/logos/fuerst_hauser.jpg';

@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase Client Connection
+const SUPABASE_URL = "https://hichuaezkyuvdaovyrlh.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpY2h1YWV6a3l1dmRhb3Z5cmxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1OTQ4MjQsImV4cCI6MjA5NzE3MDgyNH0.u5HKNlUESD9mKMszhVOH2NChBNEiB-rPV0tGkFn-wt0";
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 interface DashboardProps {
   userRole: 'employee' | 'admin' | 'customer';
@@ -37,727 +43,604 @@ interface UserProfile {
 // Global localization matrices including dynamic translation slots for dropdown components
 const translations: Record<string, any> = {
   de: {
-    dashboardTitle: 'Arbeitsbereich', backBtn: '← Zurück zur Übersicht', logoutBtn: 'Abmelden', userLabel: 'Nutzer', navEntry: 'Datenerfassung', navRecords: 'Tagesübersicht', navMonthly: 'Monatsübersicht', navUsers: 'Mitarbeiter verwalten', navSettings: 'Einstellungen', headerData: 'Arbeitszeit & Material erfassen', headerRecords: 'Meine erfassten Tagesberichte', headerMonthly: 'Monatliche Arbeitsstunden', headerUsers: 'Neuen Mitarbeiter anlegen', headerSettings: 'Systemeinstellungen', labelCustomer: 'Kunde / Objekt', labelDate: 'Datum', labelStart: 'Beginn', labelEnd: 'Ende', labelTasks: 'Ausgeführte Tätigkeiten', labelNotes: 'Sonstiges / Notizen', btnAddTask: '+ Tätigkeit hinzufügen', btnSubmit: 'Eintrag Abschicken', matTitle: 'Materialverbrauch', matName: 'Materialbezeichnung', matOrdered: 'Mitgenommen', matReturned: 'Retoure', successMsg: 'Arbeitszeit erfolgreich und unveränderlich übermittelt!', adminNotice: 'Als Admin können Sie Einträge bearbeiten oder löschen.', thEmployee: 'Mitarbeiter', thHours: 'Stunden', langLabel: 'Sprachauswahl', noRecords: 'Keine Einträge für diesen Zeitraum vorhanden.', noTrackingRequired: 'Für diesen Unternehmensbereich ist keine separate Material- oder Aufgabenliste erforderlich. Bitte erfassen Sie Ihre Arbeitszeiten und Notizen unten.', lblNewUser: 'Benutzername', lblNewPass: 'Passwort', lblNewBiz: 'Zugeordnetes Unternehmen', btnCreateUser: 'Profil Erstellen', userCreatedMsg: 'Mitarbeiter-Profil erfolgreich angelegt!', thRole: 'Rolle', thBiz: 'Unternehmen', existingUsersTitle: 'Bestehende Profile im System', selectTaskPlaceholder: '-- Tätigkeit wählen --', closeMenu: '✕ Menü schließen',
-    biz_fuerst_customers: ['Edeka Pocking', 'Gewerbepark Pleiskirchen', 'Rathaus Altötting', 'Klinikum Burghausen'],
-    biz_fuerst_tasks: ['Außenreinigung Schaufenster und Eingangstüren', 'Innenreinigung Schaufenster und Eingangstüren', 'Beidseitige Reinigung von Glasflächen im Verkaufsbereich', 'Beidseitige Reinigung von Glasflächen im Mitarbeiterbereich', 'Zusätzliche Innenreinigung von Schaufenstern zu Dekorationsterminen mit zusätzlicher Anfahrt', 'Zusätzliche Innenreinigung von Schaufenstern zu Dekorationsterminen in Verbindung mit regelmäßiger Glasreinigung ohne zusätzliche Anfahrt', 'Reinigung von Spiegeln', 'Sonderleistungen und Sonstiges'],
-    biz_fuerst_materials: [{n:'Müllbeutel Groß',s:'120 L'},{n:'Müllbeutel Medium',s:'60 L'},{n:'Müllbeutel Klein',s:'28 L'},{n:'Wischmopp Mikrofaser',s:'50 cm'},{n:'Wischmopp Baumwolle',s:'50 cm'},{n:'Mikrofaser Lappen rot',s:'40 x 40 cm'},{n:'Mikrofaser Lappen blau',s:'40 x 40 cm'},{n:'Mikrofaser Lappen grün',s:'40 x 40 cm'},{n:'Mikrofaser Lappen gelb',s:'40 x 40 cm'},{n:'Geschirrtücher',s:'70 x 50 cm'},{n:'Sanitärreiniger Milizid',s:'Sprühflasche'},{n:'Bodenreiniger Torrun',s:'Konzentrat'},{n:'Oberflächenreiniger',s:'Gebrauchsfertig'},{n:'Toilettenpapier',s:'Lagenware'},{n:'Falthandtücher',s:'Papier'},{n:'Handseife',s:'10 L Kanister'}],
-    biz_bullauge_customers: ['Münchner Str. Filiale', 'Hauptbahnhof Express', 'Uni-Viertel Salon'],
-    biz_bullauge_tasks: ['Maschinenreinigung', 'Kassenabrechnung', 'Flusensiebe leeren', 'Boden wischen & desinfizieren', 'Wäschepflege & Bügeln'],
-    biz_bullauge_materials: [{n:'Handfolien',s:'Standard'},{n:'Bügelstärke',s:'Sprühflasche'},{n:'Chlor',s:'Bleichmittel'},{n:'Waschpulver',s:'20 kg'},{n:'Weichspüler',s:'20 L'},{n:'Sonstiges',s:'Verbrauchsmaterial'}]
-  },
-  at: {
-    dashboardTitle: 'Arbeitsbereich', backBtn: '← Zurück zur Übersicht', logoutBtn: 'Abmelden', userLabel: 'Nutzer', navEntry: 'Datenerfassung', navRecords: 'Tagesübersicht', navMonthly: 'Monatsübersicht', navUsers: 'Mitarbeiter verwalten', navSettings: 'Einstellungen', headerData: 'Arbeitszeit & Material erfassen', headerRecords: 'Meine erfassten Tagesberichte', headerMonthly: 'Monatliche Arbeitsstunden', headerUsers: 'Neuen Mitarbeiter anlegen', headerSettings: 'Systemeinstellungen', labelCustomer: 'Kunde / Objekt', labelDate: 'Datum', labelStart: 'Beginn', labelEnd: 'Ende', labelTasks: 'Ausgeführte Tätigkeiten', labelNotes: 'Sonstiges / Notizen', btnAddTask: '+ Tätigkeit hinzufügen', btnSubmit: 'Eintrag Abschicken', matTitle: 'Materialverbrauch', matName: 'Materialbezeichnung', matOrdered: 'Mitgenommen', matReturned: 'Retoure', successMsg: 'Arbeitszeit erfolgreich und unveränderlich übermittelt!', adminNotice: 'Als Admin können Sie Einträge bearbeiten oder löschen.', thEmployee: 'Mitarbeiter', thHours: 'Stunden', langLabel: 'Sprachauswahl', noRecords: 'Keine Einträge für diesen Zeitraum vorhanden.', noTrackingRequired: 'Für diesen Unternehmensbereich ist keine separate Material- oder Aufgabenliste erforderlich. Bitte erfassen Sie Ihre Arbeitszeiten und Notizen unten.', lblNewUser: 'Benutzername', lblNewPass: 'Passwort', lblNewBiz: 'Zugeordnetes Unternehmen', btnCreateUser: 'Profil Erstellen', userCreatedMsg: 'Mitarbeiter-Profil erfolgreich angelegt!', thRole: 'Rolle', thBiz: 'Unternehmen', existingUsersTitle: 'Bestehende Profile im System', selectTaskPlaceholder: '-- Tätigkeit wählen --', closeMenu: '✕ Menü schließen',
-    biz_fuerst_customers: ['Edeka Pocking', 'Gewerbepark Pleiskirchen', 'Rathaus Altötting', 'Klinikum Burghausen'],
-    biz_fuerst_tasks: ['Außenreinigung Schaufenster und Eingangstüren', 'Innenreinigung Schaufenster und Eingangstüren', 'Beidseitige Reinigung von Glasflächen im Verkaufsbereich', 'Beidseitige Reinigung von Glasflächen im Mitarbeiterbereich', 'Zusätzliche Innenreinigung von Schaufenstern zu Dekorationsterminen mit zusätzlicher Anfahrt', 'Zusätzliche Innenreinigung von Schaufenstern zu Dekorationsterminen in Verbindung mit regelmäßiger Glasreinigung ohne zusätzliche Anfahrt', 'Reinigung von Spiegeln', 'Sonderleistungen und Sonstiges'],
-    biz_fuerst_materials: [{n:'Müllbeutel Groß',s:'120 L'},{n:'Müllbeutel Medium',s:'60 L'},{n:'Müllbeutel Klein',s:'28 L'},{n:'Wischmopp Mikrofaser',s:'50 cm'},{n:'Wischmopp Baumwolle',s:'50 cm'},{n:'Mikrofaser Lappen rot',s:'40 x 40 cm'},{n:'Mikrofaser Lappen blau',s:'40 x 40 cm'},{n:'Mikrofaser Lappen grün',s:'40 x 40 cm'},{n:'Mikrofaser Lappen gelb',s:'40 x 40 cm'},{n:'Geschirrtücher',s:'70 x 50 cm'},{n:'Sanitärreiniger Milizid',s:'Sprühflasche'},{n:'Bodenreiniger Torrun',s:'Konzentrat'},{n:'Oberflächenreiniger',s:'Gebrauchsfertig'},{n:'Toilettenpapier',s:'Lagenware'},{n:'Falthandtücher',s:'Papier'},{n:'Handseife',s:'10 L Kanister'}],
-    biz_bullauge_customers: ['Münchner Str. Filiale', 'Hauptbahnhof Express', 'Uni-Viertel Salon'],
-    biz_bullauge_tasks: ['Maschinenreinigung', 'Kassenabrechnung', 'Flusensiebe leeren', 'Boden wischen & desinfizieren', 'Wäschepflege & Bügeln'],
-    biz_bullauge_materials: [{n:'Handfolien',s:'Standard'},{n:'Bügelstärke',s:'Sprühflasche'},{n:'Chlor',s:'Bleichmittel'},{n:'Waschpulver',s:'20 kg'},{n:'Weichspüler',s:'20 L'},{n:'Sonstiges',s:'Verbrauchsmaterial'}]
+    dashboardTitle: 'Arbeitsbereich', backBtn: '← Zurück zur Übersicht', logoutBtn: 'Abmelden', userLabel: 'Nutzer', navEntry: 'Datenerfassung', navRecords: 'Tagesübersicht', navMonthly: 'Monatsübersicht', navUsers: 'Mitarbeiter verwalten', navSettings: 'Einstellungen', headerData: 'Arbeitszeit & Material erfassen', headerRecords: 'Meine erfassten Tagesberichte', headerMonthly: 'Monatliche Arbeitsstunden', headerUsers: 'Neuen Mitarbeiter anlegen', headerSettings: 'Systemeinstellungen', labelCustomer: 'Kunde / Objekt', selectCustomerPlaceholder: '-- Bitte wählen --', labelDate: 'Datum', labelStart: 'Arbeitsbeginn', labelEnd: 'Arbeitsende', sectionTasks: 'Durchgeführte Arbeiten', sectionMaterials: 'Materialverbrauch & Rückgabe', matNameHeader: 'Materialbezeichnung', matSpecHeader: 'Spezifikation', matOrderedHeader: 'Mitgenommen', matReturnedHeader: 'Retoure', labelNotes: 'Zusätzliche Notizen / Bemerkungen', submitBtn: 'Bericht abschicken & Speichern', successMessage: 'Bericht erfolgreich gespeichert!', columnId: 'ID', columnEmployee: 'Mitarbeiter', columnDate: 'Datum', columnCustomer: 'Kunde', columnTime: 'Zeitraum', columnHours: 'Stunden', columnTasks: 'Arbeiten', columnMaterials: 'Material', columnNotes: 'Notizen', noRecords: 'Keine Berichte erfasst.', totalHours: 'Gesamte Arbeitsstunden dieses Monats', filterAllEmployees: 'Alle Mitarbeiter', filterAllCustomers: 'Alle Kunden', placeholderUsername: 'Benutzername', placeholderPassword: 'Passwort', labelRole: 'Rolle', labelBusinessId: 'Betriebsnummer', btnCreateUser: 'Mitarbeiter Account erstellen', langLabel: 'Systemsprache wählen', adminLogTitle: 'System-Aktivitätsprotokoll'
   },
   en: {
-    dashboardTitle: 'Workspace', backBtn: '← Back to Portal', logoutBtn: 'Logout', userLabel: 'User', navEntry: 'Data Entry', navRecords: 'Daily Log', navMonthly: 'Monthly Hours', navUsers: 'Manage Staff', navSettings: 'Settings', headerData: 'Log Hours & Materials', headerRecords: 'My Daily Records', headerMonthly: 'Monthly Worked Hours', headerUsers: 'Create New Employee Profile', headerSettings: 'System Settings', labelCustomer: 'Customer / Property', labelDate: 'Date', labelStart: 'Start Time', labelEnd: 'End Time', labelTasks: 'Executed Tasks', labelNotes: 'Miscellaneous / Notes', btnAddTask: '+ Add Task Line', btnSubmit: 'Submit Entry', matTitle: 'Material Tracking', matName: 'Material Name', matOrdered: 'Taken Out', matReturned: 'Returned', successMsg: 'Data logged successfully! Record is now locked.', adminNotice: 'Admin Mode: Editing and deletion rights granted.', thEmployee: 'Employee', thHours: 'Hours', langLabel: 'Select Language', noRecords: 'No tracking records found for this scope.', noTrackingRequired: 'No dedicated material or task lists are required for this business unit. Please log your working hours and notes below.', lblNewUser: 'Username', lblNewPass: 'Password', lblNewBiz: 'Assigned Business Unit', btnCreateUser: 'Create Profile', userCreatedMsg: 'Employee profile created successfully!', thRole: 'Role', thBiz: 'Business Scope', existingUsersTitle: 'Active System User Profiles', selectTaskPlaceholder: '-- Select Task --', closeMenu: '✕ Close Menu',
-    biz_fuerst_customers: ['Edeka Pocking Branch', 'Pleiskirchen Business Park', 'Altötting Town Hall', 'Burghausen Clinic'],
-    biz_fuerst_tasks: ['Exterior window & entrance door cleaning', 'Interior window & entrance door cleaning', 'Double-sided glass surface cleaning in sales area', 'Double-sided glass surface cleaning in staff area', 'Additional interior window cleaning for decoration dates with extra transit', 'Additional interior window cleaning for decoration dates combined with standard scheduling', 'Mirror surface cleaning', 'Special operational requests / Miscellaneous'],
-    biz_fuerst_materials: [{n:'Trash Bag Large',s:'120 L'},{n:'Trash Bag Medium',s:'60 L'},{n:'Trash Bag Small',s:'28 L'},{n:'Microfiber Mop Head',s:'50 cm'},{n:'Cotton Mop Head',s:'50 cm'},{n:'Microfiber Cloth Red',s:'40 x 40 cm'},{n:'Microfiber Cloth Blue',s:'40 x 40 cm'},{n:'Microfiber Cloth Green',s:'40 x 40 cm'},{n:'Microfiber Cloth Yellow',s:'40 x 40 cm'},{n:'Kitchen Towels',s:'70 x 50 cm'},{n:'Sanitary Cleaner Milizid',s:'Spray Bottle'},{n:'Floor Cleaner Torrun',s:'Concentrate'},{n:'Surface Cleaner',s:'Ready-to-use'},{n:'Toilet Paper Rolls',s:'Layered'},{n:'Folded Paper Hand Towels',s:'Paper'},{n:'Liquid Hand Soap',s:'10 L Canister'}],
-    biz_bullauge_customers: ['Münchner Str. Station', 'Central Station Express', 'University District Salon'],
-    biz_bullauge_tasks: ['Washing machine deep clean', 'Register cash reconciliation', 'Empty lint lint traps', 'Floor mopping & disinfection', 'Laundry care & garment ironing'],
-    biz_bullauge_materials: [{n:'Plastic Wrap Handrolls',s:'Standard'},{n:'Spray Starch',s:'Spray Bottle'},{n:'Chlorine Bleach',s:'Bleaching Agent'},{n:'Detergent Powder',s:'20 kg'},{n:'Fabric Softener',s:'20 L'},{n:'Miscellaneous Items',s:'Consumable Material'}]
-  },
-  it: {
-    dashboardTitle: 'Area di lavoro', backBtn: '← Torna al portale', logoutBtn: 'Disconnetti', userLabel: 'Utente', navEntry: 'Inserimento Dati', navRecords: 'Registro Giornaliero', navMonthly: 'Ore Mensili', navUsers: 'Gestisci Staff', navSettings: 'Impostazioni', headerData: 'Registra Ore e Materiali', headerRecords: 'I Miei Registri Giornalieri', headerMonthly: 'Ore Lavorate Mensili', headerUsers: 'Crea Nuovo Profilo Dipendente', headerSettings: 'Impostazioni di Sistema', labelCustomer: 'Cliente / Oggetto', labelDate: 'Data', labelStart: 'Ora Inizio', labelEnd: 'Ora Fine', labelTasks: 'Attività Eseguite', labelNotes: 'Note / Varie', btnAddTask: '+ Aggiungi Riga Attività', btnSubmit: 'Invia Registrazione', matTitle: 'Tracciamento Materiali', matName: 'Nome Materiale', matOrdered: 'Prelevato', matReturned: 'Reso', successMsg: 'Dati registrati con successo! Il record è bloccato.', adminNotice: 'Modalità Admin: Diritti di modifica e cancellazione concessi.', thEmployee: 'Dipendente', thHours: 'Ore', langLabel: 'Seleziona Lingua', noRecords: 'Nessun record trovato per questo ambito.', noTrackingRequired: 'Non sono richieste liste materiali o attività per questa unità aziendale. Registra le tue ore e note qui sotto.', lblNewUser: 'Nome utente', lblNewPass: 'Password', lblNewBiz: 'Unità Aziendale Assegnata', btnCreateUser: 'Crea Profilo', userCreatedMsg: 'Profilo dipendente creato con successo!', thRole: 'Ruolo', thBiz: 'Ambito Aziendale', existingUsersTitle: 'Profili Utente Attivi', selectTaskPlaceholder: '-- Seleziona Attività --', closeMenu: '✕ Chiudi menu',
-    biz_fuerst_customers: ['Edeka Pocking Filiale', 'Gewerbepark Pleiskirchen', 'Municipio Altötting', 'Clinica Burghausen'],
-    biz_fuerst_tasks: ['Pulizia esterna vetrine e porte d\'ingresso', 'Pulizia interna vetrine e porte d\'ingresso', 'Pulizia bifacciale vetrate nella zona vendita', 'Pulizia bifacciale vetrate nella zona dipendenti', 'Pulizia interna vetrine straordinaria per decorazioni con viaggio extra', 'Pulizia interna vetrine per decorazioni abbinata alla pulizia regolare', 'Pulizia di specchi', 'Servizi speciali e vari'],
-    biz_fuerst_materials: [{n:'Sacchi spazzatura grandi',s:'120 L'},{n:'Sacchi spazzatura medi',s:'60 L'},{n:'Sacchi spazzatura piccoli',s:'28 L'},{n:'Mocio in microfibra',s:'50 cm'},{n:'Mocio in cotone',s:'50 cm'},{n:'Panno in microfibra rosso',s:'40 x 40 cm'},{n:'Panno in microfibra blu',s:'40 x 40 cm'},{n:'Panno in microfibra verde',s:'40 x 40 cm'},{n:'Panno in microfibra giallo',s:'40 x 40 cm'},{n:'Asciugamani da cucina',s:'70 x 50 cm'},{n:'Detergente sanitario Milizid',s:'Flacone spray'},{n:'Detergente pavimenti Torrun',s:'Concentrato'},{n:'Detergente per superfici',s:'Pronto all\'uso'},{n:'Carta igienica',s:'A strati'},{n:'Asciugamani di carta piegati',s:'Carta'},{n:'Sapone per le mani',s:'Tanica da 10 litri'}],
-    biz_bullauge_customers: ['Filiale Münchner Str.', 'Espresso Stazione Centrale', 'Salone del quartiere universitario'],
-    biz_bullauge_tasks: ['Pulizia profonda lavatrici', 'Riconciliazione cassa', 'Svuotamento filtri lanugine', 'Lavaggio e disinfezione pavimenti', 'Cura della lavanderia e stiratura'],
-    biz_bullauge_materials: [{n:'Pellicola trasparente rotoli',s:'Standard'},{n:'Appretto spray',s:'Flacone spray'},{n:'Cloro candeggina',s:'Agente sbiancante'},{n:'Detersivo in polvere',s:'20 kg'},{n:'Ammorbendente',s:'20 L'},{n:'Materiali di consumo vari',s:'Consumo'}]
-  },
-  fr: {
-    dashboardTitle: 'Espace de travail', backBtn: '← Retour au portail', logoutBtn: 'Déconnexion', userLabel: 'Utilisateur', navEntry: 'Saisie de Données', navRecords: 'Journal Journalier', navMonthly: 'Heures Mensuelles', navUsers: 'Gérer le Personnel', navSettings: 'Paramètres', headerData: 'Saisir Heures & Matériaux', headerRecords: 'Mes Rapports Journaliers', headerMonthly: 'Heures Travaillées Mensuelles', headerUsers: 'Créer un Profil Employé', headerSettings: 'Paramètres Système', labelCustomer: 'Client / Objet', labelDate: 'Date', labelStart: 'Heure de Début', labelEnd: 'Heure de Fin', labelTasks: 'Tâches Exécutées', labelNotes: 'Notes / Divers', btnAddTask: '+ Ajouter une Ligne de Tâche', btnSubmit: 'Soumettre l\'Entrée', matTitle: 'Suivi des Matériaux', matName: 'Nom du Matériau', matOrdered: 'Emporté', matReturned: 'Retourné', successMsg: 'Données enregistrées avec succès ! Le rapport est verrouillé.', adminNotice: 'Mode Admin : Droits de modification et de suppression accordés.', thEmployee: 'Employé', thHours: 'Heures', langLabel: 'Choisir la Langue', noRecords: 'Aucun enregistrement trouvé pour cette période.', noTrackingRequired: 'Aucune liste de matériel ou de tâches dédiée n\'est requise pour cette unité. Veuillez saisir vos heures et notes ci-dessous.', lblNewUser: 'Nom d\'utilisateur', lblNewPass: 'Mot de passe', lblNewBiz: 'Unité Commerciale Assignée', btnCreateUser: 'Créer le Profil', userCreatedMsg: 'Profil employé créé avec succès !', thRole: 'Rôle', thBiz: 'Secteur d\'Activité', existingUsersTitle: 'Profils Utilisateurs Actifs', selectTaskPlaceholder: '-- Choisir une Tâche --', closeMenu: '✕ Fermer le menu',
-    biz_fuerst_customers: ['Edeka Pocking Filiale', 'Zone commerciale Pleiskirchen', 'Mairie d\'Altötting', 'Clinique de Burghausen'],
-    biz_fuerst_tasks: ['Nettoyage extérieur des vitrines et portes d\'entrée', 'Nettoyage intérieur des vitrines et portes d\'entrée', 'Nettoyage double face des surfaces vitrées - zone de vente', 'Nettoyage double face des surfaces vitrées - zone du personnel', 'Nettoyage intérieur des vitrines pour les dates de décoration avec déplacement', 'Nettoyage intérieur des vitrines pour la décoration combiné avec le nettoyage régulier', 'Nettoyage des miroirs', 'Prestations spéciales et divers'],
-    biz_fuerst_materials: [{n:'Sacs poubelle grands',s:'120 L'},{n:'Sacs poubelle moyens',s:'60 L'},{n:'Sacs poubelle petits',s:'28 L'},{n:'Frange microfibre',s:'50 cm'},{n:'Frange coton',s:'50 cm'},{n:'Chiffon microfibre rouge',s:'40 x 40 cm'},{n:'Chiffon microfibre bleu',s:'40 x 40 cm'},{n:'Chiffon microfibre vert',s:'40 x 40 cm'},{n:'Chiffon microfibre jaune',s:'40 x 40 cm'},{n:'Torchons à vaisselle',s:'70 x 50 cm'},{n:'Nettoyant sanitaire Milizid',s:'Flacon spray'},{n:'Nettoyant pour sols Torrun',s:'Concentrate'},{n:'Nettoyant pour surfaces',s:'Prêt à l\'emploi'},{n:'Papier toilette',s:'En couches'},{n:'Essuie-mains en papier pliés',s:'Papier'},{n:'Savon pour les mains',s:'Bidon de 10 litres'}],
-    biz_bullauge_customers: ['Filiale Münchner Str.', 'Gare centrale Express', 'Salon du quartier universitaire'],
-    biz_bullauge_tasks: ['Nettoyage en profondeur des machines', 'Clôture de caisse', 'Vidage des filtres à peluches', 'Lavage et désinfection des sols', 'Entretien du linge et repassage'],
-    biz_bullauge_materials: [{n:'Film étirable manuel rotatifs',s:'Standard'},{n:'Amidon en spray',s:'Flacon spray'},{n:'Chlore javellisant',s:'Agent de blanchiment'},{n:'Lessive en poudre',s:'20 kg'},{n:'Adoucissant text.',s:'20 L'},{n:'Consommables divers',s:'Consommation'}]
-  },
-  es: {
-    dashboardTitle: 'Espacio de Trabajo', backBtn: '← Volver al Portal', logoutBtn: 'Cerrar Sesión', userLabel: 'Usuario', navEntry: 'Registro de Datos', navRecords: 'Registro Diario', navMonthly: 'Horas Mensuales', navUsers: 'Gestionar Personal', navSettings: 'Ajustes', headerData: 'Registrar Horas y Materiales', headerRecords: 'Mis Registros Diarios', headerMonthly: 'Horas Trabajadas Mensuales', headerUsers: 'Crear Perfil de Empleado', headerSettings: 'Ajustes del Sistema', labelCustomer: 'Cliente / Objeto', labelDate: 'Fecha', labelStart: 'Hora de Inicio', labelEnd: 'Hora de Finalización', labelTasks: 'Tareas Ejecutadas', labelNotes: 'Notas / Varios', btnAddTask: '+ Añadir Línea de Tarea', btnSubmit: 'Enviar Registro', matTitle: 'Control de Materiales', matName: 'Nombre del Material', matOrdered: 'Retirado', matReturned: 'Devuelto', successMsg: '¡Datos registrados con éxito! El registro está bloqueado.', adminNotice: 'Modo Administrador: Derechos de edición y eliminación concedidos.', thEmployee: 'Empleado', thHours: 'Horas', langLabel: 'Seleccionar Idioma', noRecords: 'No se encontraron registros para este ámbito.', noTrackingRequired: 'No se requieren listas específicas de materiales o tareas para esta unidad de negocio. Registre sus horas de trabajo y notas abajo.', lblNewUser: 'Nombre de usuario', lblNewPass: 'Contraseña', lblNewBiz: 'Unidad de Negocio Asignada', btnCreateUser: 'Crear Perfil', userCreatedMsg: '¡Perfil de empleado creado con éxito!', thRole: 'Rol', thBiz: 'Ámbito Comercial', existingUsersTitle: 'Perfiles de Usuario Activos', selectTaskPlaceholder: '-- Seleccionar Tarea --', closeMenu: '✕ Cerrar menú',
-    biz_fuerst_customers: ['Sucursal Edeka Pocking', 'Parque empresarial Pleiskirchen', 'Ayuntamiento de Altötting', 'Clínica de Burghausen'],
-    biz_fuerst_tasks: ['Limpieza exterior de escaparates y puertas de entrada', 'Limpieza interior de escaparates y puertas de entrada', 'Limpieza de cristales a dos caras en zona de ventas', 'Limpieza de cristales a dos caras en zona de empleados', 'Limpieza interior extra de escaparates por decoración con viaje adicional', 'Limpieza interior de escaparates por decoración junto con limpieza regular', 'Limpieza de espejos', 'Servicios especiales y varios'],
-    biz_fuerst_materials: [{n:'Bolsas de basura grandes',s:'120 L'},{n:'Bolsas de basura medianas',s:'60 L'},{n:'Bolsas de basura pequeñas',s:'28 L'},{n:'Fregona de microfibra',s:'50 cm'},{n:'Fregona de algodón',s:'50 cm'},{n:'Paño de microfibra rojo',s:'40 x 40 cm'},{n:'Paño de microfibra azul',s:'40 x 40 cm'},{n:'Paño de microfibra verde',s:'40 x 40 cm'},{n:'Paño de microfibra amarillo',s:'40 x 40 cm'},{n:'Paños de cocina',s:'70 x 50 cm'},{n:'Limpiador sanitario Milizid',s:'Botella de spray'},{n:'Limpiador de suelos Torrun',s:'Concentrado'},{n:'Limpiador de superficies',s:'Listo para usar'},{n:'Papel higiénico',s:'Por capas'},{n:'Toallas de papel plegadas',s:'Papel'},{n:'Jabón de manos',s:'Garrafa de 10 litros'}],
-    biz_bullauge_customers: ['Sucursal Münchner Str.', 'Estación Central Express', 'Salón del centro comercial'],
-    biz_bullauge_tasks: ['Limpieza profunda de lavadoras', 'Conciliación de caja de efectivo', 'Vaciado de filtros de pelusa', 'Fregado y desinfección de suelos', 'Cuidado de lavandería y planchado'],
-    biz_bullauge_materials: [{n:'Film transparente manual',s:'Estándar'},{n:'Almidón en aerosol',s:'Botella de spray'},{n:'Cloro blanqueador',s:'Agente blanqueador'},{n:'Detergente en polvo',s:'20 kg'},{n:'Suavizante',s:'20 L'},{n:'Materiales de consumo varios',s:'Consumo'}]
-  },
-  es_mx: {
-    dashboardTitle: 'Espacio de Trabajo', backBtn: '← Volver al Portal', logoutBtn: 'Cerrar Sesión', userLabel: 'Usuario', navEntry: 'Registro de Datos', navRecords: 'Bitácora Diaria', navMonthly: 'Horas del Mes', navUsers: 'Administrar Personal', navSettings: 'Configuración', headerData: 'Registrar Horas y Materiales', headerRecords: 'Mis Bitácoras Diarias', headerMonthly: 'Horas Trabajadas en el Mes', headerUsers: 'Crear Perfil de Empleado', headerSettings: 'Configuración del Sistema', labelCustomer: 'Cliente / Objeto', labelDate: 'Fecha', labelStart: 'Hora de Entrada', labelEnd: 'Hora de Salida', labelTasks: 'Tareas Realizadas', labelNotes: 'Notas / Varios', btnAddTask: '+ Agregar Línea de Tarea', btnSubmit: 'Enviar Reporte', matTitle: 'Control de Materiales', matName: 'Nombre del Material', matOrdered: 'Surtido', matReturned: 'Devolución', successMsg: '¡Reporte guardado con éxito! El registro está bloqueado.', adminNotice: 'Modo Administrador: Permisos de edición y eliminación activados.', thEmployee: 'Empleado', thHours: 'Horas', langLabel: 'Seleccionar Idioma', noRecords: 'No hay registros en este periodo.', noTrackingRequired: 'No se requieren listas de materiales o tareas para esta área. Favor de registrar sus horas y notas abajo.', lblNewUser: 'Usuario', lblNewPass: 'Contraseña', lblNewBiz: 'Unidad de Negocio Asignada', btnCreateUser: 'Crear Perfil', userCreatedMsg: '¡Perfil de empleado creado con éxito!', thRole: 'Rol', thBiz: 'Área del Negocio', existingUsersTitle: 'Usuarios Activos del Sistema', selectTaskPlaceholder: '-- Seleccionar Tarea --', closeMenu: '✕ Cerrar menú',
-    biz_fuerst_customers: ['Tienda Edeka Pocking', 'Parque industrial Pleiskirchen', 'Palacio Municipal Altötting', 'Clínica de Burghausen'],
-    biz_fuerst_tasks: ['Limpieza exterior de aparadores y puertas de acceso', 'Limpieza interior de aparadores y puertas de acceso', 'Limpieza de cristales por ambos lados en piso de venta', 'Limpieza de cristales por ambos lados en área de personal', 'Limpieza interior extra de aparadores por montaje de exhibición con traslado', 'Limpieza interior de aparadores por montaje junto con limpieza programada', 'Limpieza de espejos', 'Servicios especiales y varios'],
-    biz_fuerst_materials: [{n:'Bolsas de basura grandes',s:'120 L'},{n:'Bolsas de basura medianas',s:'60 L'},{n:'Bolsas de basura chicas',s:'28 L'},{n:'Mopa de microfibra',s:'50 cm'},{n:'Mopa de algodón',s:'50 cm'},{n:'Trapo de microfibra rojo',s:'40 x 40 cm'},{n:'Trapo de microfibra azul',s:'40 x 40 cm'},{n:'Trapo de microfibra verde',s:'40 x 40 cm'},{n:'Trapo de microfibra amarillo',s:'40 x 40 cm'},{n:'Toallas para trastes',s:'70 x 50 cm'},{n:'Limpiador de baños Milizid',s:'Atomizador'},{n:'Limpiador para pisos Torrun',s:'Concentrado'},{n:'Limpiador de superficies',s:'Listo para usar'},{n:'Papel higiénico rudo',s:'Por capas'},{n:'Toallas de papel interdobladas',s:'Papel'},{n:'Jabón líquido de manos',s:'Porrón de 10 litros'}],
-    biz_bullauge_customers: ['Sucursal Münchner Str.', 'Express Estación Central', 'Lavandería Zona Universitaria'],
-    biz_bullauge_tasks: ['Lavado profundo de maquinaria', 'Corte de caja matutino/vespertino', 'Limpieza de filtros de pelusa', 'Trapeado y desinfección de pisos', 'Cuidado de prendas y planchado'],
-    biz_bullauge_materials: [{n:'Playo manual rollo',s:'Estándar'},{n:'Almidón en aerosol',s:'Atomizador'},{n:'Cloro líquido',s:'Blanqueador'},{n:'Detergente en polvo',s:'20 kg'},{n:'Suavizante de telas',s:'20 L'},{n:'Insumos de consumo varios',s:'Consumo'}]
-  },
-  uk: {
-    dashboardTitle: 'Робочий простір', backBtn: '← Назад до порталу', logoutBtn: 'Вийти', userLabel: 'Користувач', navEntry: 'Введення даних', navRecords: 'Журнал за день', navMonthly: 'Години за місяць', navUsers: 'Управління персоналом', navSettings: 'Налаштування', headerData: 'Облік часу та матеріалів', headerRecords: 'Мої звіти за день', headerMonthly: 'Відпрацьовані години за місяць', headerUsers: 'Створити профіль співробітника', headerSettings: 'Налаштування системи', labelCustomer: 'Клієнт / Об\'єкт', labelDate: 'Дата', labelStart: 'Час початку', labelEnd: 'Час завершення', labelTasks: 'Виконані роботи', labelNotes: 'Примітки / Різне', btnAddTask: '+ Додати рядок роботи', btnSubmit: 'Надіслати запис', matTitle: 'Облік матеріалів', matName: 'Назва матеріалу', matOrdered: 'Взято', matReturned: 'Повернуто', successMsg: 'Дані успішно збережено! Запис заблоковано.', adminNotice: 'Режим адміна: Надано права на редагування та видалення.', thEmployee: 'Співробітник', thHours: 'Годин', langLabel: 'Вибір мови', noRecords: 'Записів для цього періоду не знайдено.', noTrackingRequired: 'Для цього підрозділу окремий облік матеріалів чи завдань не потрібен. Будь ласка, введіть робочий час та примітки нижче.', lblNewUser: 'Ім\'я користувача', lblNewPass: 'Пароль', lblNewBiz: 'Призначений підрозділ', btnCreateUser: 'Створити профіль', userCreatedMsg: 'Профіль співробітника успішно створено!', thRole: 'Роль', thBiz: 'Сфера бізнесу', existingUsersTitle: 'Активні профілі користувачів', selectTaskPlaceholder: '-- Оберіть завдання --', closeMenu: '✕ Закрити меню',
-    biz_fuerst_customers: ['Філія Edeka Pocking', 'Бізнес-парк Pleiskirchen', 'Ратуша Altötting', 'Клініка Burghausen'],
-    biz_fuerst_tasks: ['Зовнішнє миття вітрин та вхідних дверей', 'Внутрішнє миття вітрин та вхідних дверей', 'Двостороннє очищення скляних поверхонь у торговій зоні', 'Двостороннє очищення скляних поверхонь у зоні для персоналу', 'Додаткове внутрішнє миття вітрин перед оформленням з виїздом', 'Додаткове внутрішнє миття вітрин перед оформленням разом із регулярним прибиранням', 'Очищення дзеркал', 'Спеціальні послуги та інше'],
-    biz_fuerst_materials: [{n:'Мішки для сміття великі',s:'120 л'},{n:'Мішки для сміття середні',s:'60 л'},{n:'Мішки для сміття малі',s:'28 л'},{n:'Швабра з мікрофібри',s:'50 см'},{n:'Швабра з бавовни',s:'50 см'},{n:'Серветка з мікрофібри червона',s:'40 х 40 см'},{n:'Серветка з мікрофібри синя',s:'40 х 40 см'},{n:'Серветка з мікрофібри зелена',s:'40 х 40 см'},{n:'Серветка з мікрофібри жовта',s:'40 х 40 см'},{n:'Кухонні рушники',s:'70 х 50 см'},{n:'Засіб для санвузлів Milizid',s:'Розпилювач'},{n:'Засіб für Boden Torrun',s:'Концентрат'},{n:'Засіб для поверхонь',s:'Готовий до використання'},{n:'Туалетний папір',s:'Рулонний'},{n:'Паперові рушники складені',s:'Папір'},{n:'Рідке мило для рук',s:'Каністра 10 л'}],
-    biz_bullauge_customers: ['Філія на Münchner Str.', 'Експрес Головний вокзал', 'Салон в університетському кварталі'],
-    biz_bullauge_tasks: ['Глубоке очищення пральних машин', 'Зведення каси', 'Очищення фільтрів від ворсу', 'Миття та дезінфекція підлоги', 'Догляд за білизною та прасування'],
-    biz_bullauge_materials: [{n:'Стретч-плівка ручна',s:'Standard'},{n:'Крохмаль-спрей',s:'Розпилювач'},{n:'Хлорний відбілювач',s:'Рідина'},{n:'Пральний порошок',s:'20 кг'},{n:'Кондиціонер для білизни',s:'20 л'},{n:'Інші витратні матеріали',s:'Витратні матеріали'}]
-  },
-  hi: {
-    dashboardTitle: 'कार्यक्षेत्र', backBtn: '← पोर्टल पर वापस जाएं', logoutBtn: 'लॉगआउट', userLabel: 'उपयोगकर्ता', navEntry: 'डेटा प्रविष्टि', navRecords: 'दैनिक लॉग', navMonthly: 'मासिक घंटे', navUsers: 'कर्मचारी प्रबंधन', navSettings: 'सेटिंग्स', headerData: 'समय और सामग्री दर्ज करें', headerRecords: 'मेरे दैनिक रिकॉर्ड', headerMonthly: 'मासिक कार्य के घंटे', headerUsers: 'नया कर्मचारी प्रोफाइल बनाएं', headerSettings: 'सिस्टम सेटिंग्स', labelCustomer: 'ग्राहक / ऑब्जेक्ट', labelDate: 'तारीख', labelStart: 'शुरू होने का समय', labelEnd: 'समाप्ति का समय', labelTasks: 'किए गए कार्य', labelNotes: 'विविध / नोट्स', btnAddTask: '+ कार्य पंक्ति जोड़ें', btnSubmit: 'रिकॉर्ड जमा करें', matTitle: 'सामग्री ट्रैकिंग', matName: 'सामग्री का नाम', matOrdered: 'लिया गया', matReturned: 'वापस किया', successMsg: 'डेटा सफलतापूर्वक दर्ज किया गया! रिकॉर्ड लॉक है।', adminNotice: 'एडमिन मोड: संपादन और हटाने के अधिकार दिए गए हैं।', thEmployee: 'कर्मचारी', thHours: 'घंटे', langLabel: 'भाषा चुनें', noRecords: 'इस कार्यक्षेत्र के लिए कोई रिकॉर्ड नहीं मिला।', noTrackingRequired: 'इस व्यावसायिक इकाई के लिए किसी समर्पित सामग्री या कार्य सूची की आवश्यकता नहीं है। कृपया नीचे अपने कार्य के घंटे और नोट्स दर्ज करें।', lblNewUser: 'यूज़रनेम', lblNewPass: 'पासवर्ड', lblNewBiz: 'सौंपी गई व्यावसायिक इकाई', btnCreateUser: 'प्रोफाइल बनाएं', userCreatedMsg: 'कर्मचारी प्रोफाइल सफलतापूर्वक बनाई गई!', thRole: 'भूमिका', thBiz: 'व्यवसाय का दायरा', existingUsersTitle: 'सक्रिय सिस्टम उपयोगकर्ता प्रोफाइल', selectTaskPlaceholder: '-- कार्य चुनें --', closeMenu: '✕ मेनू बंद करें',
-    biz_fuerst_customers: ['एडेका पोकिंग शाखा', 'प्लीस्किर्चेन बिजनेस पार्क', 'अल्टोटिंग टाउन हॉल', 'बर्गहाउसेन क्लिनिक'],
-    biz_fuerst_tasks: ['दुकान की खिड़कियों और प्रवेश द्वारों की बाहरी सफाई', 'दुकान की खिड़कियों और प्रवेश द्वारों की आंतरिक सफाई', 'बिक्री क्षेत्र में कांच की सतहों की दोनों तरफ से सफाई', 'कर्मचारी क्षेत्र में कांच की सतहों की दोनों तरफ से सफाई', 'अन्तरिक्ष पारगमन यात्रा के साथ सजावट तिथियों के लिए दुकान की खिड़कियों की अतिरिक्त आंतरिक सफाई', 'नियमित शेड्यूलिंग के साथ सजावट तिथियों के लिए अतिरिक्त आंतरिक सफाई', 'दर्पण की सतहों की सफाई', 'विशेष परिचालन अनुरोध / विविध'],
-    biz_fuerst_materials: [{n:'कचरा बैग बड़ा',s:'120 लीटर'},{n:'कचरा बैग मध्यम',s:'60 लीटर'},{n:'कचरा बैग छोटा',s:'28 लीटर'},{n:'माइक्रोफाइबर मॉप हेड',s:'50 सेमी'},{n:'कॉटन मॉप हेड',s:'50 सेमी'},{n:'माइक्रोफाइबर कपड़ा लाल',s:'40 x 40 सेमी'},{n:'माइक्रोफाइबर कपड़ा नीला',s:'40 x 40 सेमी'},{n:'माइक्रोफाइबर कपड़ा हरा',s:'40 x 40 सेमी'},{n:'माइक्रोफाइबर कपड़ा पीला',s:'40 x 40 सेमी'},{n:'किचन टॉवल',s:'70 x 50 सेमी'},{n:'सैनिटरी क्लीनर मिलिज़िड',s:'स्प्रे बोतल'},{n:'फ्लोर क्लीनर टोरुन',s:'केंद्रित'},{n:'सतह क्लीनर',s:'उपयोग के लिए तैयार'},{n:'शौचालय के कागज रोल',s:'परतदार'},{n:'मुड़े हुए कागज के हाथ वाले तौलिए',s:'कागज'},{n:'तरल हाथ साबुन',s:'10 लीटर कैनिस्टर'}],
-    biz_bullauge_customers: ['मुंचेनर स्ट्र. स्टेशन', 'सेंट्रल स्टेशन एक्सप्रेस', 'विश्वविद्यालय जिला सैलून'],
-    biz_bullauge_tasks: ['वाशिंग मशीन की गहरी सफाई', 'रजिस्टर नकद मिलान', 'लिंट ट्रैप खाली करना', 'फर्श पोंछना और कीटाणुशोधन', 'कपड़ों की देखभाल और इस्त्री करना'],
-    biz_bullauge_materials: [{n:'प्लास्टिक रैप हैंडरोल',s:'मानक'},{n:'स्प्रे स्टार्च',s:'स्प्रे बोतल'},{n:'क्लोरीन ब्लीच',s:'ब्लीचिंग एजेंट'},{n:'डिटर्जेंट पाउडर',s:'20 किलो'},{n:'फैब्रिक सॉफ़्नर',s:'20 लीटर'},{n:'विविध उपभोग्य सामग्रियां',s:'उपभोग'}]
-  },
-  ar: {
-    dashboardTitle: 'مساحة العمل', backBtn: '← العودة إلى البوابة', logoutBtn: 'تسجيل الخروج', userLabel: 'المستخدم', navEntry: 'إدخال البيانات', navRecords: 'السجل اليومي', navMonthly: 'الساعات الشهرية', navUsers: 'إدارة الموظفين', navSettings: 'الإعدادات', headerData: 'تسجيل الساعات والمواد', headerRecords: 'سجلاتي اليومية', headerMonthly: 'ساعات العمل الشهرية', headerUsers: 'إنشاء ملف موظف جديد', headerSettings: 'إعدادات النظام', labelCustomer: 'العميل / الموقع', labelDate: 'التاريخ', labelStart: 'وقت البدء', labelEnd: 'وقت الانتهاء', labelTasks: 'المهام المنفذة', labelNotes: 'ملاحظات / متنوع', btnAddTask: '+ إضافة سطر مهام', btnSubmit: 'إرسال السجل', matTitle: 'تتبع المواد', matName: 'اسم المادة', matOrdered: 'المأخوذ', matReturned: 'المرتجع', successMsg: 'تم تسجيل البيانات بنجاح! السجل مقفل الآن.', adminNotice: 'وضع المسؤول: تم منح صلاحيات التعديل والحذف.', thEmployee: 'الموظف', thHours: 'الساعات', langLabel: 'اختر اللغة', noRecords: 'لم يتم العثور على سجلات لهذه الفترة.', noTrackingRequired: 'لا توجد قوائم مهام أو مواد مخصصة مطلوبة لوحدة العمل هذه. يرجى تسجيل ساعات عملك وملاحظاتك أدناه.', lblNewUser: 'اسم المستخدم', lblNewPass: 'كلمة المرور', lblNewBiz: 'وحدة العمل المعينة', btnCreateUser: 'إنشاء الملف الشخصي', userCreatedMsg: 'تم إنشاء ملف الموظف بنجاح!', thRole: 'الدور', thBiz: 'نطاق العمل', existingUsersTitle: 'ملفات المستخدمين النشطة في النظام', selectTaskPlaceholder: '-- اختر المهمة --', closeMenu: '✕ إغلاق القائمة',
-    biz_fuerst_customers: ['فرع إيديكا بوكينج', 'مجمع بليسكيرشن الصناعي', 'بلدية ألتوتينغ', 'عيادة بورغهاوزن'],
-    biz_fuerst_tasks: ['تنظيف خارجي للنوافذ وأبواب المداخل', 'تنظيف داخلي للنوافذ وأبواب المداخل', 'تنظيف الزجاج من الجهتين في صالة العرض', 'تنظيف الزجاج من الجهتين في قسم الموظفين', 'تنظيف داخلي إضافي للنوافذ لمواعيد الديكور مع انتقال خارجي', 'تنظيف داخلي إضافي للنوافذ لمواعيد الديكور مع التنظيف الدوري بالجدول', 'تنظيف المرايا والأسطح العاكسة', 'خدمات تشغيلية خاصة ومتنوعة'],
-    biz_fuerst_materials: [{n:'أكياس قمامة كبيرة',s:'120 لتر'},{n:'أكياس قمامة متوسطة',s:'60 لتر'},{n:'أكياس قمامة صغيرة',s:'28 لتر'},{n:'ممسحة أرضيات مايكروفايبر',s:'50 سم'},{n:'ممسحة أرضيات قطن',s:'50 سم'},{n:'خرقة مايكروفايبر حمراء',s:'40 × 40 سم'},{n:'خرقة مايكروفايبر زرقاء',s:'40 × 40 سم'},{n:'خرقة مايكروفايبر خضراء',s:'40 × 40 سم'},{n:'خرقة مايكروفايبر صفراء',s:'40 × 40 سم'},{n:'مناشف مطبخ صحون',s:'70 × 50 سم'},{n:'منظف الحمامات ميليزيد',s:'بخاخ'},{n:'منظف الأرضيات تورون',s:'مركز'},{n:'منظف أسطح عام',s:'جاهز للاستخدام'},{n:'ورق تواليت رول',s:'طبقات'},{n:'مناشف ورقية مطوية للأيدي',s:'ورق'},{n:'صابون سائل للأيدي',s:'جالون 10 لتر'}],
-    biz_bullauge_customers: ['فرع شارع ميونخ', 'محطة القطار المركزية إكسبريس', 'صالون الحي الجامعي'],
-    biz_bullauge_tasks: ['تنظيف عميق لغسالات الملابس', 'مطابقة عهدة النقدية بالخزينة', 'تفريغ وتطهير فلاتر الوبر', 'مسح وتعقيم الأرضيات', 'العناية بالملابس والكي والمغسلة'],
-    biz_bullauge_materials: [{n:'رول تغليف بلاستيك يدوي',s:'قياسي'},{n:'نشا ملابس بخاخ',s:'زجاجة بخاخ'},{n:'مبيض كلورين سائل',s:'مبيض'},{n:'مسحوق غسيل ملابس',s:'20 كجم'},{n:'منعم أقمشة ملابس',s:'20 لتر'},{n:'مواد ومستلزمات استهلاكية عامة',s:'استهلاك'}]
-  },
-  ru: {
-    dashboardTitle: 'Рабочая область', backBtn: '← Назад в портал', logoutBtn: 'Выйти', userLabel: 'Пользователь', navEntry: 'Ввод данных', navRecords: 'Дневной журнал', navMonthly: 'Часы за месяц', navUsers: 'Управление персоналом', navSettings: 'Настройки', headerData: 'Учет времени и материалов', headerRecords: 'Мои дневные отчеты', headerMonthly: 'Отработанные часы за месяц', headerUsers: 'Создать профиль сотрудника', headerSettings: 'Системные настройки', labelCustomer: 'Клиент / Объект', labelDate: 'Дата', labelStart: 'Время начала', labelEnd: 'Время окончания', labelTasks: 'Выполненные работы', labelNotes: 'Примечания / Разное', btnAddTask: '+ Добавить строку работы', btnSubmit: 'Отправить запись', matTitle: 'Учет материалов', matName: 'Название материала', matOrdered: 'Взято', matReturned: 'Возвращено', successMsg: 'Данные успешно сохранены! Запись заблокирована.', adminNotice: 'Режим админа: Предоставлены права на редактирование и удаление.', thEmployee: 'Сотрудник', thHours: 'Часы', langLabel: 'Выбор языка', noRecords: 'Записей для этого периода не найдено.', noTrackingRequired: 'Для этого подразделения отдельный учет материалов или задач не требуется. Пожалуйста, введите рабочее время и примечания ниже.', lblNewUser: 'Имя пользователя', lblNewPass: 'Пароль', lblNewBiz: 'Назначенное подразделение', btnCreateUser: 'Создать профиль', userCreatedMsg: 'Профиль сотрудника успешно создан!', thRole: 'Роль', thBiz: 'Сфера бизнеса', existingUsersTitle: 'Активные профили пользователей', selectTaskPlaceholder: '-- Выберите задачу --', closeMenu: '✕ Закрыть меню',
-    biz_fuerst_customers: ['Филиал Edeka Pocking', 'Бизнес-парк Pleiskirchen', 'Ратуша Altötting', 'Клиника Burghausen'],
-    biz_fuerst_tasks: ['Наружная мойка витрин и входных дверей', 'Внутренняя мойка витрин и входных дверей', 'Двусторонняя очистка стеклянных поверхностей в торговой зоне', 'Двусторонняя очистка стеклянных поверхностей в зоне для персонала', 'Дополнительная внутренняя мойка витрин перед оформлением с выездом', 'Дополнительная внутренняя мойка витрин перед оформлением вместе с регулярной уборкой', 'Очистка зеркал', 'Специальные услуги и прочее'],
-    biz_fuerst_materials: [{n:'Мешки для мусора большие',s:'120 л'},{n:'Мешки для мусора средние',s:'60 л'},{n:'Мешки для мусора малые',s:'28 л'},{n:'Швабра из микрофибры',s:'50 см'},{n:'Швабра из хлопка',s:'50 см'},{n:'Салфетка из микрофибры красная',s:'40 х 40 см'},{n:'Салфетка из микрофибры синяя',s:'40 х 40 см'},{n:'Салфетка из микрофибры зеленая',s:'40 х 40 см'},{n:'Салфетка из микрофибры желтая',s:'40 х 40 см'},{n:'Кухонные полотенца',s:'70 х 50 см'},{n:'Санитарный очиститель Milizid',s:'Распылитель'},{n:'Очиститель пола Torrun',s:'Концентрат'},{n:'Очиститель поверхностей',s:'Готовый к использованию'},{n:'Туалетная бумага',s:'Рулонная'},{n:'Бумажные полотенца сложенные',s:'Бумага'},{n:'Жидкое мыло для рук',s:'Канистра 10 л'}],
-    biz_bullauge_customers: ['Филиал на Münchner Str.', 'Экспресс Главный вокзал', 'Салон в университетском квартале'],
-    biz_bullauge_tasks: ['Глубокая очистка стиральных машин', 'Сведение кассы', 'Очистка фильтров от ворса', 'Мытье и дезинфекция полов', 'Уход за бельем и глажка'],
-    biz_bullauge_materials: [{n:'Стретч-пленка ручная',s:'Стандарт'},{n:'Крахмал-спрей',s:'Распылитель'},{n:'Хлорный отбеливатель',s:'Жидкость'},{n:'Стиральный порошок',s:'20 кг'},{n:'Кондиционер для белья',s:'20 л'},{n:'Прочие расходные материалы',s:'Расходные материалы'} ]
+    dashboardTitle: 'Workspace', backBtn: '← Back to Portal', logoutBtn: 'Log Out', userLabel: 'User', navEntry: 'Data Entry', navRecords: 'Daily Log', navMonthly: 'Monthly Overview', navUsers: 'Manage Staff', navSettings: 'Settings', headerData: 'Record Time & Materials', headerRecords: 'My Daily Submitted Logs', headerMonthly: 'Monthly Work Hours Summary', headerUsers: 'Create Staff Accounts', headerSettings: 'System Settings', labelCustomer: 'Customer / Facility', selectCustomerPlaceholder: '-- Select a client --', labelDate: 'Date', labelStart: 'Start Time', labelEnd: 'End Time', sectionTasks: 'Performed Tasks & Cleaning Operations', sectionMaterials: 'Material Logs & Dynamic Quantities', matNameHeader: 'Material Name', matSpecHeader: 'Specification', matOrderedHeader: 'Taken out', matReturnedHeader: 'Returned', labelNotes: 'Additional Notes / Comments', submitBtn: 'Submit Log & Save to Database', successMessage: 'Record saved securely!', columnId: 'ID', columnEmployee: 'Employee', columnDate: 'Date', columnCustomer: 'Customer', columnTime: 'Time Window', columnHours: 'Hours', columnTasks: 'Tasks', columnMaterials: 'Materials', columnNotes: 'Notes', noRecords: 'No records matching criteria.', totalHours: 'Total Accumulative Hours for Month', filterAllEmployees: 'All Staff Members', filterAllCustomers: 'All Corporate Clients', placeholderUsername: 'Username String', placeholderPassword: 'Secure Password', labelRole: 'System Access Role', labelBusinessId: 'Business Code', btnCreateUser: 'Provision Staff Credentials', langLabel: 'Choose interface system language', adminLogTitle: 'System Activity Audit Log'
   }
 };
 
-const BUSINESS_DATA: Record<string, { label: string; requiresDetailedTracking: boolean }> = {
-  fuerst_hauser: { label: 'Fürst Hauser Gebäudereinigung', requiresDetailedTracking: true },
-  bullauge: { label: 'Bullauge Waschsalon', requiresDetailedTracking: true },
-  hauser_mittel: { label: 'Hauser Reinigungsmittel', requiresDetailedTracking: false },
-  signature_vista: { label: 'Signature Vista', requiresDetailedTracking: false }
-};
+export default function Dashboard({ userRole, username, businessId, onLogout, onBackToPortal }: DashboardProps) {
+  const [language, setLanguage] = useState('de');
+  const t = translations[language] || translations['de'];
+  const isRTL = language === 'ar' || language === 'he';
 
-export function Dashboard({ userRole, username, businessId, onLogout, onBackToPortal }: DashboardProps) {
-  const scopeConfig = BUSINESS_DATA[businessId] || BUSINESS_DATA.fuerst_hauser;
+  const [activeTab, setActiveTab] = useState<'entry' | 'records' | 'monthly' | 'users' | 'settings'>(
+    userRole === 'admin' ? 'records' : 'entry'
+  );
 
-  const [activeTab, setActiveTab] = useState<'entry' | 'records' | 'monthly' | 'users' | 'settings'>('entry');
-  const [language, setLanguage] = useState<string>('de');
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  
-  // Dynamic calculation fallback hooks
-  const t = translations[language] || translations.de;
-  const isRTL = language === 'ar';
+  // Layout navigation state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Extract Localized Business Configuration Arrays Dynamically
-  const currentCustomers: string[] = t[`biz_${businessId}_customers`] || t.biz_fuerst_customers || [];
-  const currentTasks: string[] = t[`biz_${businessId}_tasks`] || t.biz_fuerst_tasks || [];
-  const rawMaterials: any[] = t[`biz_${businessId}_materials`] || t.biz_fuerst_materials || [];
-
-  // Form Inputs State
-  const [customer, setCustomer] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [startTime, setStartTime] = useState('07:00');
-  const [endTime, setEndTime] = useState('16:00');
-  const [selectedTasks, setSelectedTasks] = useState<string[]>(['']);
-  const [miscellaneous, setMiscellaneous] = useState('');
-  const [formStatus, setFormStatus] = useState<string | null>(null);
-
-  // New Profile Form State (Admin Only)
-  const [newUsername, setNewUsername] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [newBusinessScope, setNewBusinessScope] = useState('fuerst_hauser');
-  const [userSuccessStatus, setUserSuccessStatus] = useState<string | null>(null);
-
-  // Dynamic Material Counter Rows State
-  const [materialRows, setMaterialRows] = useState<MaterialRowState[]>([]);
-
-  // Persistent Mock Database Context Arrays
+  // App Master Record State linked directly to Supabase table
   const [allRecords, setAllRecords] = useState<SubmittedRecord[]>([]);
-  const [systemUsers, setSystemUsers] = useState<UserProfile[]>([
-    { id: '1', username: 'admin', role: 'admin', businessId: 'fuerst_hauser' },
-    { id: '2', username: 'demo_staff', role: 'employee', businessId: 'bullauge' }
+  const [loadingRecords, setLoadingRecords] = useState(false);
+
+  // Form State Fields
+  const [selectedCustomer, setSelectedCustomer] = useState('');
+  const [workDate, setWorkDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startTime, setStartTime] = useState('08:00');
+  const [endTime, setEndTime] = useState('16:00');
+  const [notes, setNotes] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // Core task checklists - tailored for Commercial Cleaning (Fensterreinigung, Glasreinigung, Unterhaltsreinigung)
+  const [tasksList, setTasksList] = useState([
+    { id: 't1', labelDe: 'Unterhaltsreinigung (Büroräume, Sanitäre Anlagen, Flure)', labelEn: 'Maintenance Cleaning (Offices, Restrooms, Corridors)', checked: false },
+    { id: 't2', labelDe: 'Glas- und Fensterreinigung mit Glasrahmenpflege', labelEn: 'Glass & Window Cleaning including frame maintenance', checked: false },
+    { id: 't3', labelDe: 'Fassadenreinigung & Außenanlagenpflege', labelEn: 'Facade Cleaning & Exterior grounds upkeep', checked: false },
+    { id: 't4', labelDe: 'Grundreinigung & Hartbodenbeschichtung / Versiegelung', labelEn: 'Deep Cleaning & Hard floor stripping / sealing', checked: false },
+    { id: 't5', labelDe: 'Teppichbodenreinigung (Sprühexperiment / Schampunieren)', labelEn: 'Carpet Deep Extraction Cleaning', checked: false },
+    { id: 't6', labelDe: 'Baureinigung (Zwischenreinigung oder finale Bauendreinigung)', labelEn: 'Construction Site Cleaning (Progressive or Final handover)', checked: false },
+    { id: 't7', labelDe: 'Sonderreinigung / Desinfektionsmaßnahmen', labelEn: 'Specialized Disinfection Operations', checked: false }
   ]);
 
-  // Sync rows dynamically whenever businessId OR active language configuration context mutates
-  useEffect(() => {
-    if (scopeConfig.requiresDetailedTracking) {
-      const rows = rawMaterials.map(m => ({
-        name: m.n,
-        specification: m.s,
-        ordered: 0,
-        returned: 0
-      }));
-      setMaterialRows(rows);
-      setCustomer(currentCustomers[0] || '');
-      setSelectedTasks(['']);
-    } else {
-      setMaterialRows([]);
-      setCustomer('');
-      setSelectedTasks([]);
+  // Dynamic Materials List Configuration matching company operations inventory rows
+  const [materialsRows, setMaterialsRows] = useState<MaterialRowState[]>([
+    { name: 'Glasreiniger Konzentrat (Profi)', specification: '1L Flasche', ordered: 0, returned: 0 },
+    { name: 'Allzweckreiniger / Neutralreiniger', specification: '10L Kanister', ordered: 0, returned: 0 },
+    { name: 'Sanitärreiniger (Säurebasiert)', specification: '1L Flasche', ordered: 0, returned: 0 },
+    { name: 'Mikrofasertücher (Blau - Unterhalt)', specification: 'Packung 10 Stk', ordered: 0, returned: 0 },
+    { name: 'Mikrofasertücher (Rot - Sanitär)', specification: 'Packung 10 Stk', ordered: 0, returned: 0 },
+    { name: 'Fensterleder / Einwascher-Bezug', specification: 'Stück', ordered: 0, returned: 0 },
+    { name: 'Gummi-Ersatzlippe für Wischer', specification: '35cm Standard', ordered: 0, returned: 0 },
+    { name: 'Müllsäcke LDPE (Blau)', specification: 'Rolle 25 Stk / 120L', ordered: 0, returned: 0 }
+  ]);
+
+  // Manage Users Administrative State Array
+  const [systemUsers, setSystemUsers] = useState<UserProfile[]>([
+    { id: 'u1', username: 'samadhi', role: 'admin', businessId: '10045' },
+    { id: 'u2', username: 'cleaner1', role: 'employee', businessId: '10045' }
+  ]);
+  const [newUsername, setNewUsername] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newRole, setNewRole] = useState<'employee' | 'admin' | 'customer'>('employee');
+
+  // Filter Search Configurations for viewports
+  const [filterEmployee, setFilterEmployee] = useState('');
+  const [filterCustomer, setFilterCustomer] = useState('');
+
+  // Fetch records from Supabase on launch
+  const fetchRecordsFromSupabase = async () => {
+    setLoadingRecords(true);
+    try {
+      const { data, error } = await supabase
+        .from('tracking_records')
+        .select('*')
+        .order('date', { ascending: false });
+
+      if (error) throw error;
+
+      if (data) {
+        // Map database naming properties cleanly into frontend structures
+	const formatted: SubmittedRecord[] = data.map((row: any) => ({
+          id: row.id,
+          employee: row.employee,
+          date: row.date,
+          customer: row.customer,
+          startTime: row.start_time,
+          endTime: row.end_time,
+          tasks: row.tasks,
+          materials: row.materials,
+          notes: row.notes || ''
+        }));
+        setAllRecords(formatted);
+      }
+    } catch (err) {
+      console.error("Error fetching rows from Supabase container instance:", err);
+    } finally {
+      setLoadingRecords(false);
     }
-  }, [businessId, language]); 
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const currentEntry: SubmittedRecord = {
-      id: `record-${Date.now()}`,
-      employee: username || 'Mitarbeiter',
-      date,
-      customer: scopeConfig.requiresDetailedTracking ? customer : 'Standardbetrieb',
-      startTime,
-      endTime,
-      tasks: scopeConfig.requiresDetailedTracking ? selectedTasks.filter(tk => tk !== '') : ['Allgemeine Betriebstätigkeiten'],
-      materials: scopeConfig.requiresDetailedTracking 
-        ? materialRows.filter(r => r.ordered > 0 || r.returned > 0).map(r => ({ name: r.name, ordered: r.ordered, returned: r.returned }))
-        : [],
-      notes: miscellaneous
-    };
-
-    setAllRecords(prev => [currentEntry, ...prev]);
-    setFormStatus(t.successMsg);
-
-    setMiscellaneous('');
-    if (scopeConfig.requiresDetailedTracking) {
-      setSelectedTasks(['']);
-      const resetRows = rawMaterials.map(m => ({ name: m.n, specification: m.s, ordered: 0, returned: 0 }));
-      setMaterialRows(resetRows);
-    }
-
-    setTimeout(() => setFormStatus(null), 5000);
   };
 
-  const handleCreateUser = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchRecordsFromSupabase();
+  }, []);
+
+  // Form check submission execution calling dynamic endpoints on Supabase client setup
+  const handleSubmitLog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedCustomer) {
+      alert(language === 'en' ? 'Please choose a target corporate customer site.' : 'Bitte wählen Sie einen Kunden aus.');
+      return;
+    }
+
+    const completedTasksStrings = tasksList
+      .filter(t => t.checked)
+      .map(t => language === 'en' ? t.labelEn : t.labelDe);
+
+    const activeMaterialsRecords = materialsRows
+      .filter(m => m.ordered > 0 || m.returned > 0)
+      .map(m => ({
+        name: m.name,
+        ordered: Number(m.ordered),
+        returned: Number(m.returned)
+      }));
+
+    const newLogItem = {
+      id: 'REC-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+      employee: username,
+      date: workDate,
+      customer: selectedCustomer,
+      start_time: startTime,
+      end_time: endTime,
+      tasks: completedTasksStrings,
+      materials: activeMaterialsRecords,
+      notes: notes
+    };
+
+    try {
+      const { error } = await supabase
+        .from('tracking_records')
+        .insert([newLogItem]);
+
+      if (error) throw error;
+
+      // Reset state configurations cleanly on successful injection metrics
+      setShowSuccess(true);
+      setSelectedCustomer('');
+      setNotes('');
+      setTasksList(prev => prev.map(t => ({ ...t, checked: false })));
+      setMaterialsRows(prev => prev.map(m => ({ ...m, ordered: 0, returned: 0 })));
+      
+      // Refresh list seamlessly
+      fetchRecordsFromSupabase();
+      
+      setTimeout(() => setShowSuccess(false), 4000);
+    } catch (err) {
+      console.error("Error writing records up into Supabase database cluster table:", err);
+      alert("Database Write Failed. Please verify network boundaries.");
+    }
+  };
+
+  const handleCreateUserAccount = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUsername || !newPassword) return;
-
-    const newUser: UserProfile = {
-      id: `user-${Date.now()}`,
+    const newProfile: UserProfile = {
+      id: 'USR-' + Date.now(),
       username: newUsername,
-      role: 'employee',
-      businessId: newBusinessScope
+      role: newRole,
+      businessId: businessId
     };
-
-    setSystemUsers(prev => [...prev, newUser]);
-    setUserSuccessStatus(t.userCreatedMsg);
-    
+    setSystemUsers([...systemUsers, newProfile]);
     setNewUsername('');
     setNewPassword('');
-
-    setTimeout(() => setUserSuccessStatus(null), 4000);
+    alert(`Account user [${newUsername}] configured locally.`);
   };
 
-  const adjustMaterial = (idx: number, type: 'ordered' | 'returned', step: number) => {
-    setMaterialRows(prev => prev.map((row, i) => {
-      if (i !== idx) return row;
-      const val = Math.max(0, row[type] + step);
-      return { ...row, [type]: val };
-    }));
+  const toggleTaskCheckboxElement = (id: string) => {
+    setTasksList(prev => prev.map(item => item.id === id ? { ...item, checked: !item.checked } : item));
   };
 
-  const handleTaskRowChange = (idx: number, val: string) => {
-    setSelectedTasks(prev => {
-      const arr = [...prev];
-      arr[idx] = val;
-      return arr;
+  const handleMaterialCountMutation = (index: number, key: 'ordered' | 'returned', textVal: string) => {
+    const parsedValue = parseInt(textVal, 10) || 0;
+    setMaterialsRows(prev => {
+      const cloned = [...prev];
+      cloned[index] = { ...cloned[index], [key]: parsedValue >= 0 ? parsedValue : 0 };
+      return cloned;
     });
   };
 
-  const calculateHours = (start: string, end: string) => {
+  const calculateHoursMetricDifference = (start: string, end: string): number => {
     const [sH, sM] = start.split(':').map(Number);
     const [eH, eM] = end.split(':').map(Number);
-    const deltaMin = (eH * 60 + eM) - (sH * 60 + sM);
-    return deltaMin > 0 ? (deltaMin / 60).toFixed(2) : '0.00';
+    if (isNaN(sH) || isNaN(eH)) return 0;
+    const minutesDelta = (eH * 60 + eM) - (sH * 60 + sM);
+    return minutesDelta > 0 ? parseFloat((minutesDelta / 60).toFixed(2)) : 0;
   };
 
-  const filteredRecords = allRecords.filter(rec => {
-    if (userRole === 'admin') return true;
-    return rec.employee.toLowerCase() === username.toLowerCase();
+  const calculateTotalFilteredHours = (): number => {
+    return allRecords
+      .filter(r => (filterEmployee ? r.employee === filterEmployee : true))
+      .filter(r => (filterCustomer ? r.customer === filterCustomer : true))
+      .reduce((sum, item) => sum + calculateHoursMetricDifference(item.startTime, item.endTime), 0);
+  };
+
+  // Filter logical sets depending on administrative configuration levels
+  const viewableRecords = allRecords.filter(row => {
+    if (userRole === 'employee' && row.employee !== username) return false;
+    if (filterEmployee && row.employee !== filterEmployee) return false;
+    if (filterCustomer && row.customer !== filterCustomer) return false;
+    return true;
   });
 
-  const handleNavClick = (tab: 'entry' | 'records' | 'monthly' | 'users' | 'settings') => {
-    setActiveTab(tab);
-    setIsSidebarOpen(false); // Auto-close sidebar panel drawer layout on small mobile action click
-  };
+  const distinctiveEmployeeStrings = Array.from(new Set(allRecords.map(r => r.employee)));
+  const customerListMatrix = ['Gewerbepark Pleiskirchen KG', 'Zahnarztpraxis Dr. Fürst', 'Grundschule Pfarrkirchen Campus', 'Edeka Markt Filiale Süd', 'Autohaus Müller Showroom', 'Sparkasse Head Office'];
 
   return (
-<div style={{ display: 'flex', minHeight: '100vh', width: '100%', fontFamily: 'sans-serif', backgroundColor: '#f1f5f9', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', width: '100%', fontFamily: 'sans-serif', backgroundColor: '#f1f5f9', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
       
-      {/* INJECT DYNAMIC MEDIA QUERY STYLE SPECIFICATIONS DIRECTLY FOR PORTABLE DRAWER SUPPORT */}
+      {/* MOBILE TRIGGER INLINE STYLESHEET INJECTION BLOCK */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 768px) {
+          .responsive-sidebar {
+            position: fixed !important;
+            top: 0;
+            bottom: 0;
+            left: ${isRTL ? 'auto' : '0'} !important;
+            right: ${isRTL ? '0' : 'auto'} !important;
+            width: 280px !important;
+            height: 100vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            transform: ${isSidebarOpen ? 'translateX(0)' : isRTL ? 'translateX(100%)' : 'translateX(-100%)'} !important;
+            z-index: 10000 !important;
+            transition: transform 0.3s ease-in-out !important;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.2) !important;
+            background-color: #ffffff !important;
+          }
+          .sidebar-close-btn {
+            display: block !important;
+            position: absolute !important;
+            top: 16px !important;
+            right: 16px !important;
+            background: #f1f5f9 !important;
+            border: none !important;
+            border-radius: 50% !important;
+            width: 36px !important;
+            height: 36px !important;
+            cursor: pointer !important;
+            font-size: 16px !important;
+            font-weight: bold !important;
+            color: #334155 !important;
+            z-index: 10001 !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+          }
+          .mobile-trigger-header-btn {
+            display: block !important;
+          }
+          form[onSubmit] {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 16px !important;
+          }
+          form[onSubmit] > div {
+            grid-template-columns: 1fr !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 16px !important;
+          }
+          div[style*="display: flex"], 
+          div[style*="display:flex"] {
+            flex-direction: column !important;
+          }
+          input, select, textarea, button {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+          }
+        }
+      `}} />
 
-<style dangerouslySetInnerHTML={{ __html: `
-      @media (max-width: 768px) {
-        .responsive-sidebar {
-          position: fixed !important;
-          top: 0;
-          bottom: 0;
-          left: ${isRTL ? 'auto' : '0'} !important;
-          right: ${isRTL ? '0' : 'auto'} !important;
-          width: 280px !important;
-          height: 100dvh !important;
-          overflow-y: auto !important;
-          overflow-x: hidden !important;
-          transform: ${isSidebarOpen ? 'translateX(0)' : isRTL ? 'translateX(100%)' : 'translateX(-100%)'} !important;
-          z-index: 10000 !important;
-          transition: transform 0.3s ease-in-out !important;
-          box-shadow: 4px 0 15px rgba(0,0,0,0.2) !important;
-          background-color: #ffffff !important;
-        }
-
-	.sidebar-close-btn {
-          display: block !important;
-          position: absolute !important;
-          top: 16px !important;
-          right: 16px !important;
-          background: #f1f5f9 !important;
-          border: none !important;
-          border-radius: 50% !important;
-          width: 36px !important;
-          height: 36px !important;
-          cursor: pointer !important;
-          font-size: 16px !important;
-          font-weight: bold !important;
-          color: #334155 !important;
-          z-index: 10001 !important;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
-        }
-
-        .mobile-trigger-header-btn {
-          display: block !important;
-        }
-
-        /* --- STEP 3 PASTE HERE --- */
-        /* Forces grids and side-by-side forms to stack vertically on phones */
-        form[onSubmit] {
-          display: flex !important;
-          flex-direction: column !important;
-          gap: 16px !important;
-        }
-        form[onSubmit] > div {
-          grid-template-columns: 1fr !important;
-          display: flex !important;
-          flex-direction: column !important;
-          gap: 16px !important;
-        }
-        /* Fixes row containers inside forms */
-        div[style*="display: flex"], 
-        div[style*="display:flex"] {
-          flex-direction: column !important;
-        }
-        /* Make sure all inputs fill the full horizontal space cleanly */
-        input, select, textarea, button {
-          width: 100% !important;
-          max-width: 100% !important;
-          box-sizing: border-box !important;
-        }
-      }
-    `}} />
-
-{/* Backdrop overlay layout block to capture close actions instantly */}
-{isSidebarOpen && (
-  <div 
-    onClick={() => setIsSidebarOpen(false)}
-    style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.4)',
-      backdropFilter: 'blur(4px)',
-      zIndex: 9999,
-      transition: 'opacity 0.3s ease'
-    }}
-  />
-)}
+      {/* Backdrop overlay layout block to capture close actions instantly */}
+      {isSidebarOpen && (
+        <div 
+          onClick={() => setIsSidebarOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 9999,
+            transition: 'opacity 0.3s ease'
+          }}
+        />
+      )}
 
       {/* SIDEBAR NAVIGATION MENU */}
-      <div 
-        className="responsive-sidebar"
-style={{ width: '280px', padding: '20px 0', borderRight: '1px solid #334155', height: '100vh', float: isRTL ? 'right' : 'left', flexShrink: 0 }}
-      >
+      <nav className="responsive-sidebar" style={{ width: '260px', backgroundColor: '#0f172a', color: '#cbd5e1', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '24px', borderRight: '1px solid #1e293b' }}>
+        <button className="sidebar-close-btn" style={{ display: 'none' }} onClick={() => setIsSidebarOpen(false)}>✕</button>
+        
         <div>
-          <div style={{ padding: '0 20px 20px 20px', borderBottom: '1px solid #334155', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            
-            {/* CLOSE BUTTON Inside side menu container (Automatically hidden dynamically on Wide Screen Devices) */}
-		<button
-  className="sidebar-close-btn"
-  onClick={() => setIsSidebarOpen(false)}
-  aria-label="Close menu"
->
-  ✕
-</button>
+          <h1 style={{ color: '#fff', fontSize: '1.2rem', margin: 0, fontWeight: 'bold', letterSpacing: '0.5px' }}>Fürst Hauser</h1>
+          <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase' }}>Gebäudereinigung</p>
+        </div>
 
-            <div>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#38bdf8' }}>{scopeConfig.label}</h3>
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '5px' }}>{t.dashboardTitle}</div>
-            </div>
-          </div>
+        <div style={{ padding: '12px', backgroundColor: '#1e293b', borderRadius: '6px', fontSize: '0.85rem' }}>
+          <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>{t.userLabel}:</div>
+          <div style={{ color: '#fff', fontWeight: 'bold', marginTop: '2px' }}>{username}</div>
+          <div style={{ display: 'inline-block', marginTop: '6px', padding: '2px 6px', backgroundColor: '#334155', borderRadius: '4px', fontSize: '0.7rem', color: '#38bdf8', textTransform: 'uppercase' }}>{userRole}</div>
+        </div>
 
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '0 10px' }}>
-            <button onClick={() => handleNavClick('entry')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'entry' ? '#334155' : 'transparent', color: activeTab === 'entry' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+          {userRole !== 'admin' && (
+            <button onClick={() => { setActiveTab('entry'); setIsSidebarOpen(false); }} style={{ width: '100%', textAlign: isRTL ? 'right' : 'left', padding: '12px', borderRadius: '6px', border: 'none', background: activeTab === 'entry' ? '#1e293b' : 'transparent', color: activeTab === 'entry' ? '#fff' : '#94a3b8', fontSize: '0.95rem', cursor: 'pointer', fontWeight: activeTab === 'entry' ? 'bold' : 'normal' }}>
               📝 {t.navEntry}
             </button>
-            <button onClick={() => handleNavClick('records')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'records' ? '#334155' : 'transparent', color: activeTab === 'records' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-              📅 {t.navRecords}
+          )}
+          <button onClick={() => { setActiveTab('records'); setIsSidebarOpen(false); }} style={{ width: '100%', textAlign: isRTL ? 'right' : 'left', padding: '12px', borderRadius: '6px', border: 'none', background: activeTab === 'records' ? '#1e293b' : 'transparent', color: activeTab === 'records' ? '#fff' : '#94a3b8', fontSize: '0.95rem', cursor: 'pointer', fontWeight: activeTab === 'records' ? 'bold' : 'normal' }}>
+            📋 {t.navRecords}
+          </button>
+          <button onClick={() => { setActiveTab('monthly'); setIsSidebarOpen(false); }} style={{ width: '100%', textAlign: isRTL ? 'right' : 'left', padding: '12px', borderRadius: '6px', border: 'none', background: activeTab === 'monthly' ? '#1e293b' : 'transparent', color: activeTab === 'monthly' ? '#fff' : '#94a3b8', fontSize: '0.95rem', cursor: 'pointer', fontWeight: activeTab === 'monthly' ? 'bold' : 'normal' }}>
+            📊 {t.navMonthly}
+          </button>
+          {userRole === 'admin' && (
+            <button onClick={() => { setActiveTab('users'); setIsSidebarOpen(false); }} style={{ width: '100%', textAlign: isRTL ? 'right' : 'left', padding: '12px', borderRadius: '6px', border: 'none', background: activeTab === 'users' ? '#1e293b' : 'transparent', color: activeTab === 'users' ? '#fff' : '#94a3b8', fontSize: '0.95rem', cursor: 'pointer', fontWeight: activeTab === 'users' ? 'bold' : 'normal' }}>
+              👥 {t.navUsers}
             </button>
-            <button onClick={() => handleNavClick('monthly')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'monthly' ? '#334155' : 'transparent', color: activeTab === 'monthly' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-              📊 {t.navMonthly}
-            </button>
-            
-            {userRole === 'admin' && (
-              <button onClick={() => handleNavClick('users')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'users' ? '#334155' : 'transparent', color: activeTab === 'users' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-                👥 {t.navUsers}
-              </button>
-            )}
-
-            <button onClick={() => handleNavClick('settings')} style={{ width: '100%', padding: '12px 15px', textAlign: isRTL ? 'right' : 'left', backgroundColor: activeTab === 'settings' ? '#334155' : 'transparent', color: activeTab === 'settings' ? '#38bdf8' : '#cbd5e1', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-              ⚙️ {t.navSettings}
-            </button>
-          </nav>
+          )}
+          <button onClick={() => { setActiveTab('settings'); setIsSidebarOpen(false); }} style={{ width: '100%', textAlign: isRTL ? 'right' : 'left', padding: '12px', borderRadius: '6px', border: 'none', background: activeTab === 'settings' ? '#1e293b' : 'transparent', color: activeTab === 'settings' ? '#fff' : '#94a3b8', fontSize: '0.95rem', cursor: 'pointer', fontWeight: activeTab === 'settings' ? 'bold' : 'normal' }}>
+            ⚙️ {t.navSettings}
+          </button>
         </div>
 
-        <div style={{ padding: '0 15px' }}>
-          <button onClick={onBackToPortal} style={{ width: '100%', padding: '10px', backgroundColor: '#475569', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', marginBottom: '10px', fontSize: '0.85rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '15px', borderTop: '1px solid #1e293b' }}>
+          <button onClick={onBackToPortal} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #334155', background: 'transparent', color: '#94a3b8', fontSize: '0.85rem', cursor: 'pointer' }}>
             {t.backBtn}
           </button>
-          <button onClick={onLogout} style={{ width: '100%', padding: '10px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-            {t.logoutBtn}
+          <button onClick={onLogout} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: 'none', background: '#b91c1c', color: '#fff', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer' }}>
+            🚪 {t.logoutBtn}
           </button>
         </div>
-      </div>
+      </nav>
 
       {/* CORE WORKSPACE WINDOW */}
-<div style={{ 
-  flex: 1, 
-  minWidth: 0, 
-  maxWidth: '100vw', 
-  display: 'flex', 
-  flexDirection: 'column', 
-  height: '100dvh', 
-  overflow: 'hidden', 
-  textAlign: isRTL ? 'right' : 'left' 
-}} dir={isRTL ? 'rtl' : 'ltr'}>
+      <div style={{ flex: 1, minWidth: 0, maxWidth: '100vw', display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', textAlign: isRTL ? 'right' : 'left' }} dir={isRTL ? 'rtl' : 'ltr'}>
         
-        <header style={{ height: '60px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 30px' }}>
-          
-          {/* HAMBURGER TRIGGER BUTTON FOR MOBILE USERS (Hidden default on wide viewport desktops) */}
-          <button
-            className="mobile-trigger-header-btn"
-            onClick={() => setIsSidebarOpen(true)}
-	style={{ padding: '8px 12px', backgroundColor: '#0f172a', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 'bold' }}
-          >
-            ☰
-          </button>
-
-          <span style={{ fontSize: '0.9rem', color: '#64748b', marginLeft: isRTL ? 'auto' : '0', marginRight: isRTL ? '0' : 'auto', paddingLeft: isRTL ? '0' : '15px', paddingRight: isRTL ? '15px' : '0' }}>
-            {t.userLabel}: <strong style={{ color: '#0f172a' }}>{username}</strong> (<span style={{ color: userRole === 'admin' ? '#ef4444' : '#10b981', fontWeight: 'bold' }}>{userRole}</span>)
-          </span>
+        {/* RESPONSIVE MOBILE BAR TRIGGER NAVIGATION HEADER */}
+        <header className="mobile-trigger-header-btn" style={{ display: 'none', padding: '12px 16px', backgroundColor: '#0f172a', borderBottom: '1px solid #1e293b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <button onClick={() => setIsSidebarOpen(true)} style={{ padding: '8px 12px', backgroundColor: '#0f172a', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 'bold' }}>
+              ☰ Menu
+            </button>
+            <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '0.95rem' }}>Fürst Hauser</span>
+          </div>
         </header>
 
-<main style={{ flex: 1, padding: '16px', overflowY: 'auto', overflowX: 'hidden', width: '100%' }}>
-          
-          {formStatus && (
-            <div style={{ padding: '15px', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '6px', marginBottom: '20px', fontWeight: 'bold' }}>
-              ✓ {formStatus}
-            </div>
-          )}
+        {/* CONTAINER SCROLL SCENARIO ELEMENT VIEWPORT */}
+        <main style={{ flex: 1, padding: '16px', overflowY: 'auto', overflowX: 'hidden', width: '100%' }}>
 
-          {/* VIEWPORT 1: DATA LOG ENTRY FORMS */}
-          {activeTab === 'entry' && (
-            <div>
-              <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerData}</h2>
-              <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '30px', alignItems: 'start' }}>
-                
-                <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                  
-                  {!scopeConfig.requiresDetailedTracking && (
-                    <div style={{ padding: '12px', backgroundColor: '#eff6ff', color: '#1e40af', borderRadius: '6px', marginBottom: '20px', fontSize: '0.9rem' }}>
-                      ℹ️ {t.noTrackingRequired}
-                    </div>
-                  )}
+          {/* VIEWPORT 1: CLIENT DATA ERFASSUNG */}
+          {activeTab === 'entry' && userRole !== 'admin' && (
+            <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <h2 style={{ margin: 0, color: '#0f172a' }}>{t.headerData}</h2>
+                <span style={{ fontSize: '0.85rem', color: '#64748b', padding: '4px 8px', backgroundColor: '#e2e8f0', borderRadius: '4px', fontWeight: 'bold' }}>ID: {businessId}</span>
+              </div>
 
-                  {scopeConfig.requiresDetailedTracking && (
-                    <div style={{ marginBottom: '15px' }}>
-                      <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelCustomer}</label>
-                      <select value={customer} onChange={(e) => setCustomer(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-                        {currentCustomers.map((c, i) => <option key={i} value={c}>{c}</option>)}
-                      </select>
-                    </div>
-                  )}
-
-                  <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelDate}</label>
-                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelStart}</label>
-                      <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelEnd}</label>
-                      <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
-                    </div>
-                  </div>
-
-                  {scopeConfig.requiresDetailedTracking && (
-                    <div style={{ marginBottom: '20px', borderTop: '1px solid #f1f5f9', paddingTop: '15px' }}>
-                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#334155' }}>{t.labelTasks}</label>
-                      {selectedTasks.map((tRow, index) => (
-                        <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                          <select value={tRow} onChange={(e) => handleTaskRowChange(index, e.target.value)} required style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-                            <option value="">{t.selectTaskPlaceholder}</option>
-                            {currentTasks.map((taskLabel, idx) => (
-                              <option key={idx} value={taskLabel}>{taskLabel}</option>
-                            ))}
-                          </select>
-                          {selectedTasks.length > 1 && (
-                            <button type="button" onClick={() => setSelectedTasks(prev => prev.filter((_, i) => i !== index))} style={{ padding: '10px', backgroundColor: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>✕</button>
-                          )}
-                        </div>
-                      ))}
-                      <button type="button" onClick={() => setSelectedTasks(prev => [...prev, ''])} style={{ padding: '8px 12px', backgroundColor: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', color: '#475569' }}>
-                        {t.btnAddTask}
-                      </button>
-                    </div>
-                  )}
-
-                  <div style={{ marginBottom: '25px' }}>
-                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelNotes}</label>
-                    <textarea value={miscellaneous} onChange={(e) => setMiscellaneous(e.target.value)} rows={3} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
-                  </div>
-
-                  {/* MATERIAL CONSUMPTION MODULE */}
-                  {scopeConfig.requiresDetailedTracking && (
-                    <div style={{ marginBottom: '25px', borderTop: '2px solid #f1f5f9', paddingTop: '20px' }}>
-                      <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#0f172a' }}>📦 {t.matTitle}</h3>
-                      <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', textAlign: isRTL ? 'right' : 'left', minWidth: '300px' }}>
-                          <thead>
-                            <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b' }}>
-                              <th style={{ padding: '10px 6px' }}>{t.matName}</th>
-                              <th style={{ padding: '10px 6px', textAlign: 'center', width: '100px' }}>{t.matOrdered}</th>
-                              <th style={{ padding: '10px 6px', textAlign: 'center', width: '100px' }}>{t.matReturned}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {materialRows.map((row, idx) => (
-                              <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                <td style={{ padding: '12px 6px' }}>
-                                  <div style={{ fontWeight: 'bold', color: '#334155' }}>{row.name}</div>
-                                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{row.specification}</div>
-                                </td>
-                                <td style={{ padding: '12px 6px', textAlign: 'center' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', flexDirection: 'row' }}>
-                                    <button type="button" onClick={() => adjustMaterial(idx, 'ordered', -1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
-                                    <span style={{ minWidth: '20px', fontWeight: 'bold', color: '#0f172a' }}>{row.ordered}</span>
-                                    <button type="button" onClick={() => adjustMaterial(idx, 'ordered', 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
-                                  </div>
-                                </td>
-                                <td style={{ padding: '12px 6px', textAlign: 'center' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', flexDirection: 'row' }}>
-                                    <button type="button" onClick={() => adjustMaterial(idx, 'returned', -1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
-                                    <span style={{ minWidth: '20px', fontWeight: 'bold', color: '#0f172a' }}>{row.returned}</span>
-                                    <button type="button" onClick={() => adjustMaterial(idx, 'returned', 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-
-                  <button type="submit" style={{ width: '100%', padding: '14px', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
-                    🚀 {t.btnSubmit}
-                  </button>
+              {showSuccess && (
+                <div style={{ padding: '16px', backgroundColor: '#bbf7d0', color: '#15803d', borderRadius: '6px', marginBottom: '20px', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                  ✓ {t.successMessage}
                 </div>
+              )}
+
+              <form onSubmit={handleSubmitLog} style={{ display: 'grid', gap: '20px' }}>
+                
+                {/* Meta block grid card */}
+                <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelCustomer} *</label>
+                    <select value={selectedCustomer} onChange={(e) => setSelectedCustomer(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.95rem' }}>
+                      <option value="">{t.selectCustomerPlaceholder}</option>
+                      {customerListMatrix.map((cust, i) => <option key={i} value={cust}>{cust}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelDate}</label>
+                    <input type="date" value={workDate} onChange={(e) => setWorkDate(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.95rem' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelStart}</label>
+                    <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.95rem' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelEnd}</label>
+                    <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.95rem' }} />
+                  </div>
+                </div>
+
+                {/* Operations checklists blocks */}
+                <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#1e293b', borderBottom: '2px solid #f1f5f9', paddingBottom: '8px' }}>{t.sectionTasks}</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {tasksList.map(item => (
+<label key={item.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', padding: '6px', borderRadius: '4px' }}>
+                        <input type="checkbox" checked={item.checked} onChange={() => toggleTaskCheckboxElement(item.id)} style={{ marginTop: '4px', width: '18px', height: '18px' }} />
+                        <span style={{ fontSize: '0.95rem', color: '#334155', lineHeight: '1.4' }}>
+                          {language === 'en' ? item.labelEn : item.labelDe}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Materials management layout panels matrix container */}
+                <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflowX: 'auto' }}>
+                  <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#1e293b', borderBottom: '2px solid #f1f5f9', paddingBottom: '8px' }}>{t.sectionMaterials}</h3>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: isRTL ? 'right' : 'left', minWidth: '500px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#475569', fontSize: '0.85rem' }}>
+                        <th style={{ padding: '10px 6px' }}>{t.matNameHeader}</th>
+                        <th style={{ padding: '10px 6px' }}>{t.matSpecHeader}</th>
+                        <th style={{ padding: '10px 6px', width: '100px' }}>{t.matOrderedHeader}</th>
+                        <th style={{ padding: '10px 6px', width: '100px' }}>{t.matReturnedHeader}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {materialsRows.map((row, idx) => (
+                        <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9', fontSize: '0.9rem', color: '#334155' }}>
+                          <td style={{ padding: '10px 6px', fontWeight: 'bold' }}>{row.name}</td>
+                          <td style={{ padding: '10px 6px', color: '#64748b', fontSize: '0.8rem' }}>{row.specification}</td>
+                          <td style={{ padding: '10px 6px' }}>
+                            <input type="number" min="0" value={row.ordered || ''} placeholder="0" onChange={(e) => handleMaterialCountMutation(idx, 'ordered', e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '4px', border: '1px solid #cbd5e1', textAlign: 'center' }} />
+                          </td>
+                          <td style={{ padding: '10px 6px' }}>
+                            <input type="number" min="0" value={row.returned || ''} placeholder="0" onChange={(e) => handleMaterialCountMutation(idx, 'returned', e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '4px', border: '1px solid #cbd5e1', textAlign: 'center' }} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Additional remarks and notes panel logs */}
+                <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#334155' }}>{t.labelNotes}</label>
+                  <textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="..." style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.95rem', fontFamily: 'sans-serif', boxSizing: 'border-box' }} />
+                </div>
+
+                <button type="submit" style={{ width: '100%', padding: '16px', borderRadius: '8px', border: 'none', backgroundColor: '#0284c7', color: '#fff', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(2,132,199,0.15)' }}>
+                  💾 {t.submitBtn}
+                </button>
+
               </form>
             </div>
           )}
 
-          {/* VIEWPORT 2: DAILY LOGS AND RECORDS PANEL */}
+          {/* VIEWPORT 2: DATA LOG PREVIEWS */}
           {activeTab === 'records' && (
-            <div>
-              <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerRecords}</h2>
+            <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+              <h2 style={{ marginBottom: '20px', color: '#0f172a' }}>{t.headerRecords}</h2>
+
+              {/* Administrative analytical filtering systems row */}
               {userRole === 'admin' && (
-                <div style={{ padding: '10px 15px', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '6px', marginBottom: '20px', fontSize: '0.85rem', fontWeight: 'bold' }}>
-                  🛡️ {t.adminNotice}
-                </div>
-              )}
-              {filteredRecords.length === 0 ? (
-                <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '8px', textAlign: 'center', color: '#64748b' }}>{t.noRecords}</div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  {filteredRecords.map((rec) => (
-                    <div key={rec.id} style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', borderLeft: isRTL ? 'none' : '4px solid #3b82f6', borderRight: isRTL ? '4px solid #3b82f6' : 'none' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px', marginBottom: '15px', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                        <div>
-                          <strong style={{ fontSize: '1.1rem', color: '#0f172a' }}>{rec.customer}</strong>
-                          <span style={{ marginLeft: isRTL ? '0' : '15px', marginRight: isRTL ? '15px' : '0', color: '#64748b', fontSize: '0.9rem' }}>📅 {rec.date}</span>
-                        </div>
-                        <div style={{ fontSize: '0.9rem', color: '#334155' }}>
-                          ⏱ <strong>{rec.startTime} - {rec.endTime}</strong> ({calculateHours(rec.startTime, rec.endTime)} {t.thHours})
-                          {userRole === 'admin' && (
-                            <button onClick={() => setAllRecords(prev => prev.filter(r => r.id !== rec.id))} style={{ marginLeft: isRTL ? '0' : '15px', marginRight: isRTL ? '15px' : '0', padding: '4px 8px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}>
-                              Löschen
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div style={{ marginBottom: '10px' }}>
-                        <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block', fontWeight: 'bold' }}>{t.thEmployee}:</span>
-                        <span style={{ fontSize: '0.95rem', color: '#1e293b' }}>{rec.employee}</span>
-                      </div>
-
-                      {rec.tasks && rec.tasks.length > 0 && (
-                        <div style={{ marginBottom: '10px' }}>
-                          <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block', fontWeight: 'bold' }}>{t.labelTasks}:</span>
-                          <ul style={{ margin: '5px 0 0 0', paddingLeft: isRTL ? '0' : '20px', paddingRight: isRTL ? '20px' : '0', fontSize: '0.95rem', color: '#1e293b' }}>
-                            {rec.tasks.map((tsk, i) => <li key={i}>{tsk}</li>)}
-                          </ul>
-                        </div>
-                      )}
-
-                      {rec.materials && rec.materials.length > 0 && (
-                        <div>
-                          <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block', fontWeight: 'bold' }}>{t.matTitle}:</span>
-                          <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginTop: '5px' }}>
-                            {rec.materials.map((mat, i) => (
-                              <span key={i} style={{ backgroundColor: '#f1f5f9', padding: '4px 10px', borderRadius: '4px', fontSize: '0.85rem', color: '#334155' }}>
-                                📦 <strong>{mat.name}</strong> ({t.matOrdered}: {mat.ordered} | {t.matReturned}: {mat.returned})
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {rec.notes && (
-                        <div style={{ marginTop: '10px', fontStyle: 'italic', color: '#475569', fontSize: '0.9rem', backgroundColor: '#f8fafc', padding: '8px', borderRadius: '4px' }}>
-                          {t.labelNotes}: {rec.notes}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* VIEWPORT 3: MONTHLY CONSOLIDATED WORKED HOURS */}
-          {activeTab === 'monthly' && (
-            <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerMonthly}</h2>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: isRTL ? 'right' : 'left' }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b' }}>
-                    <th style={{ padding: '12px' }}>{t.thEmployee}</th>
-                    <th style={{ padding: '12px' }}>{t.thHours}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {userRole === 'admin' ? (
-                    Object.entries(
-                      allRecords.reduce((acc, r) => {
-                        const hrs = parseFloat(calculateHours(r.startTime, r.endTime));
-                        acc[r.employee] = (acc[r.employee] || 0) + hrs;
-                        return acc;
-                      }, {} as Record<string, number>)
-                    ).map(([emp, hrs], i) => (
-                      <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '12px', fontWeight: 'bold', color: '#334155' }}>{emp}</td>
-                        <td style={{ padding: '12px', color: '#10b981', fontWeight: 'bold' }}>{hrs.toFixed(2)} {t.thHours}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '12px', fontWeight: 'bold', color: '#334155' }}>{username}</td>
-                      <td style={{ padding: '12px', color: '#10b981', fontWeight: 'bold' }}>
-                        {filteredRecords.reduce((sum, r) => sum + parseFloat(calculateHours(r.startTime, r.endTime)), 0).toFixed(2)} {t.thHours}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* VIEWPORT 4: ADMIN ONLY PROFILE ADDITION MODULE */}
-          {activeTab === 'users' && userRole === 'admin' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', alignItems: 'start' }}>
-              
-              <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerUsers}</h2>
-                
-                {userSuccessStatus && (
-                  <div style={{ padding: '12px', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '6px', marginBottom: '20px', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                    ✓ {userSuccessStatus}
-                  </div>
-                )}
-
-                <form onSubmit={handleCreateUser}>
-                  <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.lblNewUser}</label>
-                    <input type="text" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} required placeholder="e.g. m.schmidt" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-                  </div>
-
-                  <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.lblNewPass}</label>
-                    <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required placeholder="••••••••" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-                  </div>
-
-                  <div style={{ marginBottom: '25px' }}>
-                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.lblNewBiz}</label>
-                    <select value={newBusinessScope} onChange={(e) => setNewBusinessScope(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-                      {Object.entries(BUSINESS_DATA).map(([id, cfg]) => (
-                        <option key={id} value={id}>{cfg.label}</option>
-                      ))}
+                <div style={{ backgroundColor: '#fff', padding: '15px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: '20px', display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                  <div style={{ flex: 1, minWidth: '200px' }}>
+                    <select value={filterEmployee} onChange={(e) => setFilterEmployee(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                      <option value="">👤 {t.filterAllEmployees}</option>
+                      {distinctiveEmployeeStrings.map((emp, i) => <option key={i} value={emp}>{emp}</option>)}
                     </select>
                   </div>
+                  <div style={{ flex: 1, minWidth: '200px' }}>
+                    <select value={filterCustomer} onChange={(e) => setFilterCustomer(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                      <option value="">🏢 {t.filterAllCustomers}</option>
+                      {customerListMatrix.map((cust, i) => <option key={i} value={cust}>{cust}</option>)}
+                    </select>
+                  </div>
+                </div>
+              )}
 
-                  <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', boxShadow: '0 2px 4px rgba(59,130,246,0.2)' }}>
-                    ➕ {t.btnCreateUser}
+              {loadingRecords ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: '#64748b', fontSize: '1.1rem' }}>Loading rows from database...</div>
+              ) : viewableRecords.length === 0 ? (
+                <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '8px', textAlign: 'center', color: '#64748b', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  {t.noRecords}
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {viewableRecords.map((rec) => {
+			const hoursVal = calculateHoursMetricDifference(rec.startTime, rec.endTime);
+                    return (
+                      <div key={rec.id} style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', borderLeft: '4px solid #0284c7' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px', marginBottom: '12px' }}>
+                          <div>
+                            <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#1e293b' }}>{rec.customer}</span>
+                            <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '2px' }}>{t.columnEmployee}: <strong>{rec.employee}</strong> | ID: {rec.id}</div>
+                          </div>
+                          <div style={{ textAlign: isRTL ? 'left' : 'right' }}>
+                            <span style={{ padding: '4px 8px', backgroundColor: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold', color: '#334155' }}>📅 {rec.date}</span>
+				<div style={{ marginTop: '6px', fontSize: '0.9rem', fontWeight: 'bold', color: '#0369a1' }}>🕒 {rec.startTime} - {rec.endTime} ({hoursVal}h)</div>
+                          </div>
+                        </div>
+
+                        {rec.tasks && rec.tasks.length > 0 && (
+                          <div style={{ marginBottom: '12px' }}>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>{t.columnTasks}:</div>
+                            <ul style={{ margin: 0, paddingLeft: isRTL ? '0' : '20px', paddingRight: isRTL ? '20px' : '0', fontSize: '0.9rem', color: '#334155' }}>
+                              {rec.tasks.map((tsk, i) => <li key={i} style={{ marginBottom: '2px' }}>{tsk}</li>)}
+                            </ul>
+                          </div>
+                        )}
+
+                        {rec.materials && rec.materials.length > 0 && (
+                          <div style={{ marginBottom: '12px', backgroundColor: '#f8fafc', padding: '10px', borderRadius: '6px' }}>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>{t.columnMaterials}:</div>
+                            <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', fontSize: '0.85rem' }}>
+                              {rec.materials.map((mat, i) => (
+                                <div key={i} style={{ backgroundColor: '#fff', padding: '4px 8px', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
+                                  <strong>{mat.name}</strong>: {t.matOrderedHeader} ({mat.ordered}) | {t.matReturnedHeader} ({mat.returned})
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {rec.notes && (
+				<div style={{ fontSize: '0.9rem', color: '#475569', fontStyle: 'italic', backgroundColor: '#fffbf2', padding: '10px', borderRadius: '6px', borderLeft: '3px solid #f59e0b' }}>
+                            <strong>{t.columnNotes}:</strong> {rec.notes}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* VIEWPORT 3: MONTHLY ACCUMULATED RECORDS */}
+          {activeTab === 'monthly' && (
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+              <h2 style={{ marginBottom: '20px', color: '#0f172a' }}>{t.headerMonthly}</h2>
+              
+              <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', textAlign: 'center' }}>
+                <div style={{ fontSize: '1.2rem', color: '#475569', marginBottom: '10px' }}>{t.totalHours}</div>
+                <div style={{ fontSize: '3.5rem', fontWeight: 'bold', color: '#0284c7' }}>{calculateTotalFilteredHours()} <span style={{ fontSize: '1.5rem', color: '#64748b' }}>Std</span></div>
+                
+                {userRole === 'admin' && (filterEmployee || filterCustomer) && (
+                  <div style={{ marginTop: '15px', fontSize: '0.9rem', color: '#64748b', backgroundColor: '#f1f5f9', padding: '8px', borderRadius: '4px', display: 'inline-block' }}>
+                    Filtered Parameters active metrics summary logic channels.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* VIEWPORT 4: MANAGE USER ACCOUNTS */}
+          {activeTab === 'users' && userRole === 'admin' && (
+            <div style={{ maxWidth: '900px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              
+              <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <h3 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerUsers}</h3>
+                <form onSubmit={handleCreateUserAccount} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.placeholderUsername}</label>
+                    <input type="text" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.placeholderPassword}</label>
+                    <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelRole}</label>
+                    <select value={newRole} onChange={(e) => setNewRole(e.target.value as any)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                      <option value="employee">Employee / Reinigungskraft</option>
+                      <option value="admin">Administrator / Manager</option>
+                      <option value="customer">Client Viewer</option>
+                    </select>
+                  </div>
+                  <button type="submit" style={{ padding: '12px', backgroundColor: '#0f172a', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', marginTop: '5px' }}>
+                    {t.btnCreateUser}
                   </button>
                 </form>
               </div>
 
               <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#0f172a', borderBottom: '2px solid #f1f5f9', paddingBottom: '10px' }}>👥 {t.existingUsersTitle}</h3>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', textAlign: isRTL ? 'right' : 'left' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b' }}>
-                      <th style={{ padding: '10px 6px' }}>{t.lblNewUser}</th>
-                      <th style={{ padding: '10px 6px' }}>{t.thRole}</th>
-                      <th style={{ padding: '10px 6px' }}>{t.thBiz}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {systemUsers.map((u) => (
-                      <tr key={u.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '10px 6px', fontWeight: 'bold', color: '#1e293b' }}>{u.username}</td>
-                        <td style={{ padding: '10px 6px' }}>
-                          <span style={{ padding: '3px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: u.role === 'admin' ? '#fee2e2' : '#d1fae5', color: u.role === 'admin' ? '#ef4444' : '#065f46' }}>
-                            {u.role}
-                          </span>
-                        </td>
-                        <td style={{ padding: '10px 6px', color: '#475569' }}>
-                          {BUSINESS_DATA[u.businessId]?.label || u.businessId}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#0f172a' }}>{t.navUsers} Log</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {systemUsers.map(u => (
+                    <div key={u.id} style={{ padding: '12px', backgroundColor: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <strong>{u.username}</strong>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>ID: {u.id} | No: {u.businessId}</div>
+                      </div>
+                      <span style={{ padding: '2px 6px', backgroundColor: '#e2e8f0', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', color: '#334155' }}>{u.role}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
             </div>
@@ -768,7 +651,8 @@ style={{ width: '280px', padding: '20px 0', borderRight: '1px solid #334155', he
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', maxWidth: '500px' }}>
               <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerSettings}</h2>
               <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', color: '#334155' }}>{t.langLabel}</label>
-              <select value={language} onChange={(e) => setLanguage(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', fontWeight: 'bold', color: '#1e293b' }}>
+
+		<select value={language} onChange={(e) => setLanguage(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', fontWeight: 'bold', color: '#1e293b' }}>
                 <option value="de">Deutsch (Deutschland)</option>
                 <option value="at">Deutsch (Österreich)</option>
                 <option value="en">English</option>
@@ -778,9 +662,8 @@ style={{ width: '280px', padding: '20px 0', borderRight: '1px solid #334155', he
                 <option value="it">Italiano</option>
                 <option value="uk">Українська</option>
                 <option value="hi">हिन्दी (India)</option>
-                <option value="ar">العربية</option>
-                <option value="ru">Русский</option>
               </select>
+
             </div>
           )}
 
