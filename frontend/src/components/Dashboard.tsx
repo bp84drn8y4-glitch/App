@@ -292,25 +292,23 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
       
       {/* INJECT DYNAMIC MEDIA QUERY STYLE SPECIFICATIONS DIRECTLY FOR PORTABLE DRAWER SUPPORT */}
       <style>{`
-        @media (max-width: 768px) {
-          .responsive-sidebar {
-            position: fixed !important;
-            top: 0;
-            bottom: 0;
-            left: ${isRTL ? 'auto' : '0'} !important;
-            right: ${isRTL ? '0' : 'auto'} !important;
-            transform: ${isSidebarOpen ? 'translateX(0)' : isRTL ? 'translateX(100%)' : 'translateX(-100%)'} !important;
-            z-index: 9999 !important;
-            transition: transform 0.3s ease-in-out !important;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.2) !important;
-          }
-          .sidebar-close-btn {
-            display: block !important;
-          }
-          .mobile-trigger-header-btn {
-            display: block !important;
-          }
-        }
+	@media (max-width: 768px) {
+  .responsive-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: ${isRTL ? 'auto' : '0'} !important;
+    right: ${isRTL ? '0' : 'auto'} !important;
+    width: 280px !important;
+    height: 100dvh !important; /* Locks it to exact mobile viewport height */
+    z-index: 9999 !important;
+    overflow-y: auto !important; /* Allows internal menu scrolling if long */
+    overflow-x: hidden !important; /* Prevents side-to-side floating */
+    transform: ${isSidebarOpen ? 'translateX(0)' : isRTL ? 'translateX(100%)' : 'translateX(-100%)'} !important;
+    transition: transform 0.3s ease-in-out !important;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.2) !important;
+  }
+}
       `}</style>
 
       {/* SIDEBAR NAVIGATION MENU */}
