@@ -310,9 +310,25 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
           box-shadow: 4px 0 15px rgba(0,0,0,0.2) !important;
           background-color: #ffffff !important;
         }
-        .sidebar-close-btn {
+
+	.sidebar-close-btn {
           display: block !important;
+          position: absolute !important;
+          top: 16px !important;
+          right: 16px !important;
+          background: #f1f5f9 !important;
+          border: none !important;
+          border-radius: 50% !important;
+          width: 36px !important;
+          height: 36px !important;
+          cursor: pointer !important;
+          font-size: 16px !important;
+          font-weight: bold !important;
+          color: #334155 !important;
+          z-index: 10001 !important;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
         }
+
         .mobile-trigger-header-btn {
           display: block !important;
         }
