@@ -70,13 +70,13 @@ const translations: Record<string, any> = {
     biz_fuerst_materials: [{n:'Sacchi spazzatura grandi',s:'120 L'},{n:'Sacchi spazzatura medi',s:'60 L'},{n:'Sacchi spazzatura piccoli',s:'28 L'},{n:'Mocio in microfibra',s:'50 cm'},{n:'Mocio in cotone',s:'50 cm'},{n:'Panno in microfibra rosso',s:'40 x 40 cm'},{n:'Panno in microfibra blu',s:'40 x 40 cm'},{n:'Panno in microfibra verde',s:'40 x 40 cm'},{n:'Panno in microfibra giallo',s:'40 x 40 cm'},{n:'Asciugamani da cucina',s:'70 x 50 cm'},{n:'Detergente sanitario Milizid',s:'Flacone spray'},{n:'Detergente pavimenti Torrun',s:'Concentrato'},{n:'Detergente per superfici',s:'Pronto all\'uso'},{n:'Carta igienica',s:'A strati'},{n:'Asciugamani di carta piegati',s:'Carta'},{n:'Sapone per le mani',s:'Tanica da 10 litri'}],
     biz_bullauge_customers: ['Filiale Münchner Str.', 'Espresso Stazione Centrale', 'Salone del quartiere universitario'],
     biz_bullauge_tasks: ['Pulizia profonda lavatrici', 'Riconciliazione cassa', 'Svuotamento filtri lanugine', 'Lavaggio e disinfezione pavimenti', 'Cura della lavanderia e stiratura'],
-    biz_bullauge_materials: [{n:'Pellicola trasparente rotoli',s:'Standard'},{n:'Appretto spray',s:'Flacone spray'},{n:'Cloro candeggina',s:'Agente sbiancante'},{n:'Detersivo in polvere',s:'20 kg'},{n:'Ammorbidente',s:'20 L'},{n:'Materiali di consumo vari',s:'Consumo'}]
+    biz_bullauge_materials: [{n:'Pellicola trasparente rotoli',s:'Standard'},{n:'Appretto spray',s:'Flacone spray'},{n:'Cloro candeggina',s:'Agente sbiancante'},{n:'Detersivo in polvere',s:'20 kg'},{n:'Ammorbendente',s:'20 L'},{n:'Materiali di consumo vari',s:'Consumo'}]
   },
   fr: {
     dashboardTitle: 'Espace de travail', backBtn: '← Retour au portail', logoutBtn: 'Déconnexion', userLabel: 'Utilisateur', navEntry: 'Saisie de Données', navRecords: 'Journal Journalier', navMonthly: 'Heures Mensuelles', navUsers: 'Gérer le Personnel', navSettings: 'Paramètres', headerData: 'Saisir Heures & Matériaux', headerRecords: 'Mes Rapports Journaliers', headerMonthly: 'Heures Travaillées Mensuelles', headerUsers: 'Créer un Profil Employé', headerSettings: 'Paramètres Système', labelCustomer: 'Client / Objet', labelDate: 'Date', labelStart: 'Heure de Début', labelEnd: 'Heure de Fin', labelTasks: 'Tâches Exécutées', labelNotes: 'Notes / Divers', btnAddTask: '+ Ajouter une Ligne de Tâche', btnSubmit: 'Soumettre l\'Entrée', matTitle: 'Suivi des Matériaux', matName: 'Nom du Matériau', matOrdered: 'Emporté', matReturned: 'Retourné', successMsg: 'Données enregistrées avec succès ! Le rapport est verrouillé.', adminNotice: 'Mode Admin : Droits de modification et de suppression accordés.', thEmployee: 'Employé', thHours: 'Heures', langLabel: 'Choisir la Langue', noRecords: 'Aucun enregistrement trouvé pour cette période.', noTrackingRequired: 'Aucune liste de matériel ou de tâches dédiée n\'est requise pour cette unité. Veuillez saisir vos heures et notes ci-dessous.', lblNewUser: 'Nom d\'utilisateur', lblNewPass: 'Mot de passe', lblNewBiz: 'Unité Commerciale Assignée', btnCreateUser: 'Créer le Profil', userCreatedMsg: 'Profil employé créé avec succès !', thRole: 'Rôle', thBiz: 'Secteur d\'Activité', existingUsersTitle: 'Profils Utilisateurs Actifs', selectTaskPlaceholder: '-- Choisir une Tâche --',
     biz_fuerst_customers: ['Edeka Pocking Filiale', 'Zone commerciale Pleiskirchen', 'Mairie d\'Altötting', 'Clinique de Burghausen'],
     biz_fuerst_tasks: ['Nettoyage extérieur des vitrines et portes d\'entrée', 'Nettoyage intérieur des vitrines et portes d\'entrée', 'Nettoyage double face des surfaces vitrées - zone de vente', 'Nettoyage double face des surfaces vitrées - zone du personnel', 'Nettoyage intérieur des vitrines pour les dates de décoration avec déplacement', 'Nettoyage intérieur des vitrines pour la décoration combiné avec le nettoyage régulier', 'Nettoyage des miroirs', 'Prestations spéciales et divers'],
-    biz_fuerst_materials: [{n:'Sacs poubelle grands',s:'120 L'},{n:'Sacs poubelle moyens',s:'60 L'},{n:'Sacs poubelle petits',s:'28 L'},{n:'Frange microfibre',s:'50 cm'},{n:'Frange coton',s:'50 cm'},{n:'Chiffon microfibre rouge',s:'40 x 40 cm'},{n:'Chiffon microfibre bleu',s:'40 x 40 cm'},{n:'Chiffon microfibre vert',s:'40 x 40 cm'},{n:'Chiffon microfibre jaune',s:'40 x 40 cm'},{n:'Torchons à vaisselle',s:'70 x 50 cm'},{n:'Nettoyant sanitaire Milizid',s:'Flacon spray'},{n:'Nettoyant pour sols Torrun',s:'Concentré'},{n:'Nettoyant pour surfaces',s:'Prêt à l\'emploi'},{n:'Papier toilette',s:'En couches'},{n:'Essuie-mains en papier pliés',s:'Papier'},{n:'Savon pour les mains',s:'Bidon de 10 litres'}],
+    biz_fuerst_materials: [{n:'Sacs poubelle grands',s:'120 L'},{n:'Sacs poubelle moyens',s:'60 L'},{n:'Sacs poubelle petits',s:'28 L'},{n:'Frange microfibre',s:'50 cm'},{n:'Frange coton',s:'50 cm'},{n:'Chiffon microfibre rouge',s:'40 x 40 cm'},{n:'Chiffon microfibre bleu',s:'40 x 40 cm'},{n:'Chiffon microfibre vert',s:'40 x 40 cm'},{n:'Chiffon microfibre jaune',s:'40 x 40 cm'},{n:'Torchons à vaisselle',s:'70 x 50 cm'},{n:'Nettoyant sanitaire Milizid',s:'Flacon spray'},{n:'Nettoyant pour sols Torrun',s:'Concentrate'},{n:'Nettoyant pour surfaces',s:'Prêt à l\'emploi'},{n:'Papier toilette',s:'En couches'},{n:'Essuie-mains en papier pliés',s:'Papier'},{n:'Savon pour les mains',s:'Bidon de 10 litres'}],
     biz_bullauge_customers: ['Filiale Münchner Str.', 'Gare centrale Express', 'Salon du quartier universitaire'],
     biz_bullauge_tasks: ['Nettoyage en profondeur des machines', 'Clôture de caisse', 'Vidage des filtres à peluches', 'Lavage et désinfection des sols', 'Entretien du linge et repassage'],
     biz_bullauge_materials: [{n:'Film étirable manuel rotatifs',s:'Standard'},{n:'Amidon en spray',s:'Flacon spray'},{n:'Chlore javellisant',s:'Agent de blanchiment'},{n:'Lessive en poudre',s:'20 kg'},{n:'Adoucissant text.',s:'20 L'},{n:'Consommables divers',s:'Consommation'}]
@@ -105,8 +105,8 @@ const translations: Record<string, any> = {
     biz_fuerst_tasks: ['Зовнішнє миття вітрин та вхідних дверей', 'Внутрішнє миття вітрин та вхідних дверей', 'Двостороннє очищення скляних поверхонь у торговій зоні', 'Двостороннє очищення скляних поверхонь у зоні для персоналу', 'Додаткове внутрішнє миття вітрин перед оформленням з виїздом', 'Додаткове внутрішнє миття вітрин перед оформленням разом із регулярним прибиранням', 'Очищення дзеркал', 'Спеціальні послуги та інше'],
     biz_fuerst_materials: [{n:'Мішки для сміття великі',s:'120 л'},{n:'Мішки для сміття середні',s:'60 л'},{n:'Мішки для сміття малі',s:'28 л'},{n:'Швабра з мікрофібри',s:'50 см'},{n:'Швабра з бавовни',s:'50 см'},{n:'Серветка з мікрофібри червона',s:'40 х 40 см'},{n:'Серветка з мікрофібри синя',s:'40 х 40 см'},{n:'Серветка з мікрофібри зелена',s:'40 х 40 см'},{n:'Серветка з мікрофібри жовта',s:'40 х 40 см'},{n:'Кухонні рушники',s:'70 х 50 см'},{n:'Засіб для санвузлів Milizid',s:'Розпилювач'},{n:'Засіб для підлоги Torrun',s:'Концентрат'},{n:'Засіб для поверхонь',s:'Готовий до використання'},{n:'Туалетний папір',s:'Рулонний'},{n:'Паперові рушники складені',s:'Папір'},{n:'Рідке мило для рук',s:'Каністра 10 л'}],
     biz_bullauge_customers: ['Філія на Münchner Str.', 'Експрес Головний вокзал', 'Салон в університетському кварталі'],
-    biz_bullauge_tasks: ['Глибоке очищення пральних машин', 'Зведення каси', 'Очищення фільтрів від ворсу', 'Миття та дезінфекція підлоги', 'Догляд за білизною та прасування'],
-    biz_bullauge_materials: [{n:'Стретч-плівка ручна',s:'Стандарт'},{n:'Крохмаль-спрей',s:'Розпилювач'},{n:'Хлорний відбілювач',s:'Рідина'},{n:'Пральний порошок',s:'20 кг'},{n:'Кондиціонер для білизни',s:'20 л'},{n:'Інші витратні матеріали',s:'Витратні матеріали'}]
+    biz_bullauge_tasks: ['Глубоке очищення пральних машин', 'Зведення каси', 'Очищення фільтрів від ворсу', 'Миття та дезінфекція підлоги', 'Догляд за білизною та прасування'],
+    biz_bullauge_materials: [{n:'Стретч-плівка ручна',s:'Standard'},{n:'Крохмаль-спрей',s:'Розпилювач'},{n:'Хлорний відбілювач',s:'Рідина'},{n:'Пральний порошок',s:'20 кг'},{n:'Кондиціонер для білизни',s:'20 л'},{n:'Інші витратні матеріали',s:'Витратні матеріали'}]
   },
   hi: {
     dashboardTitle: 'कार्यक्षेत्र', backBtn: '← पोर्टल पर वापस जाएं', logoutBtn: 'लॉगआउट', userLabel: 'उपयोगकर्ता', navEntry: 'डेटा प्रविष्टि', navRecords: 'दैनिक लॉग', navMonthly: 'मासिक घंटे', navUsers: 'कर्मचारी प्रबंधन', navSettings: 'सेटिंग्स', headerData: 'समय और सामग्री दर्ज करें', headerRecords: 'मेरे दैनिक रिकॉर्ड', headerMonthly: 'मासिक कार्य के घंटे', headerUsers: 'नया कर्मचारी प्रोफाइल बनाएं', headerSettings: 'सिस्टम सेटिंग्स', labelCustomer: 'ग्राहक / ऑब्जेक्ट', labelDate: 'तारीख', labelStart: 'शुरू होने का समय', labelEnd: 'समाप्ति का समय', labelTasks: 'किए गए कार्य', labelNotes: 'विविध / नोट्स', btnAddTask: '+ कार्य पंक्ति जोड़ें', btnSubmit: 'रिकॉर्ड जमा करें', matTitle: 'सामग्री ट्रैकिंग', matName: 'सामग्री का नाम', matOrdered: 'लिया गया', matReturned: 'वापस किया', successMsg: 'डेटा सफलतापूर्वक दर्ज किया गया! रिकॉर्ड लॉक है।', adminNotice: 'एडमिन मोड: संपादन और हटाने के अधिकार दिए गए हैं।', thEmployee: 'कर्मचारी', thHours: 'घंटे', langLabel: 'भाषा चुनें', noRecords: 'इस कार्यक्षेत्र के लिए कोई रिकॉर्ड नहीं मिला।', noTrackingRequired: 'इस व्यावसायिक इकाई के लिए किसी समर्पित सामग्री या कार्य सूची की आवश्यकता नहीं है। कृपया नीचे अपने कार्य के घंटे और नोट्स दर्ज करें।', lblNewUser: 'यूज़रनेम', lblNewPass: 'पासवर्ड', lblNewBiz: 'सौंपी गई व्यावसायिक इकाई', btnCreateUser: 'प्रोफाइल बनाएं', userCreatedMsg: 'कर्मचारी प्रोफाइल सफलतापूर्वक बनाई गई!', thRole: 'भूमिका', thBiz: 'व्यवसाय का दायरा', existingUsersTitle: 'सक्रिय सिस्टम उपयोगकर्ता प्रोफाइल', selectTaskPlaceholder: '-- कार्य चुनें --',
@@ -132,8 +132,8 @@ const translations: Record<string, any> = {
     biz_fuerst_tasks: ['Наружная мойка витрин и входных дверей', 'Внутренняя мойка витрин и входных дверей', 'Двусторонняя очистка стеклянных поверхностей в торговой зоне', 'Двусторонняя очистка стеклянных поверхностей в зоне для персонала', 'Дополнительная внутренняя мойка витрин перед оформлением с выездом', 'Дополнительная внутренняя мойка витрин перед оформлением вместе с регулярной уборкой', 'Очистка зеркал', 'Специальные услуги и прочее'],
     biz_fuerst_materials: [{n:'Мешки для мусора большие',s:'120 л'},{n:'Мешки для мусора средние',s:'60 л'},{n:'Мешки для мусора малые',s:'28 л'},{n:'Швабра из микрофибры',s:'50 см'},{n:'Швабра из хлопка',s:'50 см'},{n:'Салфетка из микрофибры красная',s:'40 х 40 см'},{n:'Салфетка из microfibra синяя',s:'40 х 40 см'},{n:'Салфетка из микрофибры зеленая',s:'40 х 40 см'},{n:'Салфетка из микрофибры желтая',s:'40 х 40 см'},{n:'Кухонные полотенца',s:'70 х 50 см'},{n:'Санитарный очиститель Milizid',s:'Распылитель'},{n:'Очиститель пола Torrun',s:'Концентрат'},{n:'Очиститель поверхностей',s:'Готовый к использованию'},{n:'Туалетная бумага',s:'Рулонная'},{n:'Бумажные полотенца сложенные',s:'Бумага'},{n:'Жидкое мыло для рук',s:'Канистра 10 л'}],
     biz_bullauge_customers: ['Филиал на Münchner Str.', 'Экспресс Главный вокзал', 'Салон в университетском квартале'],
-    biz_bullauge_tasks: ['Глубокая очистка стиральных машин', 'Сведение кассы', 'Очистка фильтров от ворса', 'Мытье и дезинфекция полов', 'Уход за бельем и глажка'],
-    biz_bullauge_materials: [{n:'Стретч-пленка ручная',s:'Стандарт'},{n:'Крахмал-спрей',s:'Распылитель'},{n:'Хлорный отбеливатель',s:'Жидкость'},{n:'Стиральный порошок',s:'20 кг'},{n:'Кондиционер для белья',s:'20 л'},{n:'Прочие расходные материалы',s:'Расходные материалы'}]
+    biz_bullauge_tasks: ['Глубокая очистка стиральных машин', 'Сведение кассы', 'Очистка фильтров от ворсу', 'Мытье и дезинфекция полов', 'Уход за бельем и глажка'],
+    biz_bullauge_materials: [{n:'Стретч-пленка ручная',s:'Стандарт'},{n:'Крахмал-спрей',s:'Розпилювач'},{n:'Хлорний відбілювач',s:'Жикость'},{n:'Стиральный порошок',s:'20 кг'},{n:'Кондиционер для белья',s:'20 л'},{n:'Прочие расходные материалы',s:'Расходные материалы'}]
   }
 };
 
@@ -346,7 +346,8 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
           {activeTab === 'entry' && (
             <div>
               <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>{t.headerData}</h2>
-              <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: scopeConfig.requiresDetailedTracking ? '1fr 1fr' : '1fr', gap: '30px', alignItems: 'start' }}>
+              {/* Refactored layout to use single column grid format to naturally support mobile screen flows */}
+              <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '30px', alignItems: 'start' }}>
                 
                 <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                   
@@ -403,55 +404,57 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
                     </div>
                   )}
 
-                  <div style={{ marginBottom: '20px' }}>
+                  <div style={{ marginBottom: '25px' }}>
                     <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#334155' }}>{t.labelNotes}</label>
                     <textarea value={miscellaneous} onChange={(e) => setMiscellaneous(e.target.value)} rows={3} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
                   </div>
+
+                  {/* MATERIAL CONSUMPTION MODULE - MOVED UNDER THE NOTES TEXTAREA */}
+                  {scopeConfig.requiresDetailedTracking && (
+                    <div style={{ marginBottom: '25px', borderTop: '2px solid #f1f5f9', paddingTop: '20px' }}>
+                      <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#0f172a' }}>📦 {t.matTitle}</h3>
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', textAlign: isRTL ? 'right' : 'left', minWidth: '300px' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b' }}>
+                              <th style={{ padding: '10px 6px' }}>{t.matName}</th>
+                              <th style={{ padding: '10px 6px', textAlign: 'center', width: '100px' }}>{t.matOrdered}</th>
+                              <th style={{ padding: '10px 6px', textAlign: 'center', width: '100px' }}>{t.matReturned}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {materialRows.map((row, idx) => (
+                              <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                <td style={{ padding: '12px 6px' }}>
+                                  <div style={{ fontWeight: 'bold', color: '#334155' }}>{row.name}</div>
+                                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{row.specification}</div>
+                                </td>
+                                <td style={{ padding: '12px 6px', textAlign: 'center' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', flexDirection: 'row' }}>
+                                    <button type="button" onClick={() => adjustMaterial(idx, 'ordered', -1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
+                                    <span style={{ minWidth: '20px', fontWeight: 'bold', color: '#0f172a' }}>{row.ordered}</span>
+                                    <button type="button" onClick={() => adjustMaterial(idx, 'ordered', 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
+                                  </div>
+                                </td>
+                                <td style={{ padding: '12px 6px', textAlign: 'center' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', flexDirection: 'row' }}>
+                                    <button type="button" onClick={() => adjustMaterial(idx, 'returned', -1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
+                                    <span style={{ minWidth: '20px', fontWeight: 'bold', color: '#0f172a' }}>{row.returned}</span>
+                                    <button type="button" onClick={() => adjustMaterial(idx, 'returned', 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
 
                   <button type="submit" style={{ width: '100%', padding: '14px', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
                     🚀 {t.btnSubmit}
                   </button>
                 </div>
-
-                {/* MATERIAL CONSUMPTION ROW MODULE */}
-                {scopeConfig.requiresDetailedTracking && (
-                  <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', maxHeight: '78vh', overflowY: 'auto' }}>
-                    <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#0f172a', borderBottom: '2px solid #f1f5f9', paddingBottom: '10px' }}>📦 {t.matTitle}</h3>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', textAlign: isRTL ? 'right' : 'left' }}>
-                      <thead>
-                        <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b' }}>
-                          <th style={{ padding: '10px 6px' }}>{t.matName}</th>
-                          <th style={{ padding: '10px 6px', textAlign: 'center', width: '100px' }}>{t.matOrdered}</th>
-                          <th style={{ padding: '10px 6px', textAlign: 'center', width: '100px' }}>{t.matReturned}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {materialRows.map((row, idx) => (
-                          <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '12px 6px' }}>
-                              <div style={{ fontWeight: 'bold', color: '#334155' }}>{row.name}</div>
-                              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{row.specification}</div>
-                            </td>
-                            <td style={{ padding: '12px 6px', textAlign: 'center' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', flexDirection: 'row' }}>
-                                <button type="button" onClick={() => adjustMaterial(idx, 'ordered', -1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
-                                <span style={{ minWidth: '20px', fontWeight: 'bold', color: '#0f172a' }}>{row.ordered}</span>
-                                <button type="button" onClick={() => adjustMaterial(idx, 'ordered', 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
-                              </div>
-                            </td>
-                            <td style={{ padding: '12px 6px', textAlign: 'center' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', flexDirection: 'row' }}>
-                                <button type="button" onClick={() => adjustMaterial(idx, 'returned', -1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
-                                <span style={{ minWidth: '20px', fontWeight: 'bold', color: '#0f172a' }}>{row.returned}</span>
-                                <button type="button" onClick={() => adjustMaterial(idx, 'returned', 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
               </form>
             </div>
           )}
