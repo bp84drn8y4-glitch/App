@@ -288,47 +288,61 @@ export function Dashboard({ userRole, username, businessId, onLogout, onBackToPo
   };
 
   return (
-<div style={{ display: 'flex', minHeight: '100dvh', width: '100vw', fontFamily: 'sans-serif', backgroundColor: '#f1f5f9', overflowX: 'hidden', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+<div style={{ display: 'flex', minHeight: '100vh', width: '100%', fontFamily: 'sans-serif', backgroundColor: '#f1f5f9', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
       
       {/* INJECT DYNAMIC MEDIA QUERY STYLE SPECIFICATIONS DIRECTLY FOR PORTABLE DRAWER SUPPORT */}
-      <style>{`
-	@media (max-width: 768px) {
-  /* Lock the drawer to the screen safely */
-  .responsive-sidebar {
-    position: fixed !important;
-    top: 0 !important;
-    bottom: 0 !important;
-    left: ${isRTL ? 'auto' : '0'} !important;
-    right: ${isRTL ? '0' : 'auto'} !important;
-    width: 280px !important;
-    height: 100dvh !important;
-    background-color: #ffffff !important; /* Forces solid background so text won't bleed through */
-    z-index: 10000 !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    transform: ${isSidebarOpen ? 'translateX(0)' : isRTL ? 'translateX(100%)' : 'translateX(-100%)'} !important;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.3) !important;
-  }
 
-  /* Make sure the close button is cleanly visible at the top right inside the drawer */
-  .sidebar-close-btn {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #f1f5f9;
-    border: none;
-    cursor: pointer;
-  }
+<style dangerouslySetInnerHTML={{ __html: `
+      @media (max-width: 768px) {
+        .responsive-sidebar {
+          position: fixed !important;
+          top: 0;
+          bottom: 0;
+          left: ${isRTL ? 'auto' : '0'} !important;
+          right: ${isRTL ? '0' : 'auto'} !important;
+          width: 280px !important;
+          height: 100dvh !important;
+          overflow-y: auto !important;
+          overflow-x: hidden !important;
+          transform: ${isSidebarOpen ? 'translateX(0)' : isRTL ? 'translateX(100%)' : 'translateX(-100%)'} !important;
+          z-index: 10000 !important;
+          transition: transform 0.3s ease-in-out !important;
+          box-shadow: 4px 0 15px rgba(0,0,0,0.2) !important;
+          background-color: #ffffff !important;
+        }
+        .sidebar-close-btn {
+          display: block !important;
+        }
+        .mobile-trigger-header-btn {
+          display: block !important;
+        }
 
-  .mobile-trigger-header-btn {
-    display: block !important;
-  }
-}
-      `}</style>
+        /* --- STEP 3 PASTE HERE --- */
+        /* Forces grids and side-by-side forms to stack vertically on phones */
+        form[onSubmit] {
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 16px !important;
+        }
+        form[onSubmit] > div {
+          grid-template-columns: 1fr !important;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 16px !important;
+        }
+        /* Fixes row containers inside forms */
+        div[style*="display: flex"], 
+        div[style*="display:flex"] {
+          flex-direction: column !important;
+        }
+        /* Make sure all inputs fill the full horizontal space cleanly */
+        input, select, textarea, button {
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+        }
+      }
+    `}} />
 
 {/* Backdrop overlay layout block to capture close actions instantly */}
 {isSidebarOpen && (
